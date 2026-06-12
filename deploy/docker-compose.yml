@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: nhiid
+      POSTGRES_PASSWORD: nhiid
+      POSTGRES_DB: nhiid
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U nhiid" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  nats:
+    image: nats:2-alpine
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: --jetstream --max_payload=1G
+    healthcheck:
+      test: [ "CMD", "/nats", "-s", "nats://localhost:4222", "pub", "test", "test" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/docker/api.Dockerfile
+    environment:
+      NHIID_DATABASE_DSN: postgres://nhiid:nhiid@postgres:5432/nhiid?sslmode=disable
+      NHIID_QUEUE_NATS_URL: nats://nats:4222
+      NHIID_CACHE_REDIS_URL: redis://redis:6379/0
+      NHIID_TELEMETRY_LOG_LEVEL: info
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    command: sh -c "go run ./cmd/migrate up && go run ./cmd/api"
+
+  worker:
+    build:
+      context: ..
+      dockerfile: deploy/docker/worker.Dockerfile
+    environment:
+      NHIID_DATABASE_DSN: postgres://nhiid:nhiid@postgres:5432/nhiid?sslmode=disable
+      NHIID_QUEUE_NATS_URL: nats://nats:4222
+      NHIID_CACHE_REDIS_URL: redis://redis:6379/0
+      NHIID_TELEMETRY_LOG_LEVEL: info
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    command: go run ./cmd/worker
+
+  web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    environment:
+      VITE_API_URL: http://localhost:8080/api/v1
+
+volumes:
+  postgres_data:

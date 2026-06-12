@@ -1,0 +1,24 @@
+# Go
+/bin/
+*.exe
+*.test
+*.out
+coverage.*
+
+# Node / web
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Env / secrets — never commit
+.env
+.env.*
+*.pem
+*.key
+*-credentials.json
+serviceaccount*.json
+
+# Local
+.DS_Store
+*.log
+/tmp/

@@ -1,0 +1,39 @@
+# NHIID default configuration. Override any value via env: NHIID_<SECTION>_<KEY> (upper snake).
+# Secrets (db password, tokens) should come from env / secret store, never this file.
+
+server:
+  http_addr: ":8080"
+  metrics_addr: ":9090"
+  read_timeout_seconds: 15
+  write_timeout_seconds: 30
+
+database:
+  # DSN may also be supplied via NHIID_DATABASE_DSN
+  dsn: "postgres://nhiid:nhiid@localhost:5432/nhiid?sslmode=disable"
+  max_conns: 20
+  min_conns: 2
+
+queue:
+  nats_url: "nats://localhost:4222"
+  stream: "nhiid-jobs"
+
+cache:
+  redis_url: "redis://localhost:6379/0"
+
+telemetry:
+  log_level: "info"        # debug|info|warn|error
+  log_format: "json"       # json|text
+  otel_endpoint: ""        # empty disables tracing export
+
+detection:
+  stale_window_days: 90
+  max_cred_age_days: 365
+  max_rotation_age_days: 180
+  impossible_travel_max_kmh: 900
+  usage_spike_sigma: 4
+  anomaly_warmup_events: 50
+  # CIDR allowlist for known egress/VPN to suppress geo/ASN anomalies
+  egress_allowlist: []
+
+risk:
+  weights_file: "configs/risk_weights.yaml"

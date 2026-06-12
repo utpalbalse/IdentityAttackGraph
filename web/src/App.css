@@ -1,0 +1,131 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.header {
+  background: linear-gradient(135deg, #1a1f3a 0%, #2a2f4a 100%);
+  padding: 32px 24px;
+  border-bottom: 2px solid #64b5f6;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.header p {
+  color: #b0bec5;
+  font-size: 14px;
+}
+
+.nav {
+  display: flex;
+  background: #1a1f3a;
+  border-bottom: 1px solid #333;
+  gap: 0;
+}
+
+.nav button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #b0bec5;
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.nav button:hover {
+  background: rgba(100, 181, 246, 0.1);
+  color: #64b5f6;
+}
+
+.nav button.active {
+  color: #64b5f6;
+  border-bottom-color: #64b5f6;
+}
+
+.main {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.main h2 {
+  margin-bottom: 24px;
+  font-size: 20px;
+}
+
+.findings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.finding {
+  padding: 16px;
+  background: #1a1f3a;
+  border-left: 4px solid #ccc;
+  border-radius: 4px;
+}
+
+.finding.severity-critical {
+  border-left-color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.finding.severity-high {
+  border-left-color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.finding.severity-medium {
+  border-left-color: #fbc02d;
+  background: rgba(251, 192, 45, 0.1);
+}
+
+.finding h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.finding p {
+  color: #b0bec5;
+  font-size: 12px;
+}
+
+.detail {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 400px;
+  background: #1a1f3a;
+  border-left: 1px solid #333;
+  padding: 24px;
+  overflow: auto;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.detail button {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .detail {
+    width: 100%;
+  }
+}

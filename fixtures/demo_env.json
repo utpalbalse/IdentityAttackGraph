@@ -1,0 +1,158 @@
+{
+  "identities": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "kind": "aws_iam_user",
+      "name": "svc-billing-export",
+      "arn_or_email": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "provider": "aws",
+      "state": "active",
+      "risk_score": 78,
+      "attributes": {},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "arn:aws:iam::123456789012:user/svc-billing-export",
+        "account_ref": "aws:123456789012"
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "kind": "aws_iam_role",
+      "name": "billing-admin",
+      "arn_or_email": "arn:aws:iam::123456789012:role/billing-admin",
+      "provider": "aws",
+      "state": "active",
+      "risk_score": 62,
+      "attributes": {},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "arn:aws:iam::123456789012:role/billing-admin",
+        "account_ref": "aws:123456789012"
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "kind": "gcp_service_account",
+      "name": "data-processor@project.iam.gserviceaccount.com",
+      "arn_or_email": "data-processor@project.iam.gserviceaccount.com",
+      "provider": "gcp",
+      "state": "active",
+      "risk_score": 55,
+      "attributes": {},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "data-processor@project.iam.gserviceaccount.com",
+        "account_ref": "gcp:my-gcp-project"
+      }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "kind": "aws_iam_user",
+      "name": "svc-orphaned",
+      "arn_or_email": "arn:aws:iam::987654321098:user/svc-orphaned",
+      "provider": "aws",
+      "state": "active",
+      "risk_score": 52,
+      "attributes": {},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "arn:aws:iam::987654321098:user/svc-orphaned",
+        "account_ref": "aws:987654321098"
+      }
+    }
+  ],
+  "credentials": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440011",
+      "identity_id": "550e8400-e29b-41d4-a716-446655440001",
+      "cred_type": "aws_access_key",
+      "external_id": "AKIAIOSFODNN7EXAMPLE",
+      "status": "active",
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440012",
+      "identity_id": "550e8400-e29b-41d4-a716-446655440003",
+      "cred_type": "gcp_sa_key",
+      "external_id": "key-id-12345",
+      "status": "active",
+      "source": "fixture",
+      "account_ref": "gcp:my-gcp-project"
+    }
+  ],
+  "roles": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440021",
+      "provider": "aws",
+      "external_id": "AROA2XVZUQ4Q5EXAMPLE",
+      "account_ref": "aws:123456789012",
+      "name": "billing-admin",
+      "privilege_level": "admin",
+      "is_assumable": true,
+      "permission_count": 180,
+      "wildcard_action_count": 2,
+      "wildcard_resource_count": 1,
+      "source": "fixture",
+      "policy_document": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": "arn:aws:s3:::prod-billing"
+          }
+        ]
+      },
+      "trust_policy": {
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {"AWS": "arn:aws:iam::123456789012:user/svc-billing-export"},
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      }
+    }
+  ],
+  "trust_edges": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440031",
+      "src_identity_id": "550e8400-e29b-41d4-a716-446655440001",
+      "dst_role_id": "550e8400-e29b-41d4-a716-446655440021",
+      "edge_type": "can_assume",
+      "condition": {},
+      "observed": true,
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
+    }
+  ],
+  "resource_bindings": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440041",
+      "role_id": "550e8400-e29b-41d4-a716-446655440021",
+      "resource_urn": "arn:aws:s3:::prod-billing",
+      "resource_kind": "s3_bucket",
+      "resource_criticality": "crown_jewel",
+      "actions": ["s3:*"],
+      "effect": "allow",
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
+    }
+  ],
+  "usage_events": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440051",
+      "identity_id": "550e8400-e29b-41d4-a716-446655440001",
+      "event_time": "2025-06-10T14:30:00Z",
+      "event_name": "DescribeInstances",
+      "event_source": "ec2",
+      "src_ip": "192.0.2.1",
+      "src_asn": 15169,
+      "src_region": "us-east-1",
+      "src_country": "US",
+      "mfa_used": false,
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
+    }
+  ]
+}

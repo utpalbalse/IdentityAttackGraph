@@ -1,0 +1,66 @@
+# Risk composite weights (must sum to ~1.0) and per-factor signal points.
+# Hot-reloadable; changes are audited and snapshot-pinned. See docs/RISK_MODEL.md.
+
+weights:
+  privilege:    0.22
+  blast_radius: 0.22
+  exposure:     0.20
+  trust:        0.14
+  usage:        0.12
+  freshness:    0.10
+
+severity_bands:   # lower bound -> label
+  low:      0
+  medium:   25
+  high:     50
+  critical: 75
+
+# Signal points are additive within a factor, then the factor is clamped to [0,100].
+signals:
+  privilege:
+    admin_or_star:          60
+    wildcard_action:        8     # per match, capped below
+    wildcard_action_cap:    24
+    wildcard_resource:      6
+    wildcard_resource_cap:  18
+    priv_escalation_action: 20
+    privilege_creep_p90:    15
+    write_crown_jewel:      20
+  exposure:
+    public_repo:            80
+    private_repo_or_ci:     45
+    verified_live:          20
+    static_key_no_expiry:   20
+    rotation_disabled:      15
+    cred_over_max_age:      10
+  freshness:
+    unused_stale_window:    40
+    never_used_aged:        30
+    not_rotated:            25
+    rotation_unmanaged:     15
+  usage:
+    impossible_travel:      35
+    new_region:             20
+    new_asn_or_runtime:     15
+    usage_spike:            20
+    first_use_sensitive:    25
+    offhours_burst:         10
+  trust:
+    conditionless_assume:   40
+    cross_account:          20
+    wildcard_external:      30
+    chain_depth_2plus:      15
+    can_mint_or_impersonate: 20
+  blast_radius:
+    crown_jewel_1hop:       60
+    crown_jewel_chain:      40
+    high_crit_each:         5
+    high_crit_cap:          30
+    reachable_over_p90:     15
+    escalate_to_admin:      30
+
+urgency:
+  exposure_verified_live: 15
+  reachable_crown_jewel:  10
+  publicly_exposed:       10
+  strong_trust_condition: -10
