@@ -1,8 +1,8 @@
-# NHIID Threat Model
+# IdentityAttackGraph Threat Model
 
-Methodology: asset-centric + STRIDE on trust boundaries. NHIID is a security tool that holds a
-map of an organization's most sensitive identities; compromising NHIID is a force-multiplier, so
-the tool itself is modeled as a high-value target.
+Methodology: asset-centric + STRIDE on trust boundaries. IdentityAttackGraph is a security tool 
+that holds a map of an organization's most sensitive identities; compromising it would be a 
+force-multiplier, so the tool itself is modeled as a high-value target.
 
 ---
 

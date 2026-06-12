@@ -1,6 +1,6 @@
-# NHIID Runbook
+# IdentityAttackGraph Runbook
 
-Operating guide for the control plane and collectors.
+Operations guide for running and maintaining IdentityAttackGraph.
 
 ## Services
 | Service | Purpose | Health |

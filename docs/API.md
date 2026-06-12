@@ -1,8 +1,8 @@
-# NHIID API
+# IdentityAttackGraph API
 
 REST over JSON. Base path `/api/v1`. Auth: `Authorization: Bearer <session-jwt>` (OIDC at edge).
-RBAC roles: `viewer` (read), `analyst` (read + triage/remediation status), `admin` (all + config
-+ suppressions). All mutations are audited. Pagination is cursor-based (`?cursor=&limit=`).
+RBAC roles: `viewer` (read), `analyst` (read + triage/remediation), `admin` (all + config + suppressions). 
+All mutations are audited. Pagination is cursor-based (`?cursor=&limit=`).
 
 GraphQL is planned (v1.0) for the graph/attack-path surface; REST is authoritative for MVP.
 

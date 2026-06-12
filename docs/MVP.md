@@ -1,7 +1,7 @@
-# NHIID MVP Scope & Non-Goals
+# IdentityAttackGraph MVP Scope & Non-Goals
 
-The MVP is **actually shippable** by one engineer and demoable without a real cloud account
-(via the synthetic fixture). It covers Phases 0–4 plus a docker-compose deploy.
+The MVP is **production-shippable** by one engineer and demoable without real cloud credentials
+(via synthetic fixtures). It covers Phases 0–4 plus Docker Compose deployment.
 
 ## In scope (MVP)
 

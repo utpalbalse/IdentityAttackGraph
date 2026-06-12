@@ -1,9 +1,8 @@
-# NHIID Risk Model
+# IdentityAttackGraph Risk Model
 
 Risk is **transparent and tunable**. Every identity's composite score is a weighted sum of six
 sub-scores, each in `[0,100]`, each itself explainable down to the contributing signals. No
-hidden ML in the score — anomaly detections feed the *usage* factor as discrete, evidenced
-signals.
+hidden ML in the score — anomaly detections feed the *usage* factor as discrete, evidenced signals.
 
 The canonical weights live in [configs/risk_weights.yaml](../configs/risk_weights.yaml) and are
 hot-loadable. The reference implementation is [internal/risk/](../internal/risk/).

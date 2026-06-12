@@ -1,10 +1,10 @@
-# NHIID — Non-Human Identity Inventory & Detection
+# IdentityAttackGraph — Non-Human Identity Inventory & Detection
 
-> Discover, inventory, normalize, score, and detect abuse of **non-human identities** (NHIs)
-> — service accounts, access keys, API tokens, workload identities, secrets, certificates,
-> and AI-agent identities — across multi-account AWS and multi-project GCP.
+> Discover, inventory, normalize, score, and detect abuse of **non-human identities** (service accounts, 
+> access keys, API tokens, workload identities, secrets, certificates, and AI-agent identities) 
+> across multi-account AWS and multi-project GCP.
 
-NHIID answers six questions a security team actually asks during an incident or audit:
+IdentityAttackGraph answers six critical security questions:
 
 1. **What** machine identities exist?
 2. **Where** are they used (which workloads, repos, resources)?
@@ -13,10 +13,9 @@ NHIID answers six questions a security team actually asks during an incident or 
 5. **What** is the blast radius if one is compromised?
 6. **What** should we remediate first, and how much risk does that remove?
 
-This is a **from-scratch** platform. The inventory model, normalization, graph engine,
+This is a **from-scratch** security platform. The inventory model, normalization, graph engine,
 risk scoring, attack-path reasoning, and detection logic are all implemented here — not a
-wrapper around Semgrep/Wazuh/Suricata. We integrate with cloud provider APIs for collection
-only.
+wrapper around existing tools. We integrate with cloud provider APIs for data collection only.
 
 ---
 
@@ -47,9 +46,12 @@ make seed         # load synthetic multi-account AWS+GCP fixture (no cloud creds
 open http://localhost:5173
 ```
 
-The seed dataset ships a realistic environment — orphaned access keys, an over-privileged
-GCP service account, a cross-account assume-role chain, and a secret leaked into a repo — so
-you can see detections fire without touching a real cloud account.
+The seed dataset includes:
+- Orphaned access keys
+- Over-privileged service accounts
+- Cross-account assume-role chains
+- Credentials exposed in repositories
+- Detections fire without any real cloud credentials
 
 ## Architecture at a glance
 

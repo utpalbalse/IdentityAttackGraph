@@ -1,7 +1,7 @@
-# NHIID Architecture
+# IdentityAttackGraph Architecture
 
-This document is the authoritative design reference. It covers the architecture overview,
-component diagram, data flow, deployment topology, and the repository structure.
+This document is the authoritative design reference for IdentityAttackGraph. It covers the 
+architecture overview, component diagram, data flow, deployment topology, and the repository structure.
 
 ---
 

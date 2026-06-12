@@ -1,11 +1,11 @@
-# NHIID — Launch & Positioning
+# IdentityAttackGraph — Launch & Positioning
 
-## Why this project lands with Big Tech security hiring managers
+## Why this project lands with Big Tech hiring managers
 
-Non-human identities now outnumber humans 10–50:1 in cloud estates, and NHI compromise (leaked
-keys, over-scoped service accounts, abused workload identity) is behind a large share of cloud
-breaches. NHIID demonstrates the exact competencies a Staff/Senior cloud-security or
-detection-engineering role screens for:
+Non-human identities now outnumber humans 10–50:1 in cloud estates, and identity compromise 
+(leaked keys, over-scoped service accounts, abused workload identities) is behind a major share 
+of cloud security breaches. IdentityAttackGraph demonstrates the exact competencies a Staff/Senior 
+cloud-security or detection-engineering role screens for:
 
 - **Systems engineering:** a Go services platform (collectors, queue, store, engines) — not a script.
 - **Security domain depth:** IAM trust chains, privilege escalation primitives, blast-radius/
@@ -23,11 +23,12 @@ detection-engineering role screens for:
 - Topics: `cloud-security`, `iam`, `nhi`, `detection-engineering`, `aws`, `gcp`, `security-tools`.
 
 ## Narrative for résumé / interviews
-> Designed and built NHIID, an open-source platform that inventories non-human identities across
-> multi-account AWS and GCP, models them as a property graph, computes an explainable 6-factor
-> risk score, and runs from-scratch rule + anomaly detections (impossible travel, privilege creep,
-> conditionless assume-role, secret-in-repo) with attack-path reasoning and measurable
-> remediation. Go + Postgres + NATS; React/TS dashboard; Terraform/Helm; full threat model.
+> Designed and built IdentityAttackGraph, an open-source security platform that inventories 
+> non-human identities across multi-account AWS and GCP, models them as a property graph for 
+> attack-path reasoning, computes explainable 6-factor risk scores, and runs custom rule + 
+> anomaly detections (impossible travel, privilege creep, conditionless assume-role, secret 
+> exposure) with measurable remediation guidance. Go + Postgres + NATS; React/TS UI; Terraform/Helm 
+> deployment; complete threat model and architecture.
 
 Talking points that interview well: the risk-scoring weight rationale, the FP-control strategy,
 why relational+in-memory graph over Neo4j at this scale, and the least-privilege/no-standing-creds

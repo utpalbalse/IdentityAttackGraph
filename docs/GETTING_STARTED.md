@@ -1,11 +1,11 @@
-# NHIID Getting Started
+# IdentityAttackGraph Getting Started
 
 ## Quick start (local development)
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.22+ (for `make collector` and `make worker` commands)
-- Node 20+ (for web dev server)
+- Go 1.22+ (for collector and worker commands)
+- Node 20+ (for React dev server)
 
 ### One-command stack
 ```bash

@@ -1,7 +1,7 @@
-# NHIID Implementation Roadmap
+# IdentityAttackGraph Implementation Roadmap
 
-Phased plan for one strong engineer. Each phase lists objectives, tasks, modules, acceptance
-criteria, risks, and dependencies. Phases are independently demoable.
+Phased implementation plan. Each phase lists objectives, tasks, modules, acceptance criteria, 
+risks, and dependencies. Phases are independently demoable and shippable.
 
 ---
 

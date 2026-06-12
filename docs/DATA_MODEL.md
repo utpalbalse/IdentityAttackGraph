@@ -1,7 +1,7 @@
-# NHIID Data Model
+# IdentityAttackGraph Data Model
 
 The model is **graph-oriented**: normalized entity tables are the source of truth, and they are
-projected into `graph_nodes` / `graph_edges` for traversal. Everything carries **provenance**.
+projected into `graph_nodes` / `graph_edges` for attack-path traversal. Everything carries **provenance**.
 
 See [migrations/0001_init.sql](../migrations/0001_init.sql) for the executable DDL.
 

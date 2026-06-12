@@ -1,9 +1,9 @@
-# NHIID Detections
+# IdentityAttackGraph Detections
 
-Every detection is **ours**, **explainable**, and emits a `finding` with: stable `detector` id,
+Every detection is **custom-built**, **explainable**, and emits a `finding` with: stable `detector` id,
 `severity`, structured `evidence`, and a human-readable **attack narrative**. Detectors are
 either **rule-based** (deterministic over current state) or **anomaly-based** (statistical over
-usage history with a per-identity/peer baseline). All support suppression + dedupe by fingerprint.
+usage history with per-identity/peer baselines). All support suppression + dedupe by fingerprint.
 
 Reference implementation: [internal/detect/](../internal/detect/).
 
