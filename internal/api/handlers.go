@@ -72,15 +72,31 @@ func (h *Handler) GetIdentity(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
 		"identity":          ident,
-		"credentials":       creds,
-		"roles":             roles,
-		"resource_bindings": bindings,
-		"trust_edges":       trust,
-		"workloads":         workloads,
-		"exposures":         exposures,
-		"findings":          findings,
-		"usage_sample":      usage[len(usage)-10:],
+		"credentials":       nonNil(creds),
+		"roles":             nonNil(roles),
+		"resource_bindings": nonNil(bindings),
+		"trust_edges":       nonNil(trust),
+		"workloads":         nonNil(workloads),
+		"exposures":         nonNil(exposures),
+		"findings":          nonNil(findings),
+		"usage_sample":      lastN(usage, 10),
 	})
+}
+
+// lastN returns up to the last n elements of s without panicking on short slices.
+func lastN[T any](s []T, n int) []T {
+	if len(s) > n {
+		s = s[len(s)-n:]
+	}
+	return nonNil(s)
+}
+
+// nonNil guarantees a JSON array ([]) rather than null for empty/nil slices.
+func nonNil[T any](s []T) []T {
+	if s == nil {
+		return []T{}
+	}
+	return s
 }
 
 func (h *Handler) GetIdentityRisk(w http.ResponseWriter, r *http.Request) {

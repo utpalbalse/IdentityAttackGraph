@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'feat\\(web\\): redesign dashboard into an enterprise security console *)",
+      "Bash(git push *)"
     ]
   }
 }
