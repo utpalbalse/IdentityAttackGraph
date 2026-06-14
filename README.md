@@ -41,11 +41,17 @@ Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milest
 
 ## Quick start (local, one command)
 
+No local Go or Node toolchain required — everything builds and runs in containers.
+
 ```bash
-make dev          # docker compose up: postgres, nats, redis, api, worker, web
+make dev          # compose up: postgres, redis, nats, migrate (one-shot), api, worker, web
 make seed         # load synthetic multi-account AWS+GCP fixture (no cloud creds needed)
 open http://localhost:5173
 ```
+
+`make dev` runs DB migrations automatically (the `migrate` service applies the embedded SQL, then
+api/worker/web start from compiled binaries). On Windows without `make`, use the compose commands
+directly: `docker compose -f deploy/docker-compose.yml up --build -d`.
 
 The seed dataset includes:
 - Orphaned access keys

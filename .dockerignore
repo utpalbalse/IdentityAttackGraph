@@ -1,0 +1,8 @@
+.git
+bin/
+web/node_modules
+web/dist
+web/.vite
+*.log
+.env
+.env.*

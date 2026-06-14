@@ -1,3 +1,17 @@
+# One-command local stack. `docker compose -f deploy/docker-compose.yml up --build -d` brings up
+# postgres/redis/nats, runs DB migrations once, then starts api + worker + web — no local Go/Node
+# toolchain required. See README "Quick start" and docs/RUNBOOK.md.
+
+x-nhiid-build: &nhiid-build
+  context: ..
+  dockerfile: deploy/docker/Dockerfile
+
+x-backend-env: &backend-env
+  NHIID_DATABASE_DSN: postgres://nhiid:nhiid@postgres:5432/nhiid?sslmode=disable
+  NHIID_QUEUE_NATS_URL: nats://nats:4222
+  NHIID_CACHE_REDIS_URL: redis://redis:6379/0
+  NHIID_TELEMETRY_LOG_LEVEL: info
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -5,86 +19,69 @@ services:
       POSTGRES_USER: nhiid
       POSTGRES_PASSWORD: nhiid
       POSTGRES_DB: nhiid
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U nhiid" ]
+      test: ["CMD-SHELL", "pg_isready -U nhiid"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    ports: ["6379:6379"]
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   nats:
     image: nats:2-alpine
-    ports:
-      - "4222:4222"
-      - "8222:8222"
-    command: --jetstream --max_payload=1G
-    healthcheck:
-      test: [ "CMD", "/nats", "-s", "nats://localhost:4222", "pub", "test", "test" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    command: --jetstream
+    ports: ["4222:4222", "8222:8222"]
+
+  # One-shot: applies embedded SQL migrations, then exits 0.
+  migrate:
+    build: *nhiid-build
+    image: nhiid:local
+    command: ["migrate", "up"]
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
 
   api:
-    build:
-      context: ..
-      dockerfile: deploy/docker/api.Dockerfile
-    environment:
-      NHIID_DATABASE_DSN: postgres://nhiid:nhiid@postgres:5432/nhiid?sslmode=disable
-      NHIID_QUEUE_NATS_URL: nats://nats:4222
-      NHIID_CACHE_REDIS_URL: redis://redis:6379/0
-      NHIID_TELEMETRY_LOG_LEVEL: info
-    ports:
-      - "8080:8080"
+    build: *nhiid-build
+    image: nhiid:local
+    command: ["api"]
+    environment: *backend-env
+    ports: ["8080:8080"]
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    command: sh -c "go run ./cmd/migrate up && go run ./cmd/api"
+      migrate:
+        condition: service_completed_successfully
 
   worker:
-    build:
-      context: ..
-      dockerfile: deploy/docker/worker.Dockerfile
-    environment:
-      NHIID_DATABASE_DSN: postgres://nhiid:nhiid@postgres:5432/nhiid?sslmode=disable
-      NHIID_QUEUE_NATS_URL: nats://nats:4222
-      NHIID_CACHE_REDIS_URL: redis://redis:6379/0
-      NHIID_TELEMETRY_LOG_LEVEL: info
+    build: *nhiid-build
+    image: nhiid:local
+    command: ["worker"]
+    environment: *backend-env
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    command: go run ./cmd/worker
+      migrate:
+        condition: service_completed_successfully
 
   web:
     build:
       context: ../web
       dockerfile: Dockerfile
-    ports:
-      - "5173:5173"
+    ports: ["5173:5173"]
     depends_on:
       - api
-    environment:
-      VITE_API_URL: http://localhost:8080/api/v1
 
 volumes:
   postgres_data:
