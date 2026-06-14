@@ -16,7 +16,8 @@ import (
 
 // Node is a lightweight in-memory projection of models.GraphNode.
 type Node struct {
-	ID          uuid.UUID
+	ID          uuid.UUID // graph_node id
+	EntityID    uuid.UUID // source entity id (identity/role/resource), for start-node lookup
 	Type        string
 	Label       string
 	Criticality models.Criticality
@@ -35,20 +36,33 @@ type Edge struct {
 
 // Graph is an adjacency-list directed property graph.
 type Graph struct {
-	nodes map[uuid.UUID]*Node
-	out   map[uuid.UUID][]Edge
-	in    map[uuid.UUID][]Edge
+	nodes    map[uuid.UUID]*Node
+	out      map[uuid.UUID][]Edge
+	in       map[uuid.UUID][]Edge
+	byEntity map[uuid.UUID]uuid.UUID // source entity id -> graph node id
 }
 
 func New() *Graph {
 	return &Graph{
-		nodes: make(map[uuid.UUID]*Node),
-		out:   make(map[uuid.UUID][]Edge),
-		in:    make(map[uuid.UUID][]Edge),
+		nodes:    make(map[uuid.UUID]*Node),
+		out:      make(map[uuid.UUID][]Edge),
+		in:       make(map[uuid.UUID][]Edge),
+		byEntity: make(map[uuid.UUID]uuid.UUID),
 	}
 }
 
-func (g *Graph) AddNode(n *Node) { g.nodes[n.ID] = n }
+func (g *Graph) AddNode(n *Node) {
+	g.nodes[n.ID] = n
+	if n.EntityID != uuid.Nil {
+		g.byEntity[n.EntityID] = n.ID
+	}
+}
+
+// NodeIDForEntity maps a source entity id (e.g. an identity's id) to its graph node id.
+func (g *Graph) NodeIDForEntity(entityID uuid.UUID) (uuid.UUID, bool) {
+	id, ok := g.byEntity[entityID]
+	return id, ok
+}
 
 func (g *Graph) AddEdge(e Edge) {
 	g.out[e.Src] = append(g.out[e.Src], e)

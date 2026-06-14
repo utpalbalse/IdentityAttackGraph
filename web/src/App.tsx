@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { api, Identity, Finding, IdentityDetail } from './api'
+import { api, Identity, Finding, IdentityDetail, AttackPath } from './api'
 import {
   RiskChip, SeverityPill, RiskRing, FactorBar, ProviderBadge, KindGlyph,
   relTime, shortKind, riskSeverity, Spinner, Empty, Sev,
@@ -350,6 +350,9 @@ function DrawerBody({ d, onClose }: { d: IdentityDetail; onClose: () => void }) 
   const factorOrder = ['privilege', 'blast_radius', 'exposure', 'trust', 'usage', 'freshness']
   const keys = factorOrder.filter(k => factors[k]).concat(Object.keys(factors).filter(k => !factorOrder.includes(k)))
 
+  const [paths, setPaths] = useState<AttackPath[] | null>(null)
+  useEffect(() => { api.attackPaths(i.id).then(setPaths).catch(() => setPaths([])) }, [i.id])
+
   return (
     <div className="drawer-inner">
       <div className="drawer-head">
@@ -381,6 +384,31 @@ function DrawerBody({ d, onClose }: { d: IdentityDetail; onClose: () => void }) 
             <h3>Risk breakdown</h3>
             <div className="factors">
               {keys.map(k => <FactorBar key={k} name={k} score={factors[k].score} signals={factors[k].signals} />)}
+            </div>
+          </section>
+        )}
+
+        {paths && paths.length > 0 && (
+          <section className="dsection">
+            <h3>Attack paths <span className="count-pill">{paths.length}</span></h3>
+            <div className="paths">
+              {paths.map(p => (
+                <div key={p.rank} className="apath">
+                  <div className="apath-head">
+                    <span className={`pill pill-${p.impact === 'crown_jewel' ? 'critical' : 'high'}`}>{p.impact.replace(/_/g, ' ')}</span>
+                    <span className="apath-hops">{p.hops} hop{p.hops === 1 ? '' : 's'}</span>
+                  </div>
+                  <div className="apath-chain">
+                    {p.path.map((st, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <span className="apath-via">{st.via?.replace(/_/g, ' ')} →</span>}
+                        <span className={`apath-node node-${st.type} ${st.criticality === 'crown_jewel' ? 'node-crown' : ''}`}>{st.node}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  <div className="apath-narr">{p.narrative}</div>
+                </div>
+              ))}
             </div>
           </section>
         )}

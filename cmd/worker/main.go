@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/detect"
 	"github.com/nhiid/nhiid/internal/graph"
@@ -95,12 +96,34 @@ func main() {
 
 func runGraphBuild(ctx context.Context, s *store.Store, logger *slog.Logger) error {
 	logger.Info("building graph")
-	// Load all graph_nodes and graph_edges from store (stub for MVP).
-	return nil
+	return projectGraph(ctx, s, logger)
+}
+
+// peerCache memoizes the per-(account,kind) permission P90 within one scoring/detection run.
+type peerCache struct {
+	s *store.Store
+	m map[string]int
+}
+
+func newPeerCache(s *store.Store) *peerCache { return &peerCache{s: s, m: map[string]int{}} }
+
+func (p *peerCache) p90(ctx context.Context, id models.Identity) int {
+	key := id.Prov.AccountRef + "|" + string(id.Kind)
+	if v, ok := p.m[key]; ok {
+		return v
+	}
+	v, _ := p.s.Identities.PeerPermissionP90(ctx, id.Prov.AccountRef, id.Kind)
+	p.m[key] = v
+	return v
 }
 
 func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engine *risk.Engine, logger *slog.Logger) error {
 	logger.Info("scoring identities", "count", len(ids))
+	g, reachP90, err := loadGraph(ctx, s)
+	if err != nil {
+		logger.Warn("load graph for scoring (blast radius disabled)", "err", err)
+	}
+	peers := newPeerCache(s)
 	for _, id := range ids {
 		creds, _ := s.Credentials.ForIdentity(ctx, id.ID)
 		roles, _ := s.Roles.ForIdentity(ctx, id.ID)
@@ -108,6 +131,7 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 		trust, _ := s.TrustEdges.ForIdentity(ctx, id.ID)
 		exposures, _ := s.Exposures.ForIdentity(ctx, id.ID)
 
+		blast := blastFor(g, id.ID)
 		input := risk.Input{
 			Identity:          id,
 			Creds:             creds,
@@ -115,13 +139,12 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 			Bindings:          bindings,
 			Trust:             trust,
 			Exposures:         exposures,
-			Blast:             graph.BlastRadius{},
-			PeerPermissionP90: 100,
-			PeerReachableP90:  50,
+			Blast:             blast,
+			PeerPermissionP90: peers.p90(ctx, id),
+			PeerReachableP90:  reachP90,
 			Now:               time.Now(),
 		}
 		breakdown := engine.Score(input)
-		// Convert Factor map to map[string]any for storage
 		factorMap := make(map[string]any)
 		for k, v := range breakdown.Factors {
 			factorMap[k] = v
@@ -135,6 +158,11 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 
 func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, engine *detect.Engine, cfg detect.Config, logger *slog.Logger) error {
 	logger.Info("detecting anomalies", "count", len(ids))
+	g, _, err := loadGraph(ctx, s)
+	if err != nil {
+		logger.Warn("load graph for detection (blast/attack-path disabled)", "err", err)
+	}
+	peers := newPeerCache(s)
 	for _, id := range ids {
 		creds, _ := s.Credentials.ForIdentity(ctx, id.ID)
 		roles, _ := s.Roles.ForIdentity(ctx, id.ID)
@@ -144,17 +172,25 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 		workloads, _ := s.Workloads.ForIdentity(ctx, id.ID)
 		usage, _ := s.Usage.RecentForIdentity(ctx, id.ID, time.Now().Add(-90*24*time.Hour))
 
+		blast := blastFor(g, id.ID)
+		var paths []graph.Path
+		if g != nil {
+			if nid, ok := g.NodeIDForEntity(id.ID); ok {
+				paths = g.AttackPaths(nid, blastMaxHops, 5)
+			}
+		}
 		subject := detect.Subject{
-			Identity:  id,
-			Creds:     creds,
-			Roles:     roles,
-			Bindings:  bindings,
-			Trust:     trust,
-			Exposures: exposures,
-			Workloads: workloads,
-			Usage:     usage,
-			Blast:     graph.BlastRadius{},
-			Paths:     nil,
+			Identity:          id,
+			Creds:             creds,
+			Roles:             roles,
+			Bindings:          bindings,
+			Trust:             trust,
+			Exposures:         exposures,
+			Workloads:         workloads,
+			Usage:             usage,
+			Blast:             blast,
+			Paths:             paths,
+			PeerPermissionP90: peers.p90(ctx, id),
 		}
 		findings := engine.Run(subject, cfg, time.Now())
 		for _, f := range findings {
@@ -164,4 +200,16 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 		}
 	}
 	return nil
+}
+
+// blastFor returns the blast radius for an identity, or a zero value if the graph is unavailable
+// or the identity has no projected node.
+func blastFor(g *graph.Graph, identityID uuid.UUID) graph.BlastRadius {
+	if g == nil {
+		return graph.BlastRadius{}
+	}
+	if nid, ok := g.NodeIDForEntity(identityID); ok {
+		return g.ComputeBlastRadius(nid, blastMaxHops)
+	}
+	return graph.BlastRadius{}
 }

@@ -117,17 +117,53 @@ func (h *Handler) GetIdentityRisk(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetAttackPaths(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
-	_, err := uuid.Parse(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
-	// Load the graph and compute attack paths (stub for MVP).
-	// In full impl, load from store and traverse.
+	g, ok := h.loadGraph(r, w)
+	if !ok {
+		return
+	}
+	out := []graph.PathView{}
+	if nid, ok := g.NodeIDForEntity(id); ok {
+		out = g.Explain(g.AttackPaths(nid, 5, 10))
+	}
+	writeJSON(w, map[string]any{"paths": out})
+}
+
+func (h *Handler) GetBlastRadius(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	g, ok := h.loadGraph(r, w)
+	if !ok {
+		return
+	}
+	var br graph.BlastRadius
+	if nid, ok := g.NodeIDForEntity(id); ok {
+		br = g.ComputeBlastRadius(nid, 5)
+	}
+	writeJSON(w, br)
+}
+
+// loadGraph loads the persisted graph for read endpoints, writing a 500 on failure.
+func (h *Handler) loadGraph(r *http.Request, w http.ResponseWriter) (*graph.Graph, bool) {
+	nodes, edges, err := h.Store.Graph.LoadAll(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil, false
+	}
+	return graph.FromModels(nodes, edges), true
+}
+
+func writeJSON(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
-		"paths": []graph.Path{},
-	})
+	json.NewEncoder(w).Encode(v)
 }
 
 // ---------- findings -------------------------------------------------------

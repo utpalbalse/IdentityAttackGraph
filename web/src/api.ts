@@ -76,6 +76,21 @@ export interface IdentityDetail {
   usage_sample: any[]
 }
 
+export interface PathStep {
+  node: string
+  type: string
+  criticality?: string
+  via?: string
+}
+
+export interface AttackPath {
+  rank: number
+  impact: string
+  hops: number
+  narrative: string
+  path: PathStep[]
+}
+
 const API = '/api/v1'
 
 async function get<T>(path: string): Promise<T> {
@@ -89,5 +104,6 @@ export const api = {
   triage: () => get<{ triage_queue: Identity[] }>('/triage').then(r => r.triage_queue ?? []),
   findings: () => get<{ findings: Finding[] }>('/findings').then(r => r.findings ?? []),
   identity: (id: string) => get<IdentityDetail>(`/identities/${id}`),
+  attackPaths: (id: string) => get<{ paths: AttackPath[] }>(`/identities/${id}/attack-paths`).then(r => r.paths ?? []),
   health: () => fetch('/healthz').then(r => r.ok).catch(() => false),
 }
