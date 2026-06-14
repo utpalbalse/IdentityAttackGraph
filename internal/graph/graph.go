@@ -149,7 +149,7 @@ func (g *Graph) Reachable(start uuid.UUID, maxHops int) map[uuid.UUID]int {
 
 func isCapabilityEdge(t string) bool {
 	switch t {
-	case "uses", "assumes", "impersonates", "can_mint_token", "binds_to", "references", "federated_from":
+	case "uses", "assumes", "impersonates", "can_mint_token", "binds_to", "references", "federated_from", "has_permissions":
 		return true
 	}
 	return false

@@ -148,8 +148,8 @@ make down
 ✅ React dashboard (inventory, triage, detail stub)  
 ✅ Docker Compose (local dev)  
 ✅ **AWS collector** — real IAM/STS/CloudTrail discovery with assume-role (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md))  
+✅ **GCP collector** — service accounts, keys, impersonation/WIF trust, project IAM, audit logs (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md))  
 
-❌ GCP collector (placeholder — Phase 2)  
 ❌ Secrets Manager scanner (Phase 1)  
 ❌ GitHub/GitLab secret scanner (Phase 1)  
 ❌ GraphQL API (v1.0)  

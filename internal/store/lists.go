@@ -55,7 +55,7 @@ func (r *GraphRepo) LoadAll(ctx context.Context) ([]models.GraphNode, []models.G
 func (r *RoleRepo) ListAll(ctx context.Context) ([]models.Role, error) {
 	rows, err := r.pool.Query(ctx, `
 		SELECT id,provider,external_id,account_ref,name,privilege_level,is_assumable,
-		       permission_count,wildcard_action_count,wildcard_resource_count
+		       permission_count,wildcard_action_count,wildcard_resource_count,owner_identity_id
 		FROM roles LIMIT 20000`)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (r *RoleRepo) ListAll(ctx context.Context) ([]models.Role, error) {
 		var r models.Role
 		if err := rows.Scan(&r.ID, &r.Provider, &r.ExternalID, &r.AccountRef, &r.Name,
 			&r.PrivilegeLevel, &r.IsAssumable, &r.PermissionCount,
-			&r.WildcardActionCount, &r.WildcardResourceCount); err != nil {
+			&r.WildcardActionCount, &r.WildcardResourceCount, &r.OwnerIdentityID); err != nil {
 			return nil, err
 		}
 		out = append(out, r)

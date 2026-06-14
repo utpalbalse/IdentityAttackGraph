@@ -10,6 +10,7 @@ import (
 	"github.com/nhiid/nhiid/internal/collectors"
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
+	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/store"
@@ -23,6 +24,9 @@ func main() {
 	externalID := flag.String("external-id", "", "ExternalId for the assume-role trust (recommended)")
 	region := flag.String("region", "us-east-1", "AWS region for API calls")
 	ctLookback := flag.Int("cloudtrail-lookback-hours", 24, "hours of CloudTrail history on first run")
+	project := flag.String("project", "", "GCP project id")
+	gcpCreds := flag.String("gcp-credentials", "", "path to GCP credentials/WIF file (else uses ADC)")
+	auditLookback := flag.Int("audit-lookback-hours", 24, "hours of GCP Cloud Audit Log history on first run")
 	flag.Parse()
 
 	cfg, err := config.Load("configs/config.yaml")
@@ -61,14 +65,20 @@ func main() {
 			*account = "aws"
 		}
 	case "gcp":
-		if *account == "" {
-			logger.Error("gcp requires -account")
+		projectID := *project
+		if projectID == "" {
+			projectID = *account
+		}
+		if projectID == "" {
+			logger.Error("gcp requires -project (or -account)")
 			os.Exit(1)
 		}
-		// For MVP, use placeholder.
-		// coll = gcp.New(projectID)
-		logger.Error("gcp collector not yet implemented")
-		os.Exit(1)
+		coll = gcpcollector.New(gcpcollector.Options{
+			ProjectID:          projectID,
+			CredentialsFile:    *gcpCreds,
+			AuditLookbackHours: *auditLookback,
+		}, logger)
+		*account = "gcp:" + projectID
 	default:
 		logger.Error("unknown provider", "provider", *provider)
 		os.Exit(1)

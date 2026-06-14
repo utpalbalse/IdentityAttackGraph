@@ -53,7 +53,10 @@ func projectGraph(ctx context.Context, s *store.Store, logger *slog.Logger) erro
 		nodeID[id.ID] = nid
 	}
 
-	// role (permission-set) nodes; admin/privileged roles are high-criticality targets
+	// role (permission-set) nodes; admin/privileged roles are high-criticality targets.
+	// ownedBy records role->owning-identity so we can connect an identity to permissions it holds
+	// directly (vs. roles reached via assume/impersonate trust edges).
+	ownedBy := map[uuid.UUID]uuid.UUID{}
 	for _, r := range roles {
 		crit := models.CritLow
 		if r.PrivilegeLevel == "admin" || r.PrivilegeLevel == "privileged" {
@@ -69,6 +72,9 @@ func projectGraph(ctx context.Context, s *store.Store, logger *slog.Logger) erro
 			continue
 		}
 		nodeID[r.ID] = nid
+		if r.OwnerIdentityID != nil {
+			ownedBy[r.ID] = *r.OwnerIdentityID
+		}
 	}
 
 	// resource nodes (deduped by URN, rolled up to max criticality)
@@ -153,6 +159,12 @@ func projectGraph(ctx context.Context, s *store.Store, logger *slog.Logger) erro
 		if w.IdentityID != nil {
 			upsert(nodeID[w.ID], nodeID[*w.IdentityID], "uses", false)
 		}
+	}
+
+	// has_permissions edges (identity -> the permission set it directly owns) so an identity's own
+	// bindings are reachable in blast-radius / attack-path traversal.
+	for roleEntityID, ownerEntityID := range ownedBy {
+		upsert(nodeID[ownerEntityID], nodeID[roleEntityID], "has_permissions", false)
 	}
 
 	logger.Info("graph projected", "nodes", len(nodeID)+len(urnNode), "edges", edges)

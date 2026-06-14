@@ -59,6 +59,21 @@
         "external_id": "arn:aws:iam::987654321098:user/svc-orphaned",
         "account_ref": "aws:987654321098"
       }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "kind": "gcp_service_account",
+      "name": "ci-deployer",
+      "arn_or_email": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+      "provider": "gcp",
+      "state": "active",
+      "risk_score": 0,
+      "attributes": {},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+        "account_ref": "gcp:my-gcp-project"
+      }
     }
   ],
   "credentials": [
@@ -112,6 +127,20 @@
           }
         ]
       }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440022",
+      "provider": "gcp",
+      "external_id": "data-processor@project.iam.gserviceaccount.com",
+      "account_ref": "gcp:my-gcp-project",
+      "name": "data-processor",
+      "privilege_level": "admin",
+      "is_assumable": false,
+      "permission_count": 1,
+      "wildcard_action_count": 1,
+      "owner_identity_id": "550e8400-e29b-41d4-a716-446655440003",
+      "source": "fixture",
+      "policy_document": {"has_priv_escalation": true, "roles": ["roles/owner"]}
     }
   ],
   "trust_edges": [
@@ -124,6 +153,16 @@
       "observed": true,
       "source": "fixture",
       "account_ref": "aws:123456789012"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440032",
+      "src_identity_id": "550e8400-e29b-41d4-a716-446655440005",
+      "dst_identity_id": "550e8400-e29b-41d4-a716-446655440003",
+      "edge_type": "can_impersonate",
+      "condition": {},
+      "observed": false,
+      "source": "fixture",
+      "account_ref": "gcp:my-gcp-project"
     }
   ],
   "resource_bindings": [
@@ -137,6 +176,17 @@
       "effect": "allow",
       "source": "fixture",
       "account_ref": "aws:123456789012"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440042",
+      "role_id": "550e8400-e29b-41d4-a716-446655440022",
+      "resource_urn": "gcp:project:my-gcp-project",
+      "resource_kind": "gcp_project",
+      "resource_criticality": "crown_jewel",
+      "actions": ["roles/owner"],
+      "effect": "allow",
+      "source": "fixture",
+      "account_ref": "gcp:my-gcp-project"
     }
   ],
   "usage_events": [

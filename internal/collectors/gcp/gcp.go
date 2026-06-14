@@ -1,31 +1,57 @@
-// Package gcp collects GCP IAM, Cloud Audit Logs, and related metadata from a single project.
-// It uses workload identity federation for authentication (no stored credentials).
 package gcp
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 
 	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
 )
 
+// Collector implements collectors.Collector for a single GCP project.
 type Collector struct {
-	projectID string
+	opts Options
+	log  *slog.Logger
 }
 
-// New creates a GCP collector for a specific project.
-func New(projectID string) *Collector {
-	return &Collector{projectID: projectID}
+// New constructs a GCP collector. Authentication is via ADC/WIF (or an optional credentials file);
+// no long-lived keys are stored by NHIID.
+func New(opts Options, log *slog.Logger) *Collector {
+	return &Collector{opts: opts, log: log}
 }
 
 func (c *Collector) ID() string { return "gcp" }
 
-// Collect performs a snapshot of IAM service accounts, keys, bindings, and Cloud Audit Logs.
+// Collect runs IAM discovery (service accounts, keys, impersonation trust, project bindings) and
+// Cloud Audit Log usage ingestion (incremental). Audit-log failure is non-fatal.
 func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[string]any) (collectors.Result, error) {
-	// TODO: use WIF to authenticate; establish clients for IAM, Asset Inventory, Cloud Audit Logs.
-	// For now, return empty (placeholder for Phase 2).
-	return collectors.Result{
-		Identities: []models.Identity{},
-		NewCursor:  map[string]any{"type": "cloud_audit_log_timestamp", "timestamp": "2025-06-11T00:00:00Z"},
-	}, nil
+	if c.opts.ProjectID == "" {
+		return collectors.Result{}, fmt.Errorf("gcp: project id is required")
+	}
+	cl, err := newClients(ctx, c.opts)
+	if err != nil {
+		return collectors.Result{}, err
+	}
+	b := newBuilder(c.opts.ProjectID)
+
+	if err := cl.collectIAM(ctx, b, c.opts.ProjectID); err != nil {
+		return collectors.Result{}, fmt.Errorf("collect iam: %w", err)
+	}
+
+	newCursor, err := cl.collectAudit(ctx, b, c.opts.ProjectID, c.opts.AuditLookbackHours, cursor)
+	if err != nil {
+		if c.log != nil {
+			c.log.Warn("gcp audit log collection degraded", "err", err)
+		}
+		newCursor = cursor
+	}
+
+	res := b.result(newCursor)
+	if c.log != nil {
+		c.log.Info("gcp collection complete", "project", c.opts.ProjectID,
+			"identities", len(res.Identities), "credentials", len(res.Credentials),
+			"roles", len(res.Roles), "trust_edges", len(res.TrustEdges),
+			"bindings", len(res.ResourceBindings), "usage_events", len(res.UsageEvents))
+	}
+	return res, nil
 }
