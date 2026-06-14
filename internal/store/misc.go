@@ -380,7 +380,7 @@ func (r *RemediationRepo) Upsert(ctx context.Context, a models.RemediationAction
 // ForIdentity returns all remediation actions across an identity's findings.
 func (r *RemediationRepo) ForIdentity(ctx context.Context, identityID uuid.UUID) ([]models.RemediationAction, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT ra.id,ra.finding_id,ra.action,ra.status,ra.risk_before,ra.risk_after,ra.risk_delta,ra.assignee,ra.notes
+		SELECT ra.id,ra.finding_id,ra.action,ra.status,ra.risk_before,ra.risk_after,ra.risk_delta,COALESCE(ra.assignee,''),COALESCE(ra.notes,'')
 		FROM remediation_actions ra
 		JOIN findings f ON f.id = ra.finding_id
 		WHERE f.identity_id=$1
@@ -424,7 +424,7 @@ func (r *RemediationRepo) UpdateStatus(ctx context.Context, id uuid.UUID, status
 
 func (r *RemediationRepo) ForFinding(ctx context.Context, findingID uuid.UUID) ([]models.RemediationAction, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT id,finding_id,action,status,risk_before,risk_after,risk_delta,assignee,notes
+		SELECT id,finding_id,action,status,risk_before,risk_after,risk_delta,COALESCE(assignee,''),COALESCE(notes,'')
 		FROM remediation_actions WHERE finding_id=$1`, findingID)
 	if err != nil {
 		return nil, err

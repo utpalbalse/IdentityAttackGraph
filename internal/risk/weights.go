@@ -1,6 +1,7 @@
 package risk
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -9,18 +10,23 @@ import (
 
 // Weights mirrors configs/risk_weights.yaml. Hot-reloadable; see docs/RISK_MODEL.md.
 type Weights struct {
-	Weights       map[string]float64        `yaml:"weights"`
-	SeverityBands map[string]int            `yaml:"severity_bands"`
-	Signals       map[string]map[string]int `yaml:"signals"`
-	Urgency       map[string]int            `yaml:"urgency"`
+	Weights       map[string]float64        `yaml:"weights" json:"weights"`
+	SeverityBands map[string]int            `yaml:"severity_bands" json:"severity_bands"`
+	Signals       map[string]map[string]int `yaml:"signals" json:"signals"`
+	Urgency       map[string]int            `yaml:"urgency" json:"urgency"`
 }
 
-// LoadWeights reads and validates the weights file.
+// LoadWeights reads and validates the weights YAML file.
 func LoadWeights(path string) (*Weights, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read weights %s: %w", path, err)
 	}
+	return ParseWeightsYAML(b)
+}
+
+// ParseWeightsYAML parses and validates weights from YAML bytes.
+func ParseWeightsYAML(b []byte) (*Weights, error) {
 	var w Weights
 	if err := yaml.Unmarshal(b, &w); err != nil {
 		return nil, fmt.Errorf("parse weights: %w", err)
@@ -30,6 +36,22 @@ func LoadWeights(path string) (*Weights, error) {
 	}
 	return &w, nil
 }
+
+// ParseWeightsJSON parses and validates weights from JSON bytes (the form stored in the DB and
+// accepted by PUT /config/risk-weights).
+func ParseWeightsJSON(b []byte) (*Weights, error) {
+	var w Weights
+	if err := json.Unmarshal(b, &w); err != nil {
+		return nil, fmt.Errorf("parse weights: %w", err)
+	}
+	if err := w.validate(); err != nil {
+		return nil, err
+	}
+	return &w, nil
+}
+
+// JSON serializes the weights for storage / API responses.
+func (w *Weights) JSON() ([]byte, error) { return json.Marshal(w) }
 
 func (w *Weights) validate() error {
 	var sum float64

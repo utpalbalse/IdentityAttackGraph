@@ -65,24 +65,52 @@ func main() {
 	})
 
 	// API routes
-	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger}
+	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger, WeightsFile: cfg.Risk.WeightsFile}
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Get("/version", h.GetVersion)
+
+		// inventory
 		r.Get("/identities", h.ListIdentities)
 		r.Get("/identities/{id}", h.GetIdentity)
 		r.Get("/identities/{id}/risk", h.GetIdentityRisk)
+		r.Get("/identities/{id}/credentials", h.GetIdentityCredentials)
+		r.Get("/identities/{id}/usage", h.GetIdentityUsage)
+		r.Get("/credentials", h.ListCredentials)
+		r.Get("/secrets", h.ListSecrets)
+		r.Get("/workloads", h.ListWorkloads)
+		r.Get("/repositories", h.ListRepositories)
+
+		// graph & attack paths
 		r.Get("/identities/{id}/attack-paths", h.GetAttackPaths)
 		r.Get("/identities/{id}/blast-radius", h.GetBlastRadius)
 		r.Get("/graph", h.GetGraph)
 		r.Get("/graph/neighborhood", h.GetNeighborhood)
+
+		// findings & triage
 		r.Get("/findings", h.ListFindings)
 		r.Get("/findings/{id}", h.GetFinding)
 		r.Patch("/findings/{id}", h.UpdateFinding)
+		r.Post("/findings/{id}/suppress", h.SuppressFinding)
+		r.Get("/findings/{id}/remediations", h.GetFindingRemediations)
 		r.Get("/triage", h.GetTriage)
+
+		// remediation & metrics
+		r.Patch("/remediations/{id}", h.UpdateRemediation)
+		r.Get("/metrics/risk-reduction", h.GetRiskReduction)
+
+		// jobs & collection
+		r.Post("/collect", h.Collect)
+		r.Get("/collector-runs", h.ListCollectorRuns)
+		r.Get("/snapshots", h.ListSnapshots)
+
+		// exports
 		r.Get("/export/findings", h.ExportFindings)
 		r.Get("/export/inventory", h.ExportInventory)
-		r.Get("/metrics/risk-reduction", h.GetRiskReduction)
-		r.Patch("/remediations/{id}", h.UpdateRemediation)
+
+		// admin / config
+		r.Get("/config/risk-weights", h.GetRiskWeights)
+		r.Put("/config/risk-weights", h.PutRiskWeights)
+		r.Get("/audit", h.ListAudit)
 	})
 
 	addr := cfg.Server.HTTPAddr

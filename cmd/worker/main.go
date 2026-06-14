@@ -47,7 +47,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	riskEngine := risk.NewEngine(weights)
 	detectionEngine := detect.NewEngine()
 	detectionCfg := detect.Config{
 		StaleWindow:         time.Duration(cfg.Detection.StaleWindowDays) * 24 * time.Hour,
@@ -62,6 +61,9 @@ func main() {
 	defer tick.Stop()
 
 	for {
+		// Reload risk weights each cycle so PUT /config/risk-weights takes effect (hot reload).
+		riskEngine := risk.NewEngine(effectiveWeights(ctx, s, weights))
+
 		// List all identities and process them
 		ids, err := s.Identities.List(ctx, store.IdentityFilter{Limit: 1000})
 		if err != nil {
@@ -107,6 +109,34 @@ type peerCache struct {
 }
 
 func newPeerCache(s *store.Store) *peerCache { return &peerCache{s: s, m: map[string]int{}} }
+
+// effectiveWeights returns DB-stored risk weights if present and valid, else the fallback (file).
+func effectiveWeights(ctx context.Context, s *store.Store, fallback *risk.Weights) *risk.Weights {
+	if raw, ok, _ := s.Config.Get(ctx, "risk_weights"); ok {
+		if w, err := risk.ParseWeightsJSON(raw); err == nil {
+			return w
+		}
+	}
+	return fallback
+}
+
+// suppressor builds a matcher from active suppressions. A suppression with a detector but no
+// identity suppresses that detector everywhere; with an identity but no detector, all findings for
+// that identity; with both, the specific pair.
+func suppressor(sups []models.Suppression) func(detector string, identityID uuid.UUID) bool {
+	return func(detector string, identityID uuid.UUID) bool {
+		for _, sp := range sups {
+			if sp.Detector != "" && sp.Detector != detector {
+				continue
+			}
+			if sp.IdentityID != nil && *sp.IdentityID != identityID {
+				continue
+			}
+			return true
+		}
+		return false
+	}
+}
 
 func (p *peerCache) p90(ctx context.Context, id models.Identity) int {
 	key := id.Prov.AccountRef + "|" + string(id.Kind)
@@ -164,6 +194,8 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 		logger.Warn("load graph for detection (blast/attack-path disabled)", "err", err)
 	}
 	peers := newPeerCache(s)
+	sups, _ := s.Suppressions.ListActive(ctx)
+	isSuppressed := suppressor(sups)
 	for _, id := range ids {
 		creds, _ := s.Credentials.ForIdentity(ctx, id.ID)
 		roles, _ := s.Roles.ForIdentity(ctx, id.ID)
@@ -205,6 +237,9 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 
 		findings := engine.Run(subject, cfg, time.Now())
 		for _, f := range findings {
+			if isSuppressed(f.Detector, id.ID) {
+				continue // admin-gated, audited suppression — don't surface or re-open
+			}
 			findingID, err := s.Findings.Upsert(ctx, f)
 			if err != nil {
 				logger.Error("upsert finding", "detector", f.Detector, "err", err)

@@ -18,9 +18,10 @@ import (
 )
 
 type Handler struct {
-	Store      *store.Store
-	RiskEngine *risk.Engine
-	Logger     *slog.Logger
+	Store       *store.Store
+	RiskEngine  *risk.Engine
+	Logger      *slog.Logger
+	WeightsFile string // fallback path when no weights are stored in config_settings
 }
 
 // ---------- version / health ------------------------------------------------
@@ -117,6 +118,7 @@ func (h *Handler) UpdateRemediation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	h.audit(r, "remediation.update", "remediation", id.String(), nil, map[string]any{"status": req.Status})
 	writeJSON(w, map[string]string{"status": "updated"})
 }
 
@@ -427,6 +429,7 @@ func (h *Handler) UpdateFinding(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	h.audit(r, "finding.update", "finding", id.String(), nil, map[string]any{"status": req.Status, "assignee": req.Assignee})
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"status": "updated"})
 }

@@ -98,7 +98,8 @@ func (r *FindingRepo) Get(ctx context.Context, id uuid.UUID) (*models.Finding, e
 	var evRaw []byte
 	err := r.pool.QueryRow(ctx, `
 		SELECT id,detector,category,severity,confidence,identity_id,title,narrative,
-		       evidence,fingerprint,status,risk_contribution,assignee,notes,first_seen_at,last_seen_at
+		       evidence,fingerprint,status,risk_contribution,
+		       COALESCE(assignee,''),COALESCE(notes,''),first_seen_at,last_seen_at
 		FROM findings WHERE id=$1`, id,
 	).Scan(&fd.ID, &fd.Detector, &fd.Category, &fd.Severity, &fd.Confidence,
 		&fd.IdentityID, &fd.Title, &fd.Narrative, &evRaw, &fd.Fingerprint,

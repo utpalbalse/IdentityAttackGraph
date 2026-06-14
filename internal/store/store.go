@@ -15,20 +15,24 @@ import (
 type Store struct {
 	pool *pgxpool.Pool
 
-	Identities  *IdentityRepo
-	Credentials *CredentialRepo
-	Secrets     *SecretRepo
-	Roles       *RoleRepo
-	TrustEdges  *TrustEdgeRepo
-	Bindings    *BindingRepo
-	Workloads   *WorkloadRepo
-	Repos       *RepoRepo
-	Exposures   *ExposureRepo
-	Usage       *UsageRepo
-	Findings    *FindingRepo
-	Remediation *RemediationRepo
-	Graph       *GraphRepo
-	Collectors  *CollectorRepo
+	Identities   *IdentityRepo
+	Credentials  *CredentialRepo
+	Secrets      *SecretRepo
+	Roles        *RoleRepo
+	TrustEdges   *TrustEdgeRepo
+	Bindings     *BindingRepo
+	Workloads    *WorkloadRepo
+	Repos        *RepoRepo
+	Exposures    *ExposureRepo
+	Usage        *UsageRepo
+	Findings     *FindingRepo
+	Remediation  *RemediationRepo
+	Graph        *GraphRepo
+	Collectors   *CollectorRepo
+	Suppressions *SuppressionRepo
+	Audit        *AuditRepo
+	Snapshots    *SnapshotRepo
+	Config       *ConfigRepo
 }
 
 // New opens a pgxpool and wires all repositories.
@@ -61,6 +65,10 @@ func New(ctx context.Context, dsn string, maxConns, minConns int32) (*Store, err
 	s.Remediation = &RemediationRepo{pool}
 	s.Graph = &GraphRepo{pool}
 	s.Collectors = &CollectorRepo{pool}
+	s.Suppressions = &SuppressionRepo{pool}
+	s.Audit = &AuditRepo{pool}
+	s.Snapshots = &SnapshotRepo{pool}
+	s.Config = &ConfigRepo{pool}
 	return s, nil
 }
 

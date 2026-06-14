@@ -289,6 +289,35 @@ type CollectorRun struct {
 	FinishedAt      *time.Time `json:"finished_at,omitempty"`
 }
 
+type Suppression struct {
+	ID         uuid.UUID  `json:"id"`
+	Detector   string     `json:"detector,omitempty"`
+	IdentityID *uuid.UUID `json:"identity_id,omitempty"`
+	Reason     string     `json:"reason"`
+	CreatedBy  string     `json:"created_by"`
+	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
+}
+
+type Snapshot struct {
+	ID           uuid.UUID      `json:"id"`
+	StartedAt    time.Time      `json:"started_at"`
+	FinishedAt   *time.Time     `json:"finished_at,omitempty"`
+	Scope        map[string]any `json:"scope"`
+	EntityCounts map[string]any `json:"entity_counts"`
+}
+
+type AuditEntry struct {
+	ID         uuid.UUID      `json:"id"`
+	Actor      string         `json:"actor"`
+	Action     string         `json:"action"`
+	TargetType string         `json:"target_type,omitempty"`
+	TargetID   string         `json:"target_id,omitempty"`
+	Before     map[string]any `json:"before,omitempty"`
+	After      map[string]any `json:"after,omitempty"`
+	At         time.Time      `json:"at"`
+}
+
 // ----- graph projection -----
 
 type GraphNode struct {
