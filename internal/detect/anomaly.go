@@ -34,8 +34,8 @@ func (impossibleTravel) Detect(s Subject, cfg Config, now time.Time) []models.Fi
 		speed := dist / dt
 		if speed > cfg.ImpossibleTravelKMH {
 			ev := map[string]any{
-				"event_a": map[string]any{"time": a.EventTime, "country": a.SrcCountry, "ip": a.SrcIP},
-				"event_b": map[string]any{"time": b.EventTime, "country": b.SrcCountry, "ip": b.SrcIP},
+				"event_a":     map[string]any{"time": a.EventTime, "country": a.SrcCountry, "ip": a.SrcIP},
+				"event_b":     map[string]any{"time": b.EventTime, "country": b.SrcCountry, "ip": b.SrcIP},
 				"distance_km": dist, "elapsed_hours": dt, "implied_kmh": speed,
 			}
 			narr := fmt.Sprintf("Identity %q authenticated from %s then %s in %.1f hours (%.0f km, %.0f km/h) — impossible travel.",

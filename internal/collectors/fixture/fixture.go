@@ -24,12 +24,12 @@ func New(path string) *Collector {
 func (c *Collector) ID() string { return "fixture" }
 
 type FixtureData struct {
-	Identities       []models.Identity      `json:"identities"`
-	Credentials      []models.Credential    `json:"credentials"`
-	Roles            []models.Role          `json:"roles"`
-	TrustEdges       []models.TrustEdge     `json:"trust_edges"`
+	Identities       []models.Identity        `json:"identities"`
+	Credentials      []models.Credential      `json:"credentials"`
+	Roles            []models.Role            `json:"roles"`
+	TrustEdges       []models.TrustEdge       `json:"trust_edges"`
 	ResourceBindings []models.ResourceBinding `json:"resource_bindings"`
-	UsageEvents      []models.UsageEvent    `json:"usage_events"`
+	UsageEvents      []models.UsageEvent      `json:"usage_events"`
 }
 
 func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[string]any) (collectors.Result, error) {

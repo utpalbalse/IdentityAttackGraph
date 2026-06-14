@@ -12,10 +12,10 @@ import (
 
 // secretPatterns match common credential shapes that must never be logged in cleartext.
 var secretPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`AKIA[0-9A-Z]{16}`),                         // AWS access key id
-	regexp.MustCompile(`(?i)-----BEGIN [A-Z ]*PRIVATE KEY-----`),   // PEM private key
-	regexp.MustCompile(`ghp_[0-9A-Za-z]{36}`),                      // GitHub PAT
-	regexp.MustCompile(`(?i)"private_key"\s*:\s*"[^"]+"`),          // GCP SA JSON key
+	regexp.MustCompile(`AKIA[0-9A-Z]{16}`),                       // AWS access key id
+	regexp.MustCompile(`(?i)-----BEGIN [A-Z ]*PRIVATE KEY-----`), // PEM private key
+	regexp.MustCompile(`ghp_[0-9A-Za-z]{36}`),                    // GitHub PAT
+	regexp.MustCompile(`(?i)"private_key"\s*:\s*"[^"]+"`),        // GCP SA JSON key
 	regexp.MustCompile(`(?i)(secret|token|password|passwd)["':=\s]+[^\s"',]{8,}`),
 }
 

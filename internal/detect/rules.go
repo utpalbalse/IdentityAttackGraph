@@ -26,10 +26,10 @@ func (orphanedIdentity) Detect(s Subject, _ Config, now time.Time) []models.Find
 		return nil
 	}
 	ev := map[string]any{
-		"missing": []string{"owner", "workload", "repo_reference"},
-		"created": s.Identity.CreatedAtSource,
+		"missing":   []string{"owner", "workload", "repo_reference"},
+		"created":   s.Identity.CreatedAtSource,
 		"last_seen": s.Identity.LastSeenAt,
-		"account": s.Identity.Prov.AccountRef,
+		"account":   s.Identity.Prov.AccountRef,
 	}
 	narr := fmt.Sprintf("Identity %q has no owner, no workload running as it, and no repository reference. "+
 		"It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.", s.Identity.Name)
@@ -135,7 +135,10 @@ func (conditionlessTrust) ID() string { return "conditionless_assume_role" }
 func (conditionlessTrust) Detect(s Subject, _ Config, now time.Time) []models.Finding {
 	var out []models.Finding
 	for _, t := range s.Trust {
-		if t.EdgeType != "can_assume" || len(t.Condition) > 0 {
+		// Fire only on assume-role edges that carry no security guard (ExternalId/MFA/IP/org).
+		// Cross-account and wildcard properties live alongside guards in the condition map, so we
+		// check for guards specifically rather than an empty condition.
+		if t.EdgeType != "can_assume" || trustHasGuard(t.Condition) {
 			continue
 		}
 		ev := map[string]any{"edge": t.EdgeType, "missing_conditions": []string{"ExternalId", "MFA", "SourceIp"}}
@@ -211,10 +214,10 @@ func (highBlastRadius) Detect(s Subject, _ Config, now time.Time) []models.Findi
 		pathDesc = append(pathDesc, fmt.Sprintf("%d hops -> %s", p.Hops, p.Impact))
 	}
 	ev := map[string]any{
-		"crown_jewels_reachable": s.Blast.CrownJewelCount,
+		"crown_jewels_reachable":   s.Blast.CrownJewelCount,
 		"nearest_crown_jewel_hops": s.Blast.NearestCrownJewel,
-		"reaches_admin": s.Blast.ReachesAdmin,
-		"top_paths": pathDesc,
+		"reaches_admin":            s.Blast.ReachesAdmin,
+		"top_paths":                pathDesc,
 	}
 	narr := fmt.Sprintf("Identity %q can reach high-impact resources (crown jewels: %d, admin: %v). "+
 		"If compromised, blast radius extends to critical assets via the listed attack paths.",
@@ -252,6 +255,23 @@ func (aiAgentOverscoped) Detect(s Subject, _ Config, now time.Time) []models.Fin
 func breakGlass(id models.Identity) bool {
 	if v, _ := id.Attributes["break_glass"].(bool); v {
 		return true
+	}
+	return false
+}
+
+// trustHasGuard reports whether a trust edge condition carries a security guard
+// (ExternalId / MFA / SourceIp / org scope). Guards may arrive as []string (in-process) or
+// []any (decoded from JSONB), so both are handled.
+func trustHasGuard(cond map[string]any) bool {
+	g, ok := cond["guards"]
+	if !ok {
+		return false
+	}
+	switch v := g.(type) {
+	case []string:
+		return len(v) > 0
+	case []any:
+		return len(v) > 0
 	}
 	return false
 }

@@ -1,34 +1,59 @@
-// Package aws collects AWS IAM, CloudTrail, and related metadata from a single account.
-// It uses assume-role for cross-account access (no stored credentials).
 package aws
 
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
 )
 
+// Collector implements collectors.Collector for a single AWS account.
 type Collector struct {
-	roleARN    string
-	externalID string
+	opts Options
+	log  *slog.Logger
 }
 
-// New creates an AWS collector for a specific account role.
-func New(roleARN, externalID string) *Collector {
-	return &Collector{roleARN: roleARN, externalID: externalID}
+// New constructs an AWS collector. roleARN/externalID enable cross-account assume-role; leave
+// roleARN empty to use ambient credentials (IRSA / env / shared config).
+func New(opts Options, log *slog.Logger) *Collector {
+	return &Collector{opts: opts, log: log}
 }
 
 func (c *Collector) ID() string { return "aws" }
 
-// Collect performs a full snapshot of IAM, CloudTrail (if cursor is old), and Secrets Manager
-// in a single account. On subsequent runs, it fetches only deltas from CloudTrail.
-func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[string]any) (collectors.Result, error) {
-	// TODO: assume the role using STS; establish CloudTrail, IAM, Secrets Manager clients.
-	// For now, return empty (placeholder for Phase 1 full implementation).
-	return collectors.Result{
-		Identities: []models.Identity{},
-		NewCursor:  map[string]any{"type": "cloudtrail_timestamp", "timestamp": "2025-06-11T00:00:00Z"},
-	}, nil
+// Collect runs IAM discovery (full snapshot, idempotent) and CloudTrail usage ingestion
+// (incremental from the cursor). The two phases share one set of clients and one account_ref.
+func (c *Collector) Collect(ctx context.Context, accountRefIn string, cursor map[string]any) (collectors.Result, error) {
+	clients, err := newClients(ctx, c.opts)
+	if err != nil {
+		return collectors.Result{}, err
+	}
+	ref := accountRef(clients.accountID)
+	if c.log != nil {
+		c.log.Info("aws collector authenticated", "account", ref, "assumed_role", c.opts.RoleARN != "")
+	}
+
+	// Phase 1: IAM inventory (users, roles, credentials, trust, bindings).
+	b := newBuilder(ref)
+	if err := clients.collectIAM(ctx, b); err != nil {
+		return collectors.Result{}, fmt.Errorf("collect iam: %w", err)
+	}
+
+	// Phase 2: CloudTrail usage events (incremental). Failure here is non-fatal — inventory still
+	// has value without usage signal; we log and proceed so a missing CloudTrail doesn't block.
+	events, newCursor, err := clients.collectCloudTrail(ctx, ref, cursor, c.opts.CloudTrailLookbackHours)
+	if err != nil && c.log != nil {
+		c.log.Warn("cloudtrail collection degraded", "err", err, "events_collected", len(events))
+	}
+
+	res := b.result(newCursor)
+	res.UsageEvents = events
+	if c.log != nil {
+		c.log.Info("aws collection complete",
+			"identities", len(res.Identities), "credentials", len(res.Credentials),
+			"roles", len(res.Roles), "trust_edges", len(res.TrustEdges),
+			"bindings", len(res.ResourceBindings), "usage_events", len(res.UsageEvents))
+	}
+	return res, nil
 }

@@ -181,10 +181,10 @@ func (g *Graph) ComputeBlastRadius(start uuid.UUID, maxHops int) BlastRadius {
 
 // Path is a single attack path expressed node-by-node.
 type Path struct {
-	Nodes   []uuid.UUID
-	Edges   []Edge
-	Impact  models.Criticality
-	Hops    int
+	Nodes  []uuid.UUID
+	Edges  []Edge
+	Impact models.Criticality
+	Hops   int
 }
 
 // AttackPaths finds capability paths from `start` to high-impact targets (crown_jewel resources

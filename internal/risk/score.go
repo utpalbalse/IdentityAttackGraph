@@ -13,11 +13,11 @@ import (
 
 // Input is the decoupled, store-agnostic view the scorer needs for one identity.
 type Input struct {
-	Identity models.Identity
-	Creds    []models.Credential
-	Roles    []models.Role
-	Bindings []models.ResourceBinding
-	Trust    []models.TrustEdge
+	Identity  models.Identity
+	Creds     []models.Credential
+	Roles     []models.Role
+	Bindings  []models.ResourceBinding
+	Trust     []models.TrustEdge
 	Exposures []models.Exposure
 
 	// Live anomaly signals, supplied by the detection engine (each is evidence-backed).
@@ -98,7 +98,12 @@ func (e *Engine) Score(in Input) Breakdown {
 
 func (e *Engine) privilege(in Input) Factor {
 	f := Factor{}
-	add := func(pts int, sig string) { f.Score += pts; if pts > 0 { f.Signals = append(f.Signals, sig) } }
+	add := func(pts int, sig string) {
+		f.Score += pts
+		if pts > 0 {
+			f.Signals = append(f.Signals, sig)
+		}
+	}
 	wildAct, wildRes := 0, 0
 	hasAdmin, escal, writeCrown := false, false, false
 	for _, r := range in.Roles {
@@ -140,7 +145,12 @@ func (e *Engine) privilege(in Input) Factor {
 
 func (e *Engine) exposure(in Input) Factor {
 	f := Factor{}
-	add := func(pts int, sig string) { f.Score += pts; if pts > 0 { f.Signals = append(f.Signals, sig) } }
+	add := func(pts int, sig string) {
+		f.Score += pts
+		if pts > 0 {
+			f.Signals = append(f.Signals, sig)
+		}
+	}
 	pub, priv, verified := false, false, false
 	for _, ex := range in.Exposures {
 		// public vs private is conveyed by pattern/attributes upstream; default to private.
@@ -172,7 +182,12 @@ func (e *Engine) exposure(in Input) Factor {
 
 func (e *Engine) freshness(in Input) Factor {
 	f := Factor{}
-	add := func(pts int, sig string) { f.Score += pts; if pts > 0 { f.Signals = append(f.Signals, sig) } }
+	add := func(pts int, sig string) {
+		f.Score += pts
+		if pts > 0 {
+			f.Signals = append(f.Signals, sig)
+		}
+	}
 	now := in.Now
 	if in.Identity.LastSeenAt == nil {
 		if in.Identity.CreatedAtSource != nil && now.Sub(*in.Identity.CreatedAtSource) > 30*24*time.Hour {
@@ -211,9 +226,14 @@ func (e *Engine) usage(in Input) Factor {
 
 func (e *Engine) trust(in Input) Factor {
 	f := Factor{}
-	add := func(pts int, sig string) { f.Score += pts; if pts > 0 { f.Signals = append(f.Signals, sig) } }
+	add := func(pts int, sig string) {
+		f.Score += pts
+		if pts > 0 {
+			f.Signals = append(f.Signals, sig)
+		}
+	}
 	for _, t := range in.Trust {
-		if len(t.Condition) == 0 && (t.EdgeType == "can_assume") {
+		if t.EdgeType == "can_assume" && !trustHasGuard(t.Condition) {
 			add(e.W.sig("trust", "conditionless_assume"), "conditionless_assume")
 		}
 		if x, _ := t.Condition["cross_account"].(bool); x {
@@ -230,9 +250,29 @@ func (e *Engine) trust(in Input) Factor {
 	return f
 }
 
+// trustHasGuard reports whether a trust condition carries a security guard (ExternalId/MFA/IP/org).
+func trustHasGuard(cond map[string]any) bool {
+	g, ok := cond["guards"]
+	if !ok {
+		return false
+	}
+	switch v := g.(type) {
+	case []string:
+		return len(v) > 0
+	case []any:
+		return len(v) > 0
+	}
+	return false
+}
+
 func (e *Engine) blast(in Input) Factor {
 	f := Factor{}
-	add := func(pts int, sig string) { f.Score += pts; if pts > 0 { f.Signals = append(f.Signals, sig) } }
+	add := func(pts int, sig string) {
+		f.Score += pts
+		if pts > 0 {
+			f.Signals = append(f.Signals, sig)
+		}
+	}
 	br := in.Blast
 	if br.CrownJewelCount > 0 {
 		if br.NearestCrownJewel <= 1 {

@@ -7,9 +7,10 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/collectors"
+	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
+	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -18,6 +19,10 @@ func main() {
 	provider := flag.String("provider", "aws", "aws, gcp, or fixture")
 	account := flag.String("account", "", "account id / project id")
 	fixtureFile := flag.String("fixture", "fixtures/demo_env.json", "fixture file for demo collector")
+	roleARN := flag.String("role-arn", "", "AWS role ARN to assume for cross-account collection")
+	externalID := flag.String("external-id", "", "ExternalId for the assume-role trust (recommended)")
+	region := flag.String("region", "us-east-1", "AWS region for API calls")
+	ctLookback := flag.Int("cloudtrail-lookback-hours", 24, "hours of CloudTrail history on first run")
 	flag.Parse()
 
 	cfg, err := config.Load("configs/config.yaml")
@@ -45,14 +50,16 @@ func main() {
 			*account = "fixture"
 		}
 	case "aws":
+		// account is resolved from STS GetCallerIdentity; -account is optional/informational.
+		coll = awscollector.New(awscollector.Options{
+			RoleARN:                 *roleARN,
+			ExternalID:              *externalID,
+			Region:                  *region,
+			CloudTrailLookbackHours: *ctLookback,
+		}, logger)
 		if *account == "" {
-			logger.Error("aws requires -account")
-			os.Exit(1)
+			*account = "aws"
 		}
-		// For MVP, use placeholder; real version would set up assume-role.
-		// coll = aws.New(roleARN, externalID)
-		logger.Error("aws collector not yet implemented")
-		os.Exit(1)
 	case "gcp":
 		if *account == "" {
 			logger.Error("gcp requires -account")

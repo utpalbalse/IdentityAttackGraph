@@ -35,13 +35,13 @@ type Subject struct {
 
 // Config holds detector thresholds (sourced from config.Detection).
 type Config struct {
-	StaleWindow          time.Duration
-	MaxCredAge           time.Duration
-	MaxRotationAge       time.Duration
-	ImpossibleTravelKMH  float64
-	UsageSpikeSigma      float64
-	AnomalyWarmupEvents  int
-	EgressAllowlist      []string // CIDRs; matched events suppressed
+	StaleWindow         time.Duration
+	MaxCredAge          time.Duration
+	MaxRotationAge      time.Duration
+	ImpossibleTravelKMH float64
+	UsageSpikeSigma     float64
+	AnomalyWarmupEvents int
+	EgressAllowlist     []string // CIDRs; matched events suppressed
 }
 
 // Detector is a single detection rule.

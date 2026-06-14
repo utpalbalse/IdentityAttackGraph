@@ -85,35 +85,41 @@ type RoleRepo struct{ pool *pgxpool.Pool }
 func (r *RoleRepo) Upsert(ctx context.Context, role models.Role) (uuid.UUID, error) {
 	pol, _ := json.Marshal(role.PolicyDocument)
 	trust, _ := json.Marshal(role.TrustPolicy)
+	if role.ID == uuid.Nil {
+		role.ID = models.DeterministicID("role", role.ExternalID)
+	}
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, `
 		INSERT INTO roles
-			(provider,external_id,account_ref,name,policy_document,trust_policy,
+			(id,provider,external_id,account_ref,name,policy_document,trust_policy,
 			 privilege_level,is_assumable,permission_count,
-			 wildcard_action_count,wildcard_resource_count,source,collected_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,now())
+			 wildcard_action_count,wildcard_resource_count,owner_identity_id,source,collected_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,now())
 		ON CONFLICT (provider, external_id) DO UPDATE SET
 			name=EXCLUDED.name, policy_document=EXCLUDED.policy_document,
 			trust_policy=EXCLUDED.trust_policy, privilege_level=EXCLUDED.privilege_level,
 			is_assumable=EXCLUDED.is_assumable, permission_count=EXCLUDED.permission_count,
 			wildcard_action_count=EXCLUDED.wildcard_action_count,
-			wildcard_resource_count=EXCLUDED.wildcard_resource_count, updated_at=now()
+			wildcard_resource_count=EXCLUDED.wildcard_resource_count,
+			owner_identity_id=EXCLUDED.owner_identity_id, updated_at=now()
 		RETURNING id`,
-		role.Provider, role.ExternalID, role.AccountRef, role.Name, pol, trust,
+		role.ID, role.Provider, role.ExternalID, role.AccountRef, role.Name, pol, trust,
 		role.PrivilegeLevel, role.IsAssumable, role.PermissionCount,
-		role.WildcardActionCount, role.WildcardResourceCount, role.Source,
+		role.WildcardActionCount, role.WildcardResourceCount, role.OwnerIdentityID, role.Source,
 	).Scan(&id)
 	return id, err
 }
 
+// ForIdentity returns the permission sets an identity holds: roles it owns directly
+// (owner_identity_id) plus roles it can reach via assume-role trust edges.
 func (r *RoleRepo) ForIdentity(ctx context.Context, identityID uuid.UUID) ([]models.Role, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT r.id,r.provider,r.external_id,r.account_ref,r.name,r.policy_document,
+		SELECT DISTINCT r.id,r.provider,r.external_id,r.account_ref,r.name,r.policy_document,
 		       r.trust_policy,r.privilege_level,r.is_assumable,
 		       r.permission_count,r.wildcard_action_count,r.wildcard_resource_count,r.source
 		FROM roles r
-		JOIN trust_edges te ON te.dst_role_id=r.id
-		WHERE te.src_identity_id=$1`, identityID)
+		LEFT JOIN trust_edges te ON te.dst_role_id=r.id AND te.src_identity_id=$1
+		WHERE r.owner_identity_id=$1 OR te.src_identity_id=$1`, identityID)
 	if err != nil {
 		return nil, err
 	}

@@ -109,16 +109,16 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 		exposures, _ := s.Exposures.ForIdentity(ctx, id.ID)
 
 		input := risk.Input{
-			Identity:           id,
-			Creds:              creds,
-			Roles:              roles,
-			Bindings:           bindings,
-			Trust:              trust,
-			Exposures:          exposures,
-			Blast:              graph.BlastRadius{},
-			PeerPermissionP90:  100,
-			PeerReachableP90:   50,
-			Now:                time.Now(),
+			Identity:          id,
+			Creds:             creds,
+			Roles:             roles,
+			Bindings:          bindings,
+			Trust:             trust,
+			Exposures:         exposures,
+			Blast:             graph.BlastRadius{},
+			PeerPermissionP90: 100,
+			PeerReachableP90:  50,
+			Now:               time.Now(),
 		}
 		breakdown := engine.Score(input)
 		// Convert Factor map to map[string]any for storage

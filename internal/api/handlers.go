@@ -15,16 +15,16 @@ import (
 )
 
 type Handler struct {
-	Store       *store.Store
-	RiskEngine  *risk.Engine
-	Logger      *slog.Logger
+	Store      *store.Store
+	RiskEngine *risk.Engine
+	Logger     *slog.Logger
 }
 
 // ---------- version / health ------------------------------------------------
 
 func (h *Handler) GetVersion(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
-		"version": "0.1.0",
+		"version":        "0.1.0",
 		"schema_version": "1",
 	})
 }
@@ -71,15 +71,15 @@ func (h *Handler) GetIdentity(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
-		"identity": ident,
-		"credentials": creds,
-		"roles": roles,
+		"identity":          ident,
+		"credentials":       creds,
+		"roles":             roles,
 		"resource_bindings": bindings,
-		"trust_edges": trust,
-		"workloads": workloads,
-		"exposures": exposures,
-		"findings": findings,
-		"usage_sample": usage[len(usage)-10:],
+		"trust_edges":       trust,
+		"workloads":         workloads,
+		"exposures":         exposures,
+		"findings":          findings,
+		"usage_sample":      usage[len(usage)-10:],
 	})
 }
 
@@ -147,7 +147,7 @@ func (h *Handler) GetFinding(w http.ResponseWriter, r *http.Request) {
 	remediations, _ := h.Store.Remediation.ForFinding(r.Context(), id)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
-		"finding": f,
+		"finding":      f,
 		"remediations": remediations,
 	})
 }

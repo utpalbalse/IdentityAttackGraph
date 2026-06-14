@@ -58,6 +58,18 @@ func CriticalityRank(c Criticality) int {
 	}
 }
 
+// idNamespace is a fixed UUID namespace for deriving deterministic, stable entity IDs from
+// provider identifiers (ARNs, emails). Using v5 (SHA-1) means a given external_id always maps to
+// the same UUID, so collectors can build cross-references (trust edges, credentials) BEFORE the
+// rows are persisted, and re-running a collector is fully idempotent.
+var idNamespace = uuid.MustParse("6f1d4b2e-7c3a-5e9f-8a1b-0c2d3e4f5a6b")
+
+// DeterministicID returns a stable UUIDv5 for a (kind, externalID) pair. The kind prefix prevents
+// collisions between, say, an identity and a role that share an ARN.
+func DeterministicID(kind, externalID string) uuid.UUID {
+	return uuid.NewSHA1(idNamespace, []byte(kind+"\x00"+externalID))
+}
+
 // Provenance is embedded into every collected entity. Source-of-truth metadata.
 type Provenance struct {
 	Source         string     `json:"source"`
@@ -71,24 +83,24 @@ type Provenance struct {
 // ----- core entities -----
 
 type Identity struct {
-	ID              uuid.UUID              `json:"id"`
-	Kind            IdentityKind           `json:"kind"`
-	Name            string                 `json:"name"`
-	ARNOrEmail      string                 `json:"arn_or_email"`
-	Provider        string                 `json:"provider"`
-	State           string                 `json:"state"`
-	OwnerID         *uuid.UUID             `json:"owner_id,omitempty"`
-	CreatedAtSource *time.Time             `json:"created_at_source,omitempty"`
-	LastSeenAt      *time.Time             `json:"last_seen_at,omitempty"`
-	LastRotatedAt   *time.Time             `json:"last_rotated_at,omitempty"`
-	IsAIAgent       bool                   `json:"is_ai_agent"`
-	AIAgentMeta     map[string]any         `json:"ai_agent_meta,omitempty"`
-	RiskScore       int                    `json:"risk_score"`
-	RiskBreakdown   map[string]any         `json:"risk_breakdown,omitempty"`
-	Attributes      map[string]any         `json:"attributes,omitempty"`
-	Prov            Provenance             `json:"provenance"`
-	CreatedAt       time.Time              `json:"created_at"`
-	UpdatedAt       time.Time              `json:"updated_at"`
+	ID              uuid.UUID      `json:"id"`
+	Kind            IdentityKind   `json:"kind"`
+	Name            string         `json:"name"`
+	ARNOrEmail      string         `json:"arn_or_email"`
+	Provider        string         `json:"provider"`
+	State           string         `json:"state"`
+	OwnerID         *uuid.UUID     `json:"owner_id,omitempty"`
+	CreatedAtSource *time.Time     `json:"created_at_source,omitempty"`
+	LastSeenAt      *time.Time     `json:"last_seen_at,omitempty"`
+	LastRotatedAt   *time.Time     `json:"last_rotated_at,omitempty"`
+	IsAIAgent       bool           `json:"is_ai_agent"`
+	AIAgentMeta     map[string]any `json:"ai_agent_meta,omitempty"`
+	RiskScore       int            `json:"risk_score"`
+	RiskBreakdown   map[string]any `json:"risk_breakdown,omitempty"`
+	Attributes      map[string]any `json:"attributes,omitempty"`
+	Prov            Provenance     `json:"provenance"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
 }
 
 type Credential struct {
@@ -134,7 +146,12 @@ type Role struct {
 	PermissionCount       int            `json:"permission_count"`
 	WildcardActionCount   int            `json:"wildcard_action_count"`
 	WildcardResourceCount int            `json:"wildcard_resource_count"`
-	Source                string         `json:"source"`
+	// OwnerIdentityID links a permission set directly to the principal that holds it (e.g. an IAM
+	// user's own inline/attached policies, or a role's own permissions). This lets the risk engine
+	// count an identity's directly-held privileges, distinct from roles reachable via assume-role
+	// trust edges. Nil for standalone roles that are only reachable through trust.
+	OwnerIdentityID *uuid.UUID `json:"owner_identity_id,omitempty"`
+	Source          string     `json:"source"`
 }
 
 type TrustEdge struct {
@@ -203,21 +220,21 @@ type Exposure struct {
 }
 
 type UsageEvent struct {
-	ID           uuid.UUID `json:"id"`
-	IdentityID   uuid.UUID `json:"identity_id"`
-	EventTime    time.Time `json:"event_time"`
-	EventName    string    `json:"event_name"`
-	EventSource  string    `json:"event_source"`
-	SrcIP        string    `json:"src_ip,omitempty"`
-	SrcASN       int       `json:"src_asn,omitempty"`
-	SrcRegion    string    `json:"src_region,omitempty"`
-	SrcCountry   string    `json:"src_country,omitempty"`
-	UserAgent    string    `json:"user_agent,omitempty"`
-	Runtime      string    `json:"runtime,omitempty"`
-	MFAUsed      bool      `json:"mfa_used"`
-	ErrorCode    string    `json:"error_code,omitempty"`
-	AccountRef   string    `json:"account_ref"`
-	Source       string    `json:"source"`
+	ID          uuid.UUID `json:"id"`
+	IdentityID  uuid.UUID `json:"identity_id"`
+	EventTime   time.Time `json:"event_time"`
+	EventName   string    `json:"event_name"`
+	EventSource string    `json:"event_source"`
+	SrcIP       string    `json:"src_ip,omitempty"`
+	SrcASN      int       `json:"src_asn,omitempty"`
+	SrcRegion   string    `json:"src_region,omitempty"`
+	SrcCountry  string    `json:"src_country,omitempty"`
+	UserAgent   string    `json:"user_agent,omitempty"`
+	Runtime     string    `json:"runtime,omitempty"`
+	MFAUsed     bool      `json:"mfa_used"`
+	ErrorCode   string    `json:"error_code,omitempty"`
+	AccountRef  string    `json:"account_ref"`
+	Source      string    `json:"source"`
 }
 
 type Owner struct {

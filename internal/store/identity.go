@@ -15,18 +15,24 @@ import (
 type IdentityRepo struct{ pool *pgxpool.Pool }
 
 // Upsert inserts or updates an identity keyed by (provider, external_id). Idempotent.
+// If id.ID is set (collectors use a deterministic UUID derived from the ARN/email), that id is
+// used on insert so cross-referencing rows (credentials, trust edges) can be built ahead of time;
+// the id is never changed on conflict, preserving referential stability across re-runs.
 func (r *IdentityRepo) Upsert(ctx context.Context, id models.Identity) (uuid.UUID, error) {
 	attrs, _ := json.Marshal(id.Attributes)
 	aiMeta, _ := json.Marshal(id.AIAgentMeta)
+	if id.ID == uuid.Nil {
+		id.ID = models.DeterministicID(string(id.Kind), id.Prov.ExternalID)
+	}
 	var uid uuid.UUID
 	err := r.pool.QueryRow(ctx, `
 		INSERT INTO identities
-			(kind, name, arn_or_email, provider, account_ref, state, owner_id,
+			(id, kind, name, arn_or_email, provider, account_ref, state, owner_id,
 			 created_at_source, last_seen_at, last_rotated_at,
 			 is_ai_agent, ai_agent_meta, attributes,
 			 source, external_id, collector_run_id, collected_at, raw_hash,
 			 updated_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,now())
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,now())
 		ON CONFLICT (provider, external_id) DO UPDATE SET
 			name=EXCLUDED.name, arn_or_email=EXCLUDED.arn_or_email,
 			state=EXCLUDED.state, owner_id=EXCLUDED.owner_id,
@@ -36,7 +42,7 @@ func (r *IdentityRepo) Upsert(ctx context.Context, id models.Identity) (uuid.UUI
 			collected_at=EXCLUDED.collected_at, raw_hash=EXCLUDED.raw_hash,
 			updated_at=now()
 		RETURNING id`,
-		id.Kind, id.Name, id.ARNOrEmail, id.Provider, id.Prov.AccountRef, id.State, id.OwnerID,
+		id.ID, id.Kind, id.Name, id.ARNOrEmail, id.Provider, id.Prov.AccountRef, id.State, id.OwnerID,
 		id.CreatedAtSource, id.LastSeenAt, id.LastRotatedAt,
 		id.IsAIAgent, aiMeta, attrs,
 		id.Prov.Source, id.Prov.ExternalID, id.Prov.CollectorRunID, id.Prov.CollectedAt, id.Prov.RawHash,
@@ -58,16 +64,16 @@ func (r *IdentityRepo) UpdateRiskScore(ctx context.Context, id uuid.UUID, score 
 
 // IdentityFilter carries search/filter parameters for list queries.
 type IdentityFilter struct {
-	Provider    string
-	AccountRef  string
-	Kind        string
-	State       string
-	MinRisk     int
-	HasFinding  bool
-	IsAIAgent   *bool
-	Q           string // trgm search
-	Cursor      uuid.UUID
-	Limit       int
+	Provider   string
+	AccountRef string
+	Kind       string
+	State      string
+	MinRisk    int
+	HasFinding bool
+	IsAIAgent  *bool
+	Q          string // trgm search
+	Cursor     uuid.UUID
+	Limit      int
 }
 
 // List returns identities matching the filter, ordered by risk_score desc.

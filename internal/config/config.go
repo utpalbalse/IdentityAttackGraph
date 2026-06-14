@@ -83,10 +83,10 @@ func Load(path string) (*Config, error) {
 // Defaults returns a usable local-dev configuration.
 func Defaults() *Config {
 	return &Config{
-		Server:   Server{HTTPAddr: ":8080", MetricsAddr: ":9090", ReadTimeout: 15, WriteTimeout: 30},
-		Database: Database{DSN: "postgres://nhiid:nhiid@localhost:5432/nhiid?sslmode=disable", MaxConns: 20, MinConns: 2},
-		Queue:    Queue{NATSURL: "nats://localhost:4222", Stream: "nhiid-jobs"},
-		Cache:    Cache{RedisURL: "redis://localhost:6379/0"},
+		Server:    Server{HTTPAddr: ":8080", MetricsAddr: ":9090", ReadTimeout: 15, WriteTimeout: 30},
+		Database:  Database{DSN: "postgres://nhiid:nhiid@localhost:5432/nhiid?sslmode=disable", MaxConns: 20, MinConns: 2},
+		Queue:     Queue{NATSURL: "nats://localhost:4222", Stream: "nhiid-jobs"},
+		Cache:     Cache{RedisURL: "redis://localhost:6379/0"},
 		Telemetry: Telemetry{LogLevel: "info", LogFormat: "json"},
 		Detection: Detection{
 			StaleWindowDays: 90, MaxCredAgeDays: 365, MaxRotationAgeDays: 180,
