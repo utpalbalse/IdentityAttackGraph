@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { api, Identity, Finding, IdentityDetail, AttackPath } from './api'
+import { GraphView } from './GraphView'
 import {
   RiskChip, SeverityPill, RiskRing, FactorBar, ProviderBadge, KindGlyph,
   relTime, shortKind, riskSeverity, Spinner, Empty, Sev,
 } from './ui'
 
-type Tab = 'overview' | 'inventory' | 'triage'
+type Tab = 'overview' | 'inventory' | 'graph' | 'triage'
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
@@ -48,6 +49,7 @@ export default function App() {
             <>
               {tab === 'overview' && <Overview identities={identities} findings={findings} onOpen={setSelected} />}
               {tab === 'inventory' && <Inventory identities={identities} query={query} findingsByIdentity={findingsByIdentity} onOpen={setSelected} />}
+              {tab === 'graph' && <GraphView onOpen={setSelected} />}
               {tab === 'triage' && <Triage identities={identities} findings={findings} onOpen={setSelected} />}
             </>
           )}
@@ -66,6 +68,7 @@ function Sidebar({ tab, setTab, online, counts }: {
   const items: { id: Tab; label: string; icon: string }[] = [
     { id: 'overview', label: 'Overview', icon: '◎' },
     { id: 'inventory', label: 'Inventory', icon: '▤' },
+    { id: 'graph', label: 'Attack Graph', icon: '⬡' },
     { id: 'triage', label: 'Triage', icon: '⚑' },
   ]
   return (
@@ -105,6 +108,7 @@ function Topbar({ tab, query, setQuery, onRefresh, loading }: {
   const titles: Record<Tab, [string, string]> = {
     overview: ['Overview', 'Posture across your non-human identities'],
     inventory: ['Identity Inventory', 'Every machine identity, scored and searchable'],
+    graph: ['Attack Graph', 'How identities reach roles, resources, and crown jewels'],
     triage: ['Triage Queue', 'Highest-urgency findings first'],
   }
   const [title, sub] = titles[tab]

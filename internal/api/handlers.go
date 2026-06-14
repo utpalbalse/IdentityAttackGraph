@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/nhiid/nhiid/internal/graph"
+	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -149,6 +151,96 @@ func (h *Handler) GetBlastRadius(w http.ResponseWriter, r *http.Request) {
 		br = g.ComputeBlastRadius(nid, 5)
 	}
 	writeJSON(w, br)
+}
+
+// graphNodeDTO / graphEdgeDTO are the Cytoscape-friendly projection returned to the UI.
+type graphNodeDTO struct {
+	ID          string `json:"id"`
+	EntityID    string `json:"entity_id,omitempty"`
+	Type        string `json:"type"`
+	Label       string `json:"label"`
+	Criticality string `json:"criticality"`
+}
+
+type graphEdgeDTO struct {
+	ID     string `json:"id"`
+	Source string `json:"source"`
+	Target string `json:"target"`
+	Type   string `json:"type"`
+}
+
+// GetGraph returns the whole identity graph (capped) for the Attack Graph view.
+func (h *Handler) GetGraph(w http.ResponseWriter, r *http.Request) {
+	nodes, edges, err := h.Store.Graph.LoadAll(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	const cap = 2000
+	if len(nodes) > cap {
+		nodes = nodes[:cap]
+	}
+	present := map[uuid.UUID]bool{}
+	dn := make([]graphNodeDTO, 0, len(nodes))
+	for _, n := range nodes {
+		present[n.ID] = true
+		dn = append(dn, nodeDTO(n))
+	}
+	de := make([]graphEdgeDTO, 0, len(edges))
+	for _, e := range edges {
+		if !present[e.SrcNodeID] || !present[e.DstNodeID] {
+			continue // drop edges to capped-out nodes
+		}
+		de = append(de, graphEdgeDTO{ID: e.ID.String(), Source: e.SrcNodeID.String(), Target: e.DstNodeID.String(), Type: e.EdgeType})
+	}
+	writeJSON(w, map[string]any{"nodes": dn, "edges": de})
+}
+
+// GetNeighborhood returns the subgraph within `depth` hops of an entity (identity) node.
+func (h *Handler) GetNeighborhood(w http.ResponseWriter, r *http.Request) {
+	entityID, err := uuid.Parse(r.URL.Query().Get("node"))
+	if err != nil {
+		http.Error(w, "invalid node id", http.StatusBadRequest)
+		return
+	}
+	depth := 2
+	if d, err := strconv.Atoi(r.URL.Query().Get("depth")); err == nil && d > 0 && d <= 6 {
+		depth = d
+	}
+	g, ok := h.loadGraph(r, w)
+	if !ok {
+		return
+	}
+	dn := []graphNodeDTO{}
+	de := []graphEdgeDTO{}
+	if nid, ok := g.NodeIDForEntity(entityID); ok {
+		ns, es := g.Neighborhood(nid, depth)
+		for _, n := range ns {
+			dn = append(dn, graphNodeDTO{
+				ID: n.ID.String(), EntityID: nonNilUUID(n.EntityID), Type: n.Type,
+				Label: n.Label, Criticality: string(n.Criticality),
+			})
+		}
+		for _, e := range es {
+			de = append(de, graphEdgeDTO{ID: e.Src.String() + e.Type + e.Dst.String(), Source: e.Src.String(), Target: e.Dst.String(), Type: e.Type})
+		}
+	}
+	writeJSON(w, map[string]any{"nodes": dn, "edges": de})
+}
+
+func nodeDTO(n models.GraphNode) graphNodeDTO {
+	ent := ""
+	if n.EntityID != nil {
+		ent = n.EntityID.String()
+	}
+	return graphNodeDTO{ID: n.ID.String(), EntityID: ent, Type: n.NodeType, Label: n.Label, Criticality: string(n.Criticality)}
+}
+
+func nonNilUUID(u uuid.UUID) string {
+	if u == uuid.Nil {
+		return ""
+	}
+	return u.String()
 }
 
 // loadGraph loads the persisted graph for read endpoints, writing a 500 on failure.

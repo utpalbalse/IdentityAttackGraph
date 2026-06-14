@@ -73,6 +73,8 @@ func main() {
 		r.Get("/identities/{id}/risk", h.GetIdentityRisk)
 		r.Get("/identities/{id}/attack-paths", h.GetAttackPaths)
 		r.Get("/identities/{id}/blast-radius", h.GetBlastRadius)
+		r.Get("/graph", h.GetGraph)
+		r.Get("/graph/neighborhood", h.GetNeighborhood)
 		r.Get("/findings", h.ListFindings)
 		r.Get("/findings/{id}", h.GetFinding)
 		r.Patch("/findings/{id}", h.UpdateFinding)

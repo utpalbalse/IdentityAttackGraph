@@ -91,6 +91,26 @@ export interface AttackPath {
   path: PathStep[]
 }
 
+export interface GraphNode {
+  id: string
+  entity_id?: string
+  type: string
+  label: string
+  criticality: string
+}
+
+export interface GraphEdge {
+  id: string
+  source: string
+  target: string
+  type: string
+}
+
+export interface GraphData {
+  nodes: GraphNode[]
+  edges: GraphEdge[]
+}
+
 const API = '/api/v1'
 
 async function get<T>(path: string): Promise<T> {
@@ -105,5 +125,6 @@ export const api = {
   findings: () => get<{ findings: Finding[] }>('/findings').then(r => r.findings ?? []),
   identity: (id: string) => get<IdentityDetail>(`/identities/${id}`),
   attackPaths: (id: string) => get<{ paths: AttackPath[] }>(`/identities/${id}/attack-paths`).then(r => r.paths ?? []),
+  graph: () => get<GraphData>('/graph'),
   health: () => fetch('/healthz').then(r => r.ok).catch(() => false),
 }
