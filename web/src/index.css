@@ -275,6 +275,33 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .finding-subject { font-size: 12px; color: #aeb6d0; font-weight: 500; }
 .finding-status { font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-faint); background: var(--surface-3); padding: 2px 8px; border-radius: 6px; }
 
+/* ---------- export bar ---------- */
+
+.export-bar { display: flex; align-items: center; gap: 10px; }
+.export-label { font-size: 12.5px; color: var(--text-dim); margin-right: 4px; }
+.btn-export {
+  font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 8px;
+  background: rgba(109, 124, 255, .14); color: #c3caff; border: 1px solid rgba(109, 124, 255, .3);
+  text-decoration: none; transition: background .12s;
+}
+.btn-export:hover { background: rgba(109, 124, 255, .24); text-decoration: none; }
+.btn-export.ghost { background: var(--surface-2); color: var(--text-dim); border-color: var(--border); margin-left: auto; }
+
+/* ---------- remediations (in drawer findings) ---------- */
+
+.remediations { margin-top: 11px; display: flex; flex-direction: column; gap: 8px; }
+.remediation { background: var(--surface-3); border-radius: 7px; padding: 9px 11px; border-left: 2px solid var(--accent-2); }
+.rem-head { display: flex; align-items: center; gap: 9px; }
+.rem-action { font-size: 12px; font-weight: 650; text-transform: capitalize; color: #cfd6e6; }
+.rem-delta { font-size: 11px; font-weight: 700; color: var(--low); background: rgba(52, 211, 153, .14); padding: 1px 7px; border-radius: 6px; }
+.rem-done { font-size: 11px; color: var(--low); margin-left: auto; }
+.rem-btn {
+  margin-left: auto; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px;
+  background: var(--accent); color: #fff; transition: filter .12s;
+}
+.rem-btn:hover { filter: brightness(1.1); }
+.rem-rationale { font-size: 11.5px; color: var(--text-dim); margin-top: 5px; line-height: 1.45; }
+
 /* ---------- drawer ---------- */
 
 .overlay { position: fixed; inset: 0; background: rgba(4, 6, 12, .55); backdrop-filter: blur(2px); z-index: 40; animation: fade .15s ease; }

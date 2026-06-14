@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/nhiid/nhiid/internal/export"
 	"github.com/nhiid/nhiid/internal/graph"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/risk"
@@ -69,6 +70,7 @@ func (h *Handler) GetIdentity(w http.ResponseWriter, r *http.Request) {
 	workloads, _ := h.Store.Workloads.ForIdentity(r.Context(), id)
 	exposures, _ := h.Store.Exposures.ForIdentity(r.Context(), id)
 	findings, _ := h.Store.Findings.List(r.Context(), store.FindingFilter{IdentityID: &id})
+	remediations, _ := h.Store.Remediation.ForIdentity(r.Context(), id)
 	usage, _ := h.Store.Usage.RecentForIdentity(r.Context(), id, time.Now().Add(-90*24*time.Hour))
 
 	w.Header().Set("Content-Type", "application/json")
@@ -81,8 +83,41 @@ func (h *Handler) GetIdentity(w http.ResponseWriter, r *http.Request) {
 		"workloads":         nonNil(workloads),
 		"exposures":         nonNil(exposures),
 		"findings":          nonNil(findings),
+		"remediations":      nonNil(remediations),
 		"usage_sample":      lastN(usage, 10),
 	})
+}
+
+// GetRiskReduction reports the measurable risk removed by completed remediations.
+func (h *Handler) GetRiskReduction(w http.ResponseWriter, r *http.Request) {
+	total, done, err := h.Store.Remediation.RiskReductionDone(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]any{"risk_reduced": total, "completed_actions": done})
+}
+
+// UpdateRemediation sets a remediation action's workflow status (planned/in_progress/done/wont_fix).
+func (h *Handler) UpdateRemediation(w http.ResponseWriter, r *http.Request) {
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	var req struct {
+		Status string `json:"status"`
+		Notes  string `json:"notes"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+	if err := h.Store.Remediation.UpdateStatus(r.Context(), id, req.Status, req.Notes); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeJSON(w, map[string]string{"status": "updated"})
 }
 
 // lastN returns up to the last n elements of s without panicking on short slices.
@@ -256,6 +291,82 @@ func (h *Handler) loadGraph(r *http.Request, w http.ResponseWriter) (*graph.Grap
 func writeJSON(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(v)
+}
+
+// ---------- exports (JSON / SARIF / CSV) ----------
+
+func (h *Handler) ExportFindings(w http.ResponseWriter, r *http.Request) {
+	format := r.URL.Query().Get("format")
+	findings, err := h.Store.Findings.List(r.Context(), store.FindingFilter{Status: r.URL.Query().Get("status"), Limit: 5000})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	names := h.identityIndex(r)
+	rows := make([]export.FindingRow, 0, len(findings))
+	for _, f := range findings {
+		var name, arn, acct string
+		if f.IdentityID != nil {
+			if id, ok := names[*f.IdentityID]; ok {
+				name, arn, acct = id.Name, id.ARNOrEmail, id.Prov.AccountRef
+			}
+		}
+		rows = append(rows, export.FindingRow{
+			Detector: f.Detector, Category: f.Category, Severity: string(f.Severity), Confidence: f.Confidence,
+			IdentityName: name, IdentityARN: arn, Account: acct,
+			Title: f.Title, Narrative: f.Narrative, Status: f.Status, Evidence: f.Evidence,
+			FirstSeen: f.FirstSeenAt, LastSeen: f.LastSeenAt,
+		})
+	}
+	switch format {
+	case "sarif":
+		setDownload(w, "application/sarif+json", "nhiid-findings.sarif")
+		_ = export.FindingsSARIF(w, rows)
+	case "csv":
+		setDownload(w, "text/csv", "nhiid-findings.csv")
+		_ = export.FindingsCSV(w, rows)
+	default:
+		setDownload(w, "application/json", "nhiid-findings.json")
+		_ = export.FindingsJSON(w, rows)
+	}
+}
+
+func (h *Handler) ExportInventory(w http.ResponseWriter, r *http.Request) {
+	format := r.URL.Query().Get("format")
+	ids, err := h.Store.Identities.List(r.Context(), store.IdentityFilter{Limit: 5000})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	rows := make([]export.InventoryRow, 0, len(ids))
+	for _, i := range ids {
+		rows = append(rows, export.InventoryRow{
+			Name: i.Name, Kind: string(i.Kind), Provider: i.Provider, Account: i.Prov.AccountRef,
+			State: i.State, RiskScore: i.RiskScore, LastSeen: i.LastSeenAt,
+		})
+	}
+	if format == "csv" {
+		setDownload(w, "text/csv", "nhiid-inventory.csv")
+		_ = export.InventoryCSV(w, rows)
+		return
+	}
+	setDownload(w, "application/json", "nhiid-inventory.json")
+	_ = export.InventoryJSON(w, rows)
+}
+
+// identityIndex returns a id->identity map for joining names into exports.
+func (h *Handler) identityIndex(r *http.Request) map[uuid.UUID]models.Identity {
+	ids, _ := h.Store.Identities.List(r.Context(), store.IdentityFilter{Limit: 5000})
+	m := make(map[uuid.UUID]models.Identity, len(ids))
+	for _, i := range ids {
+		m[i.ID] = i
+	}
+	return m
+}
+
+func setDownload(w http.ResponseWriter, contentType, filename string) {
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
 }
 
 // ---------- findings -------------------------------------------------------

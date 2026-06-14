@@ -14,6 +14,7 @@ import (
 	"github.com/nhiid/nhiid/internal/graph"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/models"
+	"github.com/nhiid/nhiid/internal/remediate"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -81,7 +82,7 @@ func main() {
 		}
 
 		if *job == "detect" || *job == "all" {
-			if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, logger); err != nil {
+			if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger); err != nil {
 				logger.Error("detection", "err", err)
 			}
 		}
@@ -156,9 +157,9 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 	return nil
 }
 
-func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, engine *detect.Engine, cfg detect.Config, logger *slog.Logger) error {
+func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, engine *detect.Engine, cfg detect.Config, riskEngine *risk.Engine, logger *slog.Logger) error {
 	logger.Info("detecting anomalies", "count", len(ids))
-	g, _, err := loadGraph(ctx, s)
+	g, reachP90, err := loadGraph(ctx, s)
 	if err != nil {
 		logger.Warn("load graph for detection (blast/attack-path disabled)", "err", err)
 	}
@@ -179,6 +180,7 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 				paths = g.AttackPaths(nid, blastMaxHops, 5)
 			}
 		}
+		peerP90 := peers.p90(ctx, id)
 		subject := detect.Subject{
 			Identity:          id,
 			Creds:             creds,
@@ -190,12 +192,36 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 			Usage:             usage,
 			Blast:             blast,
 			Paths:             paths,
-			PeerPermissionP90: peers.p90(ctx, id),
+			PeerPermissionP90: peerP90,
 		}
+
+		// Risk input for re-scoring remediation deltas — same data, same engine as scoring.
+		rin := risk.Input{
+			Identity: id, Creds: creds, Roles: roles, Bindings: bindings, Trust: trust,
+			Exposures: exposures, Blast: blast, PeerPermissionP90: peerP90,
+			PeerReachableP90: reachP90, Now: time.Now(),
+		}
+		current := riskEngine.Score(rin).Composite
+
 		findings := engine.Run(subject, cfg, time.Now())
 		for _, f := range findings {
-			if _, err := s.Findings.Upsert(ctx, f); err != nil {
+			findingID, err := s.Findings.Upsert(ctx, f)
+			if err != nil {
 				logger.Error("upsert finding", "detector", f.Detector, "err", err)
+				continue
+			}
+			for _, plan := range remediate.Recommend(f.Detector, rin, riskEngine, current) {
+				if err := s.Remediation.Upsert(ctx, models.RemediationAction{
+					FindingID:  findingID,
+					Action:     plan.Action,
+					Status:     "recommended",
+					RiskBefore: current,
+					RiskAfter:  plan.RiskAfter,
+					RiskDelta:  plan.RiskDelta,
+					Notes:      plan.Rationale,
+				}); err != nil {
+					logger.Error("upsert remediation", "action", plan.Action, "err", err)
+				}
 			}
 		}
 	}

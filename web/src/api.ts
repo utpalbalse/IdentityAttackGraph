@@ -64,6 +64,17 @@ export interface Exposure {
   verified: boolean
 }
 
+export interface Remediation {
+  id: string
+  finding_id: string
+  action: string
+  status: string
+  risk_before: number
+  risk_after: number
+  risk_delta: number
+  notes?: string
+}
+
 export interface IdentityDetail {
   identity: Identity
   credentials: Credential[]
@@ -73,6 +84,7 @@ export interface IdentityDetail {
   workloads: any[]
   exposures: Exposure[]
   findings: Finding[]
+  remediations: Remediation[]
   usage_sample: any[]
 }
 
@@ -126,5 +138,15 @@ export const api = {
   identity: (id: string) => get<IdentityDetail>(`/identities/${id}`),
   attackPaths: (id: string) => get<{ paths: AttackPath[] }>(`/identities/${id}/attack-paths`).then(r => r.paths ?? []),
   graph: () => get<GraphData>('/graph'),
+  riskReduction: () => get<{ risk_reduced: number; completed_actions: number }>('/metrics/risk-reduction'),
+  updateRemediation: (id: string, status: string) =>
+    fetch(`${API}/remediations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).then(r => r.ok),
+  // direct download URLs (browser handles Content-Disposition)
+  exportFindings: (format: string) => `${API}/export/findings?format=${format}`,
+  exportInventory: (format: string) => `${API}/export/inventory?format=${format}`,
   health: () => fetch('/healthz').then(r => r.ok).catch(() => false),
 }

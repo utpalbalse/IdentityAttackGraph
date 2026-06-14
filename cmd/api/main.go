@@ -79,6 +79,10 @@ func main() {
 		r.Get("/findings/{id}", h.GetFinding)
 		r.Patch("/findings/{id}", h.UpdateFinding)
 		r.Get("/triage", h.GetTriage)
+		r.Get("/export/findings", h.ExportFindings)
+		r.Get("/export/inventory", h.ExportInventory)
+		r.Get("/metrics/risk-reduction", h.GetRiskReduction)
+		r.Patch("/remediations/{id}", h.UpdateRemediation)
 	})
 
 	addr := cfg.Server.HTTPAddr

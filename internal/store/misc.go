@@ -364,11 +364,61 @@ func (r *RemediationRepo) Insert(ctx context.Context, a models.RemediationAction
 	return id, err
 }
 
-func (r *RemediationRepo) UpdateStatus(ctx context.Context, id uuid.UUID, status, notes string, riskAfter int) error {
+// Upsert is idempotent per (finding_id, action): re-running detection refreshes the projected
+// risk delta but never overwrites an operator's status/notes.
+func (r *RemediationRepo) Upsert(ctx context.Context, a models.RemediationAction) error {
+	_, err := r.pool.Exec(ctx, `
+		INSERT INTO remediation_actions (finding_id,action,status,risk_before,risk_after,risk_delta,notes)
+		VALUES ($1,$2,$3,$4,$5,$6,$7)
+		ON CONFLICT (finding_id, action) DO UPDATE SET
+			risk_before=EXCLUDED.risk_before, risk_after=EXCLUDED.risk_after,
+			risk_delta=EXCLUDED.risk_delta, updated_at=now()`,
+		a.FindingID, a.Action, a.Status, a.RiskBefore, a.RiskAfter, a.RiskDelta, a.Notes)
+	return err
+}
+
+// ForIdentity returns all remediation actions across an identity's findings.
+func (r *RemediationRepo) ForIdentity(ctx context.Context, identityID uuid.UUID) ([]models.RemediationAction, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT ra.id,ra.finding_id,ra.action,ra.status,ra.risk_before,ra.risk_after,ra.risk_delta,ra.assignee,ra.notes
+		FROM remediation_actions ra
+		JOIN findings f ON f.id = ra.finding_id
+		WHERE f.identity_id=$1
+		ORDER BY ra.risk_delta DESC`, identityID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []models.RemediationAction
+	for rows.Next() {
+		var a models.RemediationAction
+		if err := rows.Scan(&a.ID, &a.FindingID, &a.Action, &a.Status,
+			&a.RiskBefore, &a.RiskAfter, &a.RiskDelta, &a.Assignee, &a.Notes); err != nil {
+			return nil, err
+		}
+		out = append(out, a)
+	}
+	return out, rows.Err()
+}
+
+// RiskReductionDone sums the projected risk delta of completed remediations — the program's
+// measurable risk reduction over time.
+func (r *RemediationRepo) RiskReductionDone(ctx context.Context) (int, int, error) {
+	var total, done int
+	err := r.pool.QueryRow(ctx, `
+		SELECT COALESCE(SUM(risk_delta) FILTER (WHERE status='done'),0),
+		       COUNT(*) FILTER (WHERE status='done')
+		FROM remediation_actions`).Scan(&total, &done)
+	return total, done, err
+}
+
+// UpdateStatus changes an action's workflow status (and optional notes), preserving the
+// projected risk fields that were computed when the recommendation was generated.
+func (r *RemediationRepo) UpdateStatus(ctx context.Context, id uuid.UUID, status, notes string) error {
 	_, err := r.pool.Exec(ctx, `
 		UPDATE remediation_actions
-		SET status=$1, notes=$2, risk_after=$3, risk_delta=risk_before-$3, updated_at=now()
-		WHERE id=$4`, status, notes, riskAfter, id)
+		SET status=$1, notes=COALESCE(NULLIF($2,''), notes), updated_at=now()
+		WHERE id=$3`, status, notes, id)
 	return err
 }
 

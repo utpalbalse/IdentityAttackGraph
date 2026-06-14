@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { api, Identity, Finding, IdentityDetail, AttackPath } from './api'
+import { api, Identity, Finding, IdentityDetail, AttackPath, Remediation } from './api'
 import { GraphView } from './GraphView'
 import {
   RiskChip, SeverityPill, RiskRing, FactorBar, ProviderBadge, KindGlyph,
@@ -12,6 +12,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('overview')
   const [identities, setIdentities] = useState<Identity[]>([])
   const [findings, setFindings] = useState<Finding[]>([])
+  const [riskReduced, setRiskReduced] = useState(0)
   const [loading, setLoading] = useState(true)
   const [online, setOnline] = useState<boolean | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
@@ -24,6 +25,7 @@ export default function App() {
       setIdentities(ids)
       setFindings(fs)
       setOnline(ok)
+      api.riskReduction().then(r => setRiskReduced(r.risk_reduced)).catch(() => {})
     } catch {
       setOnline(false)
     } finally {
@@ -47,7 +49,7 @@ export default function App() {
         <div className="content">
           {loading ? <Spinner label="Loading inventory…" /> : (
             <>
-              {tab === 'overview' && <Overview identities={identities} findings={findings} onOpen={setSelected} />}
+              {tab === 'overview' && <Overview identities={identities} findings={findings} riskReduced={riskReduced} onOpen={setSelected} />}
               {tab === 'inventory' && <Inventory identities={identities} query={query} findingsByIdentity={findingsByIdentity} onOpen={setSelected} />}
               {tab === 'graph' && <GraphView onOpen={setSelected} />}
               {tab === 'triage' && <Triage identities={identities} findings={findings} onOpen={setSelected} />}
@@ -135,7 +137,7 @@ function Topbar({ tab, query, setQuery, onRefresh, loading }: {
 
 // ---------- overview ----------
 
-function Overview({ identities, findings, onOpen }: { identities: Identity[]; findings: Finding[]; onOpen: (id: string) => void }) {
+function Overview({ identities, findings, riskReduced, onOpen }: { identities: Identity[]; findings: Finding[]; riskReduced: number; onOpen: (id: string) => void }) {
   const stats = useMemo(() => {
     const sevCount: Record<Sev, number> = { critical: 0, high: 0, medium: 0, low: 0, info: 0 }
     for (const i of identities) sevCount[riskSeverity(i.risk_score)]++
@@ -168,7 +170,7 @@ function Overview({ identities, findings, onOpen }: { identities: Identity[]; fi
         <Stat label="Critical risk" value={stats.critical} accent="critical" icon="⚠" />
         <Stat label="High risk" value={stats.high} accent="high" icon="▲" />
         <Stat label="Open findings" value={stats.findings} accent="med" icon="⚑" />
-        <Stat label="Stale / unused" value={stats.stale} accent="low" icon="⏾" />
+        <Stat label="Risk reduced" value={riskReduced} accent="low" icon="↓" />
         <Stat label="AI agents" value={stats.ai} accent="accent2" icon="🤖" />
       </div>
 
@@ -294,27 +296,36 @@ function Triage({ identities, findings, onOpen }: { identities: Identity[]; find
     [findings])
   const nameById = useMemo(() => Object.fromEntries(identities.map(i => [i.id, i.name])), [identities])
 
-  if (findings.length === 0) {
-    return <Empty title="No open findings" sub="Detectors found nothing actionable. Run the worker after collecting to evaluate detections." />
-  }
-
   return (
-    <div className="findings">
-      {sorted.map(f => (
-        <button key={f.id} className={`finding sev-border-${(f.severity || 'info').toLowerCase()}`} onClick={() => onOpen(f.identity_id)}>
-          <div className="finding-top">
-            <SeverityPill sev={f.severity} />
-            <span className="finding-detector">{f.detector}</span>
-            <span className="finding-conf">{f.confidence}% confidence</span>
-          </div>
-          <div className="finding-title">{f.title}</div>
-          <div className="finding-narr">{f.narrative}</div>
-          <div className="finding-foot">
-            <span className="finding-subject">↳ {nameById[f.identity_id] || f.identity_id.slice(0, 8)}</span>
-            <span className="finding-status">{f.status}</span>
-          </div>
-        </button>
-      ))}
+    <div className="stack">
+      <div className="export-bar">
+        <span className="export-label">⭳ Export findings</span>
+        <a className="btn-export" href={api.exportFindings('sarif')} download>SARIF</a>
+        <a className="btn-export" href={api.exportFindings('csv')} download>CSV</a>
+        <a className="btn-export" href={api.exportFindings('json')} download>JSON</a>
+        <a className="btn-export ghost" href={api.exportInventory('csv')} download>Inventory CSV</a>
+      </div>
+      {findings.length === 0 ? (
+        <Empty title="No open findings" sub="Detectors found nothing actionable. Run the worker after collecting to evaluate detections." />
+      ) : (
+        <div className="findings">
+          {sorted.map(f => (
+            <button key={f.id} className={`finding sev-border-${(f.severity || 'info').toLowerCase()}`} onClick={() => onOpen(f.identity_id)}>
+              <div className="finding-top">
+                <SeverityPill sev={f.severity} />
+                <span className="finding-detector">{f.detector}</span>
+                <span className="finding-conf">{f.confidence}% confidence</span>
+              </div>
+              <div className="finding-title">{f.title}</div>
+              <div className="finding-narr">{f.narrative}</div>
+              <div className="finding-foot">
+                <span className="finding-subject">↳ {nameById[f.identity_id] || f.identity_id.slice(0, 8)}</span>
+                <span className="finding-status">{f.status}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -356,6 +367,18 @@ function DrawerBody({ d, onClose }: { d: IdentityDetail; onClose: () => void }) 
 
   const [paths, setPaths] = useState<AttackPath[] | null>(null)
   useEffect(() => { api.attackPaths(i.id).then(setPaths).catch(() => setPaths([])) }, [i.id])
+
+  const [rem, setRem] = useState<Remediation[]>(d.remediations || [])
+  const remByFinding = useMemo(() => {
+    const m: Record<string, Remediation[]> = {}
+    for (const r of rem) (m[r.finding_id] ??= []).push(r)
+    return m
+  }, [rem])
+  const markDone = async (id: string) => {
+    if (await api.updateRemediation(id, 'done')) {
+      setRem(rem.map(r => (r.id === id ? { ...r, status: 'done' } : r)))
+    }
+  }
 
   return (
     <div className="drawer-inner">
@@ -425,6 +448,22 @@ function DrawerBody({ d, onClose }: { d: IdentityDetail; onClose: () => void }) 
                 <div key={f.id} className={`dfinding sev-border-${(f.severity || 'info').toLowerCase()}`}>
                   <div className="dfinding-top"><SeverityPill sev={f.severity} /><span className="finding-detector">{f.detector}</span></div>
                   <div className="dfinding-narr">{f.narrative}</div>
+                  {(remByFinding[f.id] || []).length > 0 && (
+                    <div className="remediations">
+                      {remByFinding[f.id].map(rm => (
+                        <div key={rm.id} className="remediation">
+                          <div className="rem-head">
+                            <span className="rem-action">{rm.action.replace(/_/g, ' ')}</span>
+                            {rm.risk_delta > 0 && <span className="rem-delta">−{rm.risk_delta} risk</span>}
+                            {rm.status === 'done'
+                              ? <span className="rem-done">✓ done</span>
+                              : <button className="rem-btn" onClick={() => markDone(rm.id)}>Mark done</button>}
+                          </div>
+                          {rm.notes && <div className="rem-rationale">{rm.notes}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
