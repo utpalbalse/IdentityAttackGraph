@@ -57,7 +57,7 @@ services:
     image: nhiid:local
     command: ["api"]
     environment: *backend-env
-    ports: ["8080:8080"]
+    ports: ["8080:8080", "9090:9090"] # 9090 = Prometheus /metrics
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,6 +69,7 @@ services:
     image: nhiid:local
     command: ["worker"]
     environment: *backend-env
+    ports: ["9091:9090"] # worker Prometheus /metrics
     depends_on:
       postgres:
         condition: service_healthy

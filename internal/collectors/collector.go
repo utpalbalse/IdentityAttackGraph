@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -58,8 +59,10 @@ func Run(ctx context.Context, s *store.Store, coll Collector, accountRef string,
 
 	// Collect.
 	start := time.Now()
+	defer func() { metrics.CollectorDuration.WithLabelValues(id).Observe(time.Since(start).Seconds()) }()
 	result, err := coll.Collect(ctx, accountRef, cursor)
 	if err != nil {
+		metrics.CollectorErrors.WithLabelValues(id).Inc()
 		log.Error("collection failed", "err", err, "duration", time.Since(start))
 		_ = s.Collectors.FinishRun(ctx, runID, "error", 0, 0, 1)
 		return err
@@ -155,6 +158,7 @@ func Run(ctx context.Context, s *store.Store, coll Collector, accountRef string,
 	}
 
 	// Finish the run.
+	metrics.RecordsUpserted.WithLabelValues(id).Add(float64(upserted))
 	if err := s.Collectors.FinishRun(ctx, runID, "success", len(result.Identities), upserted, 0); err != nil {
 		log.Warn("failed to finish run record", "err", err)
 	}

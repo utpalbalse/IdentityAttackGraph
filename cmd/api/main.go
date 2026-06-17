@@ -7,14 +7,17 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/nhiid/nhiid/internal/api"
+	"github.com/nhiid/nhiid/internal/auth"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
+	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -43,10 +46,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Auth (RBAC). Mode "off" by default; "token" enforces bearer-token roles.
+	tokens, err := auth.LoadTokens(cfg.Auth.TokensFile)
+	if err != nil {
+		logger.Error("load auth tokens", "err", err)
+		os.Exit(1)
+	}
+	authn := auth.New(cfg.Auth.Mode, tokens)
+	logger.Info("auth configured", "mode", cfg.Auth.Mode, "enforced", authn.Enforced())
+
+	// Prometheus metrics: separate listener + derived-gauge refresher.
+	go serveMetrics(cfg.Server.MetricsAddr, s, logger)
+	metrics.StartRefresher(ctx, s, 30*time.Second)
+
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
+	router.Use(metricsMiddleware)
 
 	// Health
 	router.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -64,53 +81,55 @@ func main() {
 		w.Write([]byte("ready"))
 	})
 
-	// API routes
+	// API routes, grouped by minimum RBAC role (viewer < analyst < admin).
 	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger, WeightsFile: cfg.Risk.WeightsFile}
 	router.Route("/api/v1", func(r chi.Router) {
-		r.Get("/version", h.GetVersion)
+		r.Use(authn.Authenticate)
 
-		// inventory
-		r.Get("/identities", h.ListIdentities)
-		r.Get("/identities/{id}", h.GetIdentity)
-		r.Get("/identities/{id}/risk", h.GetIdentityRisk)
-		r.Get("/identities/{id}/credentials", h.GetIdentityCredentials)
-		r.Get("/identities/{id}/usage", h.GetIdentityUsage)
-		r.Get("/credentials", h.ListCredentials)
-		r.Get("/secrets", h.ListSecrets)
-		r.Get("/workloads", h.ListWorkloads)
-		r.Get("/repositories", h.ListRepositories)
+		// viewer — read
+		r.Group(func(r chi.Router) {
+			r.Use(authn.Require(auth.RoleViewer))
+			r.Get("/version", h.GetVersion)
+			r.Get("/identities", h.ListIdentities)
+			r.Get("/identities/{id}", h.GetIdentity)
+			r.Get("/identities/{id}/risk", h.GetIdentityRisk)
+			r.Get("/identities/{id}/credentials", h.GetIdentityCredentials)
+			r.Get("/identities/{id}/usage", h.GetIdentityUsage)
+			r.Get("/credentials", h.ListCredentials)
+			r.Get("/secrets", h.ListSecrets)
+			r.Get("/workloads", h.ListWorkloads)
+			r.Get("/repositories", h.ListRepositories)
+			r.Get("/identities/{id}/attack-paths", h.GetAttackPaths)
+			r.Get("/identities/{id}/blast-radius", h.GetBlastRadius)
+			r.Get("/graph", h.GetGraph)
+			r.Get("/graph/neighborhood", h.GetNeighborhood)
+			r.Get("/findings", h.ListFindings)
+			r.Get("/findings/{id}", h.GetFinding)
+			r.Get("/findings/{id}/remediations", h.GetFindingRemediations)
+			r.Get("/triage", h.GetTriage)
+			r.Get("/metrics/risk-reduction", h.GetRiskReduction)
+			r.Get("/snapshots", h.ListSnapshots)
+		})
 
-		// graph & attack paths
-		r.Get("/identities/{id}/attack-paths", h.GetAttackPaths)
-		r.Get("/identities/{id}/blast-radius", h.GetBlastRadius)
-		r.Get("/graph", h.GetGraph)
-		r.Get("/graph/neighborhood", h.GetNeighborhood)
+		// analyst — triage + remediation + exports
+		r.Group(func(r chi.Router) {
+			r.Use(authn.Require(auth.RoleAnalyst))
+			r.Patch("/findings/{id}", h.UpdateFinding)
+			r.Patch("/remediations/{id}", h.UpdateRemediation)
+			r.Get("/export/findings", h.ExportFindings)
+			r.Get("/export/inventory", h.ExportInventory)
+			r.Get("/collector-runs", h.ListCollectorRuns)
+		})
 
-		// findings & triage
-		r.Get("/findings", h.ListFindings)
-		r.Get("/findings/{id}", h.GetFinding)
-		r.Patch("/findings/{id}", h.UpdateFinding)
-		r.Post("/findings/{id}/suppress", h.SuppressFinding)
-		r.Get("/findings/{id}/remediations", h.GetFindingRemediations)
-		r.Get("/triage", h.GetTriage)
-
-		// remediation & metrics
-		r.Patch("/remediations/{id}", h.UpdateRemediation)
-		r.Get("/metrics/risk-reduction", h.GetRiskReduction)
-
-		// jobs & collection
-		r.Post("/collect", h.Collect)
-		r.Get("/collector-runs", h.ListCollectorRuns)
-		r.Get("/snapshots", h.ListSnapshots)
-
-		// exports
-		r.Get("/export/findings", h.ExportFindings)
-		r.Get("/export/inventory", h.ExportInventory)
-
-		// admin / config
-		r.Get("/config/risk-weights", h.GetRiskWeights)
-		r.Put("/config/risk-weights", h.PutRiskWeights)
-		r.Get("/audit", h.ListAudit)
+		// admin — collection, suppression, config, audit
+		r.Group(func(r chi.Router) {
+			r.Use(authn.Require(auth.RoleAdmin))
+			r.Post("/collect", h.Collect)
+			r.Post("/findings/{id}/suppress", h.SuppressFinding)
+			r.Get("/config/risk-weights", h.GetRiskWeights)
+			r.Put("/config/risk-weights", h.PutRiskWeights)
+			r.Get("/audit", h.ListAudit)
+		})
 	})
 
 	addr := cfg.Server.HTTPAddr
@@ -133,9 +152,35 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	shutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutCtx); err != nil {
 		logger.Error("shutdown error", "err", err)
+	}
+}
+
+// metricsMiddleware records request latency labelled by method, matched route, and status.
+func metricsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+		start := time.Now()
+		next.ServeHTTP(ww, r)
+		route := chi.RouteContext(r.Context()).RoutePattern()
+		if route == "" {
+			route = r.URL.Path
+		}
+		metrics.HTTPDuration.WithLabelValues(r.Method, route, strconv.Itoa(ww.Status())).
+			Observe(time.Since(start).Seconds())
+	})
+}
+
+// serveMetrics exposes Prometheus metrics + readiness on the metrics address.
+func serveMetrics(addr string, s *store.Store, logger *slog.Logger) {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", metrics.Handler())
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
+	logger.Info("metrics listening", "addr", addr)
+	if err := http.ListenAndServe(addr, mux); err != nil {
+		logger.Error("metrics server stopped", "err", err)
 	}
 }

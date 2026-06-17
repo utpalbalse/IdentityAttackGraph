@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/nhiid/nhiid/internal/auth"
 	"github.com/nhiid/nhiid/internal/collectors"
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
@@ -17,9 +18,12 @@ import (
 	"github.com/nhiid/nhiid/internal/risk"
 )
 
-// actor identifies who performed a mutation for the audit log. With OIDC at the edge this would be
-// the verified subject; until then it is taken from an X-Actor header (default "anonymous").
+// actor identifies who performed a mutation for the audit log: the authenticated principal's
+// subject when auth is enabled, else the X-Actor header (default "anonymous").
 func actor(r *http.Request) string {
+	if p, ok := auth.FromContext(r.Context()); ok && p.Subject != "" {
+		return p.Subject
+	}
 	if a := r.Header.Get("X-Actor"); a != "" {
 		return a
 	}

@@ -20,6 +20,14 @@ type Config struct {
 	Telemetry Telemetry `yaml:"telemetry"`
 	Detection Detection `yaml:"detection"`
 	Risk      Risk      `yaml:"risk"`
+	Auth      Auth      `yaml:"auth"`
+}
+
+// Auth configures API RBAC. Mode "off" (default) leaves the API open; "token" enforces bearer-token
+// roles. Tokens come from NHIID_AUTH_TOKENS (JSON) or TokensFile. See internal/auth + docs/AUTH.md.
+type Auth struct {
+	Mode       string `yaml:"mode"`
+	TokensFile string `yaml:"tokens_file"`
 }
 
 type Server struct {
@@ -93,6 +101,7 @@ func Defaults() *Config {
 			ImpossibleTravelMaxKMH: 900, UsageSpikeSigma: 4, AnomalyWarmupEvents: 50,
 		},
 		Risk: Risk{WeightsFile: "configs/risk_weights.yaml"},
+		Auth: Auth{Mode: "off"},
 	}
 }
 
@@ -114,6 +123,12 @@ func applyEnv(c *Config) {
 	}
 	if v := os.Getenv("NHIID_RISK_WEIGHTS_FILE"); v != "" {
 		c.Risk.WeightsFile = v
+	}
+	if v := os.Getenv("NHIID_AUTH_MODE"); v != "" {
+		c.Auth.Mode = v
+	}
+	if v := os.Getenv("NHIID_AUTH_TOKENS_FILE"); v != "" {
+		c.Auth.TokensFile = v
 	}
 }
 

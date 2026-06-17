@@ -34,6 +34,7 @@ Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milest
 | [docs/RISK_MODEL.md](docs/RISK_MODEL.md) | Scoring formula, factor weights, rationale |
 | [docs/DETECTIONS.md](docs/DETECTIONS.md) | Every detection, its logic, and evidence shape |
 | [docs/API.md](docs/API.md) | REST API surface |
+| [docs/AUTH.md](docs/AUTH.md) | Bearer-token RBAC (viewer/analyst/admin); OIDC path |
 | [docs/AWS_COLLECTOR.md](docs/AWS_COLLECTOR.md) | AWS collector: least-priv policy, assume-role, what it collects |
 | [docs/GCP_COLLECTOR.md](docs/GCP_COLLECTOR.md) | GCP collector: SAs, keys, impersonation/WIF trust, project IAM |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Phased milestone plan with acceptance criteria |

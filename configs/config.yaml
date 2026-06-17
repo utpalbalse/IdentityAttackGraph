@@ -37,3 +37,11 @@ detection:
 
 risk:
   weights_file: "configs/risk_weights.yaml"
+
+auth:
+  # off  = API open (default; demo/UI work unauthenticated, actor from X-Actor header)
+  # token = require `Authorization: Bearer <token>`; tokens map to roles (viewer|analyst|admin)
+  mode: "off"
+  # token entries via NHIID_AUTH_TOKENS (JSON) or this file path:
+  # [{"token":"...","subject":"alice@sec","role":"admin"}]
+  tokens_file: ""

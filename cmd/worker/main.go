@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/nhiid/nhiid/internal/detect"
 	"github.com/nhiid/nhiid/internal/graph"
 	"github.com/nhiid/nhiid/internal/log"
+	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/remediate"
 	"github.com/nhiid/nhiid/internal/risk"
@@ -40,6 +42,12 @@ func main() {
 		os.Exit(1)
 	}
 	defer s.Close()
+
+	// Prometheus metrics + derived-gauge refresher.
+	if !*once {
+		go serveMetrics(cfg.Server.MetricsAddr, logger)
+		metrics.StartRefresher(ctx, s, 30*time.Second)
+	}
 
 	weights, err := risk.LoadWeights(cfg.Risk.WeightsFile)
 	if err != nil {
@@ -72,21 +80,17 @@ func main() {
 		}
 
 		if *job == "graph" || *job == "all" {
-			if err := runGraphBuild(ctx, s, logger); err != nil {
-				logger.Error("graph build", "err", err)
-			}
+			runJob("graph", logger, func() error { return runGraphBuild(ctx, s, logger) })
 		}
 
 		if *job == "score" || *job == "all" {
-			if err := runScoring(ctx, s, ids, riskEngine, logger); err != nil {
-				logger.Error("scoring", "err", err)
-			}
+			runJob("score", logger, func() error { return runScoring(ctx, s, ids, riskEngine, logger) })
 		}
 
 		if *job == "detect" || *job == "all" {
-			if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger); err != nil {
-				logger.Error("detection", "err", err)
-			}
+			runJob("detect", logger, func() error {
+				return runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger)
+			})
 		}
 
 	next:
@@ -94,6 +98,26 @@ func main() {
 			break
 		}
 		<-tick.C
+	}
+}
+
+// runJob runs a worker job, recording success/failure metrics.
+func runJob(name string, logger *slog.Logger, fn func() error) {
+	metrics.JobsTotal.WithLabelValues(name).Inc()
+	if err := fn(); err != nil {
+		metrics.JobsFailed.WithLabelValues(name).Inc()
+		logger.Error(name+" job failed", "err", err)
+	}
+}
+
+// serveMetrics exposes Prometheus metrics + a liveness endpoint on the metrics address.
+func serveMetrics(addr string, logger *slog.Logger) {
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", metrics.Handler())
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
+	logger.Info("worker metrics listening", "addr", addr)
+	if err := http.ListenAndServe(addr, mux); err != nil {
+		logger.Error("metrics server stopped", "err", err)
 	}
 }
 

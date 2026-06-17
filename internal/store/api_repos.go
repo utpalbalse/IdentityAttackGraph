@@ -3,11 +3,59 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nhiid/nhiid/internal/models"
 )
+
+// ---------- metrics queries ----------
+
+// Count returns the total number of identities (gauge source).
+func (r *IdentityRepo) Count(ctx context.Context) (int, error) {
+	var n int
+	err := r.pool.QueryRow(ctx, `SELECT count(*) FROM identities`).Scan(&n)
+	return n, err
+}
+
+// CountOpenBySeverity returns open-finding counts keyed by severity.
+func (r *FindingRepo) CountOpenBySeverity(ctx context.Context) (map[string]int, error) {
+	rows, err := r.pool.Query(ctx, `SELECT severity, count(*) FROM findings WHERE status='open' GROUP BY severity`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]int{}
+	for rows.Next() {
+		var sev string
+		var n int
+		if err := rows.Scan(&sev, &n); err != nil {
+			return nil, err
+		}
+		out[sev] = n
+	}
+	return out, rows.Err()
+}
+
+// NewestEventBySource returns the most recent usage-event time per source (for ingestion lag).
+func (r *UsageRepo) NewestEventBySource(ctx context.Context) (map[string]time.Time, error) {
+	rows, err := r.pool.Query(ctx, `SELECT source, max(event_time) FROM usage_events GROUP BY source`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := map[string]time.Time{}
+	for rows.Next() {
+		var src string
+		var t time.Time
+		if err := rows.Scan(&src, &t); err != nil {
+			return nil, err
+		}
+		out[src] = t
+	}
+	return out, rows.Err()
+}
 
 // This file holds the read/list and admin repositories backing the full REST surface:
 // inventory lists, collector runs, suppressions, audit log, snapshots, and config settings.
