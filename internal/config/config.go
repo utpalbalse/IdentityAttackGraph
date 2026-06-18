@@ -28,13 +28,20 @@ type Config struct {
 type Auth struct {
 	Mode       string `yaml:"mode"`
 	TokensFile string `yaml:"tokens_file"`
+	// jwt mode (mode: "jwt")
+	JWTSecret        string `yaml:"jwt_secret"`          // HS256 shared secret
+	JWTPublicKeyFile string `yaml:"jwt_public_key_file"` // RS256 IdP public key (PEM)
+	JWTRoleClaim     string `yaml:"jwt_role_claim"`      // claim holding role/groups (default "role")
+	JWTIssuer        string `yaml:"jwt_issuer"`
+	JWTAudience      string `yaml:"jwt_audience"`
 }
 
 type Server struct {
-	HTTPAddr     string `yaml:"http_addr"`
-	MetricsAddr  string `yaml:"metrics_addr"`
-	ReadTimeout  int    `yaml:"read_timeout_seconds"`
-	WriteTimeout int    `yaml:"write_timeout_seconds"`
+	HTTPAddr        string `yaml:"http_addr"`
+	MetricsAddr     string `yaml:"metrics_addr"`
+	ReadTimeout     int    `yaml:"read_timeout_seconds"`
+	WriteTimeout    int    `yaml:"write_timeout_seconds"`
+	RateLimitPerMin int    `yaml:"rate_limit_per_min"` // 0 disables the Redis rate limiter
 }
 
 type Database struct {
@@ -91,7 +98,7 @@ func Load(path string) (*Config, error) {
 // Defaults returns a usable local-dev configuration.
 func Defaults() *Config {
 	return &Config{
-		Server:    Server{HTTPAddr: ":8080", MetricsAddr: ":9090", ReadTimeout: 15, WriteTimeout: 30},
+		Server:    Server{HTTPAddr: ":8080", MetricsAddr: ":9090", ReadTimeout: 15, WriteTimeout: 30, RateLimitPerMin: 600},
 		Database:  Database{DSN: "postgres://nhiid:nhiid@localhost:5432/nhiid?sslmode=disable", MaxConns: 20, MinConns: 2},
 		Queue:     Queue{NATSURL: "nats://localhost:4222", Stream: "nhiid-jobs"},
 		Cache:     Cache{RedisURL: "redis://localhost:6379/0"},
@@ -129,6 +136,9 @@ func applyEnv(c *Config) {
 	}
 	if v := os.Getenv("NHIID_AUTH_TOKENS_FILE"); v != "" {
 		c.Auth.TokensFile = v
+	}
+	if v := os.Getenv("NHIID_AUTH_JWT_SECRET"); v != "" {
+		c.Auth.JWTSecret = v
 	}
 }
 

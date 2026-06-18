@@ -13,6 +13,7 @@ import (
 	"github.com/nhiid/nhiid/internal/export"
 	"github.com/nhiid/nhiid/internal/graph"
 	"github.com/nhiid/nhiid/internal/models"
+	"github.com/nhiid/nhiid/internal/queue"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -21,7 +22,8 @@ type Handler struct {
 	Store       *store.Store
 	RiskEngine  *risk.Engine
 	Logger      *slog.Logger
-	WeightsFile string // fallback path when no weights are stored in config_settings
+	WeightsFile string       // fallback path when no weights are stored in config_settings
+	Queue       *queue.Queue // optional; when set, /collect enqueues instead of running in-process
 }
 
 // ---------- version / health ------------------------------------------------

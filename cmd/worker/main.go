@@ -10,12 +10,17 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/nhiid/nhiid/internal/collectors"
+	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
+	"github.com/nhiid/nhiid/internal/collectors/fixture"
+	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/detect"
 	"github.com/nhiid/nhiid/internal/graph"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/models"
+	"github.com/nhiid/nhiid/internal/queue"
 	"github.com/nhiid/nhiid/internal/remediate"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
@@ -43,10 +48,16 @@ func main() {
 	}
 	defer s.Close()
 
-	// Prometheus metrics + derived-gauge refresher.
+	// Prometheus metrics + derived-gauge refresher + job-queue consumer (long-running only).
 	if !*once {
 		go serveMetrics(cfg.Server.MetricsAddr, logger)
 		metrics.StartRefresher(ctx, s, 30*time.Second)
+		if q, err := queue.Connect(cfg.Queue.NATSURL, cfg.Queue.Stream); err != nil {
+			logger.Warn("job queue unavailable; collection only via CLI/in-process API", "err", err)
+		} else {
+			defer q.Close()
+			startCollectConsumer(ctx, q, s, logger)
+		}
 	}
 
 	weights, err := risk.LoadWeights(cfg.Risk.WeightsFile)
@@ -98,6 +109,62 @@ func main() {
 			break
 		}
 		<-tick.C
+	}
+}
+
+// startCollectConsumer subscribes to collect jobs, runs the requested collector, and records a
+// snapshot. Job handler errors Nak the message for redelivery.
+func startCollectConsumer(ctx context.Context, q *queue.Queue, s *store.Store, logger *slog.Logger) {
+	err := q.ConsumeCollect("nhiid-worker", func(job queue.CollectJob) error {
+		coll, account, err := buildCollector(job, logger)
+		if err != nil {
+			logger.Error("build collector from job", "provider", job.Provider, "err", err)
+			return err
+		}
+		logger.Info("consuming collect job", "provider", job.Provider, "account", account, "by", job.RequestedBy)
+		if err := collectors.Run(ctx, s, coll, account, logger); err != nil {
+			return err
+		}
+		_, _ = s.Snapshots.Create(ctx, map[string]any{"provider": job.Provider, "account": account, "requested_by": job.RequestedBy})
+		return nil
+	})
+	if err != nil {
+		logger.Error("collect consumer subscribe failed", "err", err)
+		return
+	}
+	logger.Info("collect job consumer started")
+}
+
+// buildCollector constructs a collector from a job spec.
+func buildCollector(job queue.CollectJob, logger *slog.Logger) (collectors.Collector, string, error) {
+	switch job.Provider {
+	case "fixture":
+		path := job.Fixture
+		if path == "" {
+			path = "fixtures/demo_env.json"
+		}
+		return fixture.New(path), "fixture", nil
+	case "aws":
+		region := job.Region
+		if region == "" {
+			region = "us-east-1"
+		}
+		acct := job.Account
+		if acct == "" {
+			acct = "aws"
+		}
+		return awscollector.New(awscollector.Options{RoleARN: job.RoleARN, ExternalID: job.ExternalID, Region: region, CloudTrailLookbackHours: 24}, logger), acct, nil
+	case "gcp":
+		proj := job.Project
+		if proj == "" {
+			proj = job.Account
+		}
+		if proj == "" {
+			return nil, "", fmt.Errorf("gcp requires project")
+		}
+		return gcpcollector.New(gcpcollector.Options{ProjectID: proj, CredentialsFile: job.GCPCredentials, AuditLookbackHours: 24}, logger), "gcp:" + proj, nil
+	default:
+		return nil, "", fmt.Errorf("unknown provider %q", job.Provider)
 	}
 }
 
@@ -220,6 +287,7 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 	peers := newPeerCache(s)
 	sups, _ := s.Suppressions.ListActive(ctx)
 	isSuppressed := suppressor(sups)
+	snapID, _ := s.Snapshots.Latest(ctx) // stamp findings with the collection snapshot for provenance
 	for _, id := range ids {
 		creds, _ := s.Credentials.ForIdentity(ctx, id.ID)
 		roles, _ := s.Roles.ForIdentity(ctx, id.ID)
@@ -264,6 +332,7 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 			if isSuppressed(f.Detector, id.ID) {
 				continue // admin-gated, audited suppression — don't surface or re-open
 			}
+			f.SnapshotID = snapID
 			findingID, err := s.Findings.Upsert(ctx, f)
 			if err != nil {
 				logger.Error("upsert finding", "detector", f.Detector, "err", err)

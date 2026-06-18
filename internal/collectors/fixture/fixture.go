@@ -30,6 +30,8 @@ type FixtureData struct {
 	TrustEdges       []models.TrustEdge       `json:"trust_edges"`
 	ResourceBindings []models.ResourceBinding `json:"resource_bindings"`
 	UsageEvents      []models.UsageEvent      `json:"usage_events"`
+	Repositories     []models.Repository      `json:"repositories"`
+	Exposures        []models.Exposure        `json:"exposures"`
 }
 
 func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[string]any) (collectors.Result, error) {
@@ -49,6 +51,8 @@ func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[s
 		TrustEdges:       fixture.TrustEdges,
 		ResourceBindings: fixture.ResourceBindings,
 		UsageEvents:      fixture.UsageEvents,
+		Repositories:     fixture.Repositories,
+		Exposures:        fixture.Exposures,
 		NewCursor:        map[string]any{"loaded_at": now.Format(time.RFC3339)},
 	}, nil
 }

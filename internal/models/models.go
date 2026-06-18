@@ -258,6 +258,7 @@ type Finding struct {
 	Fingerprint      string         `json:"fingerprint"`
 	Status           string         `json:"status"`
 	RiskContribution int            `json:"risk_contribution"`
+	SnapshotID       *uuid.UUID     `json:"snapshot_id,omitempty"`
 	Assignee         string         `json:"assignee,omitempty"`
 	Notes            string         `json:"notes,omitempty"`
 	FirstSeenAt      time.Time      `json:"first_seen_at"`

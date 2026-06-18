@@ -71,23 +71,38 @@ type TokenEntry struct {
 type Auth struct {
 	mode   string
 	tokens map[string]Principal // token -> principal (token mode)
+	jwt    *jwtValidator        // jwt mode
 }
 
-// New builds an Auth. mode is "off" or "token". In token mode, tokens are loaded from the supplied
-// entries (typically from NHIID_AUTH_TOKENS env JSON or a file).
-func New(mode string, entries []TokenEntry) *Auth {
-	a := &Auth{mode: strings.ToLower(mode), tokens: map[string]Principal{}}
+// New builds an Auth. mode is "off", "token", or "jwt". For token mode pass entries; for jwt mode
+// pass jwtCfg. Returns an error only if jwt config is invalid.
+func New(mode string, entries []TokenEntry, jwtCfg *JWTConfig) (*Auth, error) {
+	a := &Auth{mode: strings.ToLower(strings.TrimSpace(mode)), tokens: map[string]Principal{}}
+	if a.mode == "" {
+		a.mode = "off"
+	}
 	for _, e := range entries {
 		if e.Token == "" {
 			continue
 		}
 		a.tokens[e.Token] = Principal{Subject: e.Subject, Role: ParseRole(e.Role)}
 	}
-	if a.mode == "" {
-		a.mode = "off"
+	if a.mode == "jwt" {
+		if jwtCfg == nil {
+			return nil, errInvalid("jwt mode requires JWT config")
+		}
+		v, err := newJWTValidator(*jwtCfg)
+		if err != nil {
+			return nil, err
+		}
+		a.jwt = v
 	}
-	return a
+	return a, nil
 }
+
+type errInvalid string
+
+func (e errInvalid) Error() string { return string(e) }
 
 // LoadTokens reads token entries from the NHIID_AUTH_TOKENS env var (JSON array) or, if empty, from
 // the given file path (also JSON array). Returns nil if neither is set.
@@ -107,14 +122,15 @@ func LoadTokens(file string) ([]TokenEntry, error) {
 	return nil, nil
 }
 
-func (a *Auth) Enforced() bool { return a.mode == "token" }
+func (a *Auth) Enforced() bool { return a.mode == "token" || a.mode == "jwt" }
 
 // Authenticate resolves the principal and stores it in the request context. In token mode a missing
 // or unknown token yields 401. In off mode every caller is admin (subject from X-Actor).
 func (a *Auth) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var p Principal
-		if a.mode == "token" {
+		switch a.mode {
+		case "token":
 			tok := bearer(r)
 			pr, ok := a.tokens[tok]
 			if tok == "" || !ok {
@@ -122,7 +138,14 @@ func (a *Auth) Authenticate(next http.Handler) http.Handler {
 				return
 			}
 			p = pr
-		} else {
+		case "jwt":
+			pr, err := a.jwt.validate(bearer(r))
+			if err != nil {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+			p = pr
+		default:
 			// off mode: full access; subject from X-Actor for audit attribution.
 			subj := r.Header.Get("X-Actor")
 			if subj == "" {

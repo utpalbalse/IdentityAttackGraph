@@ -8,6 +8,7 @@ The API supports bearer-token RBAC. Implementation: [internal/auth](../internal/
 |------|----------|
 | `off` (default) | API is open — the demo and UI work unauthenticated. The audit actor comes from the `X-Actor` header (default `anonymous`). |
 | `token` | Requests must send `Authorization: Bearer <token>`. Each token maps to a `subject` + `role`. Unknown/missing token → `401`; insufficient role → `403`. The audit actor is the token's subject. |
+| `jwt` | Validate an OIDC bearer **JWT** — HS256 (shared secret) or RS256 (IdP public key, PEM). Signature, `exp`, and optional `iss`/`aud` are checked; the role comes from a configurable claim (string or `groups` array). |
 
 Set via config (`auth.mode`) or `NHIID_AUTH_MODE`.
 
@@ -44,12 +45,21 @@ curl -H "Authorization: Bearer admin-secret"   localhost:8080/api/v1/audit      
 curl                                            localhost:8080/api/v1/identities      # 401
 ```
 
-## OIDC / JWT (production path)
+## OIDC / JWT
 
-Static tokens are intended for service-to-service and bootstrap use. The production design is OIDC:
-an SSO proxy or the API validates an RS256 JWT against the IdP's JWKS, maps a claim (e.g. `groups`)
-to a role, and the same `Authenticate` middleware yields the `Principal`. This slots in behind the
-existing interface without touching handlers; it is **not yet implemented** (tracked on the roadmap).
+JWT validation is implemented (`mode: jwt`) for both HS256 and RS256:
+
+```bash
+export NHIID_AUTH_MODE=jwt
+export NHIID_AUTH_JWT_SECRET=...           # HS256, or set auth.jwt_public_key_file for RS256
+# config: jwt_role_claim (default "role"), jwt_issuer, jwt_audience
+curl -H "Authorization: Bearer <jwt>" localhost:8080/api/v1/identities
+```
+
+With RS256 you paste the IdP's signing public key (PEM) and set `jwt_issuer`/`jwt_audience` — this
+is interoperable with any OIDC provider. The one remaining step for zero-config OIDC is **JWKS
+auto-fetch + key rotation** (discover keys from the IdP's `/.well-known/jwks.json`); the validator
+already runs behind the same `Authenticate` middleware, so adding it touches no handlers.
 
 ## Notes
 

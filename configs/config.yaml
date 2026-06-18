@@ -3,9 +3,10 @@
 
 server:
   http_addr: ":8080"
-  metrics_addr: ":9090"
+  metrics_addr: ":9090"      # Prometheus /metrics listener
   read_timeout_seconds: 15
   write_timeout_seconds: 30
+  rate_limit_per_min: 600    # per-principal Redis rate limit; 0 disables
 
 database:
   # DSN may also be supplied via NHIID_DATABASE_DSN
@@ -39,9 +40,16 @@ risk:
   weights_file: "configs/risk_weights.yaml"
 
 auth:
-  # off  = API open (default; demo/UI work unauthenticated, actor from X-Actor header)
+  # off   = API open (default; demo/UI work unauthenticated, actor from X-Actor header)
   # token = require `Authorization: Bearer <token>`; tokens map to roles (viewer|analyst|admin)
+  # jwt   = validate OIDC bearer JWTs (HS256 secret or RS256 public key), role from a claim
   mode: "off"
-  # token entries via NHIID_AUTH_TOKENS (JSON) or this file path:
+  # token mode: entries via NHIID_AUTH_TOKENS (JSON) or this file path:
   # [{"token":"...","subject":"alice@sec","role":"admin"}]
   tokens_file: ""
+  # jwt mode:
+  jwt_secret: ""            # HS256 shared secret (or NHIID_AUTH_JWT_SECRET)
+  jwt_public_key_file: ""   # RS256 IdP public key (PEM)
+  jwt_role_claim: "role"    # claim holding the role or groups array
+  jwt_issuer: ""
+  jwt_audience: ""

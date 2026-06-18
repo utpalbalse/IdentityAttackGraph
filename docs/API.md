@@ -6,9 +6,11 @@ All mutations are audited. Pagination is cursor-based (`?cursor=&limit=`).
 
 GraphQL is planned (v1.0) for the graph/attack-path surface; REST is authoritative for MVP.
 
-> **Status:** every `/api/v1` route below is implemented. Auth/RBAC is **not yet enforced** —
-> the API is currently open; mutations are still audited (actor taken from an `X-Actor` header
-> until OIDC lands). The Prometheus `/metrics` listener and GraphQL remain pending.
+> **Status:** every `/api/v1` route below is implemented. **RBAC is enforced** in `token` and
+> `jwt` auth modes (viewer/analyst/admin); the default `off` mode leaves the API open for the demo.
+> A Redis per-principal rate limiter and the Prometheus `/metrics` listener (separate port) are
+> live. `POST /collect` enqueues onto **NATS JetStream** (worker consumes); it falls back to
+> in-process if the queue is down. Remaining: JWKS auto-fetch for OIDC, and GraphQL.
 
 ---
 

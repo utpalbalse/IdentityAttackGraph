@@ -299,6 +299,16 @@ func (r *SnapshotRepo) Create(ctx context.Context, scope map[string]any) (uuid.U
 	return id, err
 }
 
+// Latest returns the id of the most recent snapshot, or nil if none exist (for finding provenance).
+func (r *SnapshotRepo) Latest(ctx context.Context) (*uuid.UUID, error) {
+	var id uuid.UUID
+	err := r.pool.QueryRow(ctx, `SELECT id FROM snapshots ORDER BY started_at DESC LIMIT 1`).Scan(&id)
+	if err != nil {
+		return nil, nil // none yet
+	}
+	return &id, nil
+}
+
 func (r *SnapshotRepo) List(ctx context.Context, limit int) ([]models.Snapshot, error) {
 	if limit <= 0 {
 		limit = 100

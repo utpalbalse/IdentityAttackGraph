@@ -20,14 +20,15 @@ func (r *FindingRepo) Upsert(ctx context.Context, f models.Finding) (uuid.UUID, 
 	err := r.pool.QueryRow(ctx, `
 		INSERT INTO findings
 			(detector,category,severity,confidence,identity_id,title,narrative,evidence,
-			 fingerprint,status,risk_contribution,first_seen_at,last_seen_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'open',$10,now(),now())
+			 fingerprint,status,risk_contribution,snapshot_id,first_seen_at,last_seen_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'open',$10,$11,now(),now())
 		ON CONFLICT (fingerprint) WHERE status='open' DO UPDATE SET
 			narrative=EXCLUDED.narrative, evidence=EXCLUDED.evidence,
-			last_seen_at=now(), confidence=EXCLUDED.confidence, updated_at=now()
+			last_seen_at=now(), confidence=EXCLUDED.confidence,
+			snapshot_id=EXCLUDED.snapshot_id, updated_at=now()
 		RETURNING id`,
 		f.Detector, f.Category, f.Severity, f.Confidence, f.IdentityID,
-		f.Title, f.Narrative, ev, f.Fingerprint, f.RiskContribution,
+		f.Title, f.Narrative, ev, f.Fingerprint, f.RiskContribution, f.SnapshotID,
 	).Scan(&id)
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("upsert finding %s: %w", f.Detector, err)

@@ -15,6 +15,7 @@ import (
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
 	"github.com/nhiid/nhiid/internal/models"
+	"github.com/nhiid/nhiid/internal/queue"
 	"github.com/nhiid/nhiid/internal/risk"
 )
 
@@ -126,6 +127,23 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
+	}
+
+	// Preferred path: enqueue onto NATS JetStream; the worker consumes and runs the collector.
+	if h.Queue != nil {
+		job := queue.CollectJob{
+			Provider: req.Provider, Account: req.Account, Project: req.Project, Fixture: req.Fixture,
+			RoleARN: req.RoleARN, ExternalID: req.ExternalID, Region: req.Region,
+			GCPCredentials: req.GCPCredentials, RequestedBy: actor(r),
+		}
+		if err := h.Queue.PublishCollect(job); err == nil {
+			h.audit(r, "collect.enqueue", "collector", req.Provider, nil, map[string]any{"account": req.Account, "project": req.Project})
+			w.WriteHeader(http.StatusAccepted)
+			writeJSON(w, map[string]string{"status": "queued", "provider": req.Provider})
+			return
+		} else if h.Logger != nil {
+			h.Logger.Warn("queue publish failed, running collection in-process", "err", err)
+		}
 	}
 
 	var coll collectors.Collector

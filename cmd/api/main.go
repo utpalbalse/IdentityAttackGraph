@@ -18,6 +18,8 @@ import (
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/metrics"
+	"github.com/nhiid/nhiid/internal/queue"
+	"github.com/nhiid/nhiid/internal/ratelimit"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
 )
@@ -46,18 +48,62 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Auth (RBAC). Mode "off" by default; "token" enforces bearer-token roles.
+	// Auth (RBAC). Mode "off" by default; "token" enforces bearer-token roles; "jwt" validates OIDC
+	// bearer JWTs (HS256 secret or RS256 public key) and reads a role claim.
 	tokens, err := auth.LoadTokens(cfg.Auth.TokensFile)
 	if err != nil {
 		logger.Error("load auth tokens", "err", err)
 		os.Exit(1)
 	}
-	authn := auth.New(cfg.Auth.Mode, tokens)
+	var jwtCfg *auth.JWTConfig
+	if cfg.Auth.Mode == "jwt" {
+		jwtCfg = &auth.JWTConfig{
+			Secret:    cfg.Auth.JWTSecret,
+			RoleClaim: cfg.Auth.JWTRoleClaim,
+			Issuer:    cfg.Auth.JWTIssuer,
+			Audience:  cfg.Auth.JWTAudience,
+		}
+		if cfg.Auth.JWTPublicKeyFile != "" {
+			pem, perr := os.ReadFile(cfg.Auth.JWTPublicKeyFile)
+			if perr != nil {
+				logger.Error("read jwt public key", "err", perr)
+				os.Exit(1)
+			}
+			jwtCfg.PublicKeyPEM = pem
+		}
+	}
+	authn, err := auth.New(cfg.Auth.Mode, tokens, jwtCfg)
+	if err != nil {
+		logger.Error("configure auth", "err", err)
+		os.Exit(1)
+	}
 	logger.Info("auth configured", "mode", cfg.Auth.Mode, "enforced", authn.Enforced())
+
+	// Redis-backed per-principal rate limiter (fails open if Redis is down).
+	var limiter *ratelimit.Limiter
+	if cfg.Server.RateLimitPerMin > 0 {
+		if limiter, err = ratelimit.Connect(cfg.Cache.RedisURL, cfg.Server.RateLimitPerMin, time.Minute); err != nil {
+			logger.Warn("rate limiter disabled (bad redis url)", "err", err)
+			limiter = nil
+		} else {
+			logger.Info("rate limiter enabled", "per_min", cfg.Server.RateLimitPerMin)
+		}
+	}
 
 	// Prometheus metrics: separate listener + derived-gauge refresher.
 	go serveMetrics(cfg.Server.MetricsAddr, s, logger)
 	metrics.StartRefresher(ctx, s, 30*time.Second)
+
+	// Job queue (optional). When connected, /collect enqueues to NATS; otherwise it falls back to
+	// running the collection in-process.
+	q, err := queue.Connect(cfg.Queue.NATSURL, cfg.Queue.Stream)
+	if err != nil {
+		logger.Warn("job queue unavailable; /collect will run in-process", "err", err)
+		q = nil
+	} else {
+		defer q.Close()
+		logger.Info("job queue connected", "stream", cfg.Queue.Stream)
+	}
 
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
@@ -82,9 +128,12 @@ func main() {
 	})
 
 	// API routes, grouped by minimum RBAC role (viewer < analyst < admin).
-	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger, WeightsFile: cfg.Risk.WeightsFile}
+	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger, WeightsFile: cfg.Risk.WeightsFile, Queue: q}
 	router.Route("/api/v1", func(r chi.Router) {
 		r.Use(authn.Authenticate)
+		if limiter != nil {
+			r.Use(limiter.Middleware)
+		}
 
 		// viewer — read
 		r.Group(func(r chi.Router) {

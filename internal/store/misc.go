@@ -260,14 +260,17 @@ func (r *WorkloadRepo) ForIdentity(ctx context.Context, id uuid.UUID) ([]models.
 type RepoRepo struct{ pool *pgxpool.Pool }
 
 func (r *RepoRepo) Upsert(ctx context.Context, repo models.Repository) (uuid.UUID, error) {
+	if repo.ID == uuid.Nil {
+		repo.ID = models.DeterministicID("repository", repo.Provider+":"+repo.ExternalID)
+	}
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, `
-		INSERT INTO repositories (provider,external_id,org,name,visibility,default_branch,source,collected_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,now())
+		INSERT INTO repositories (id,provider,external_id,org,name,visibility,default_branch,source,collected_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,now())
 		ON CONFLICT (provider, external_id) DO UPDATE SET
 			visibility=EXCLUDED.visibility, default_branch=EXCLUDED.default_branch, updated_at=now()
 		RETURNING id`,
-		repo.Provider, repo.ExternalID, repo.Org, repo.Name,
+		repo.ID, repo.Provider, repo.ExternalID, repo.Org, repo.Name,
 		repo.Visibility, repo.DefaultBranch, repo.Source,
 	).Scan(&id)
 	return id, err
