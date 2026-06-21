@@ -149,6 +149,7 @@ make down
 ✅ Docker Compose (local dev)  
 ✅ **AWS collector** — real IAM/STS/CloudTrail discovery with assume-role (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md))  
 ✅ **GCP collector** — service accounts, keys, impersonation/WIF trust, project IAM, audit logs (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md))  
+✅ **Repo secret scanner** — ingests SecretSweep JSON/SARIF reports → exposures → `secret_exposed_in_repo` (see [REPO_SCANNER.md](REPO_SCANNER.md))  
 
 ❌ Secrets Manager scanner (Phase 1)  
 ❌ GitHub/GitLab secret scanner (Phase 1)  

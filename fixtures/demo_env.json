@@ -204,7 +204,6 @@
   ],
   "repositories": [
     {
-      "id": "550e8400-e29b-41d4-a716-446655440061",
       "provider": "github",
       "external_id": "acme/billing",
       "org": "acme",
@@ -216,8 +215,6 @@
   ],
   "exposures": [
     {
-      "id": "550e8400-e29b-41d4-a716-446655440071",
-      "repository_id": "550e8400-e29b-41d4-a716-446655440061",
       "identity_id": "550e8400-e29b-41d4-a716-446655440001",
       "path": ".env",
       "commit_sha": "a1b2c3d",

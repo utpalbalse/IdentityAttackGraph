@@ -14,6 +14,7 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/queue"
 	"github.com/nhiid/nhiid/internal/risk"
@@ -123,6 +124,10 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 		ExternalID     string `json:"external_id"`
 		Region         string `json:"region"`
 		GCPCredentials string `json:"gcp_credentials"`
+		Report         string `json:"report"`
+		Repo           string `json:"repo"`
+		RepoProvider   string `json:"repo_provider"`
+		RepoVisibility string `json:"repo_visibility"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -134,7 +139,8 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 		job := queue.CollectJob{
 			Provider: req.Provider, Account: req.Account, Project: req.Project, Fixture: req.Fixture,
 			RoleARN: req.RoleARN, ExternalID: req.ExternalID, Region: req.Region,
-			GCPCredentials: req.GCPCredentials, RequestedBy: actor(r),
+			GCPCredentials: req.GCPCredentials, Report: req.Report, Repo: req.Repo,
+			RepoProvider: req.RepoProvider, RepoVisibility: req.RepoVisibility, RequestedBy: actor(r),
 		}
 		if err := h.Queue.PublishCollect(job); err == nil {
 			h.audit(r, "collect.enqueue", "collector", req.Provider, nil, map[string]any{"account": req.Account, "project": req.Project})
@@ -170,8 +176,15 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 		}
 		coll = gcpcollector.New(gcpcollector.Options{ProjectID: proj, CredentialsFile: req.GCPCredentials, AuditLookbackHours: 24}, h.Logger)
 		account = "gcp:" + proj
+	case "repo":
+		if req.Report == "" {
+			http.Error(w, "repo requires a report path", http.StatusBadRequest)
+			return
+		}
+		coll = repocollector.New(repocollector.Options{ReportPath: req.Report, Provider: req.RepoProvider, Repo: req.Repo, Visibility: req.RepoVisibility})
+		account = "repo:" + req.Repo
 	default:
-		http.Error(w, "unknown provider (fixture|aws|gcp)", http.StatusBadRequest)
+		http.Error(w, "unknown provider (fixture|aws|gcp|repo)", http.StatusBadRequest)
 		return
 	}
 

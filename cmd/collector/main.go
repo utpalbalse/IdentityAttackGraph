@@ -11,13 +11,14 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/store"
 )
 
 func main() {
-	provider := flag.String("provider", "aws", "aws, gcp, or fixture")
+	provider := flag.String("provider", "aws", "aws, gcp, repo, or fixture")
 	account := flag.String("account", "", "account id / project id")
 	fixtureFile := flag.String("fixture", "fixtures/demo_env.json", "fixture file for demo collector")
 	roleARN := flag.String("role-arn", "", "AWS role ARN to assume for cross-account collection")
@@ -27,6 +28,10 @@ func main() {
 	project := flag.String("project", "", "GCP project id")
 	gcpCreds := flag.String("gcp-credentials", "", "path to GCP credentials/WIF file (else uses ADC)")
 	auditLookback := flag.Int("audit-lookback-hours", 24, "hours of GCP Cloud Audit Log history on first run")
+	report := flag.String("report", "", "secret-scanner report (SecretSweep JSON or SARIF) for --provider repo")
+	repoName := flag.String("repo", "", "repository org/name for --provider repo")
+	repoProvider := flag.String("repo-provider", "github", "repo provider (github|gitlab)")
+	repoVisibility := flag.String("repo-visibility", "private", "repo visibility (public|private|internal)")
 	flag.Parse()
 
 	cfg, err := config.Load("configs/config.yaml")
@@ -79,6 +84,15 @@ func main() {
 			AuditLookbackHours: *auditLookback,
 		}, logger)
 		*account = "gcp:" + projectID
+	case "repo":
+		if *report == "" {
+			logger.Error("repo requires -report (SecretSweep JSON/SARIF)")
+			os.Exit(1)
+		}
+		coll = repocollector.New(repocollector.Options{
+			ReportPath: *report, Provider: *repoProvider, Repo: *repoName, Visibility: *repoVisibility,
+		})
+		*account = "repo:" + *repoName
 	default:
 		logger.Error("unknown provider", "provider", *provider)
 		os.Exit(1)

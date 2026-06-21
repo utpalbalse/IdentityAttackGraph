@@ -14,6 +14,7 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/detect"
 	"github.com/nhiid/nhiid/internal/graph"
@@ -100,7 +101,10 @@ func main() {
 
 		if *job == "detect" || *job == "all" {
 			runJob("detect", logger, func() error {
-				return runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger)
+				if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger); err != nil {
+					return err
+				}
+				return runExposureFindings(ctx, s, logger)
 			})
 		}
 
@@ -163,6 +167,13 @@ func buildCollector(job queue.CollectJob, logger *slog.Logger) (collectors.Colle
 			return nil, "", fmt.Errorf("gcp requires project")
 		}
 		return gcpcollector.New(gcpcollector.Options{ProjectID: proj, CredentialsFile: job.GCPCredentials, AuditLookbackHours: 24}, logger), "gcp:" + proj, nil
+	case "repo":
+		if job.Report == "" {
+			return nil, "", fmt.Errorf("repo requires a report path")
+		}
+		return repocollector.New(repocollector.Options{
+			ReportPath: job.Report, Provider: job.RepoProvider, Repo: job.Repo, Visibility: job.RepoVisibility,
+		}), "repo:" + job.Repo, nil
 	default:
 		return nil, "", fmt.Errorf("unknown provider %q", job.Provider)
 	}
@@ -353,6 +364,36 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 			}
 		}
 	}
+	return nil
+}
+
+// runExposureFindings raises repository-scoped secret_exposed_in_repo findings for scanner-
+// discovered exposures that aren't linked to a specific identity (e.g. from SecretSweep reports).
+func runExposureFindings(ctx context.Context, s *store.Store, logger *slog.Logger) error {
+	exps, err := s.Exposures.RepoScoped(ctx)
+	if err != nil {
+		return err
+	}
+	if len(exps) == 0 {
+		return nil
+	}
+	sups, _ := s.Suppressions.ListActive(ctx)
+	isSuppressed := suppressor(sups)
+	snapID, _ := s.Snapshots.Latest(ctx)
+	raised := 0
+	for _, re := range exps {
+		if isSuppressed("secret_exposed_in_repo", uuid.Nil) {
+			continue
+		}
+		f := detect.ExposureFinding(re.Exposure, nil, re.RepoLabel)
+		f.SnapshotID = snapID
+		if _, err := s.Findings.Upsert(ctx, f); err != nil {
+			logger.Error("upsert exposure finding", "err", err)
+			continue
+		}
+		raised++
+	}
+	logger.Info("repo-scoped exposure findings", "exposures", len(exps), "raised", raised)
 	return nil
 }
 

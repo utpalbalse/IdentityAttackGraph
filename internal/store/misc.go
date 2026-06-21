@@ -293,7 +293,7 @@ func (r *ExposureRepo) Upsert(ctx context.Context, e models.Exposure) error {
 
 func (r *ExposureRepo) ForIdentity(ctx context.Context, id uuid.UUID) ([]models.Exposure, error) {
 	rows, err := r.pool.Query(ctx, `
-		SELECT id,repository_id,identity_id,secret_id,path,commit_sha,line,pattern,fingerprint,verified,source
+		SELECT id,repository_id,identity_id,secret_id,path,COALESCE(commit_sha,''),line,pattern,fingerprint,verified,source
 		FROM exposures WHERE identity_id=$1`, id)
 	if err != nil {
 		return nil, err
@@ -307,6 +307,39 @@ func (r *ExposureRepo) ForIdentity(ctx context.Context, id uuid.UUID) ([]models.
 			return nil, err
 		}
 		out = append(out, ex)
+	}
+	return out, rows.Err()
+}
+
+// RepoExposure pairs a repo-scoped exposure (no identity link) with its repository label.
+type RepoExposure struct {
+	Exposure  models.Exposure
+	RepoLabel string
+}
+
+// RepoScoped returns scanner-discovered exposures not linked to an identity, with the repo label,
+// so the worker can raise repository-scoped secret_exposed_in_repo findings.
+func (r *ExposureRepo) RepoScoped(ctx context.Context) ([]RepoExposure, error) {
+	rows, err := r.pool.Query(ctx, `
+		SELECT e.id,e.repository_id,e.identity_id,e.secret_id,e.path,COALESCE(e.commit_sha,''),
+		       e.line,e.pattern,e.fingerprint,e.verified,e.source,
+		       COALESCE(rp.org||'/'||rp.name,'')
+		FROM exposures e
+		LEFT JOIN repositories rp ON rp.id = e.repository_id
+		WHERE e.identity_id IS NULL`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []RepoExposure
+	for rows.Next() {
+		var ex models.Exposure
+		var label string
+		if err := rows.Scan(&ex.ID, &ex.RepositoryID, &ex.IdentityID, &ex.SecretID,
+			&ex.Path, &ex.CommitSHA, &ex.Line, &ex.Pattern, &ex.Fingerprint, &ex.Verified, &ex.Source, &label); err != nil {
+			return nil, err
+		}
+		out = append(out, RepoExposure{Exposure: ex, RepoLabel: label})
 	}
 	return out, rows.Err()
 }

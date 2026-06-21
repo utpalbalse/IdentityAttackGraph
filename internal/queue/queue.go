@@ -21,6 +21,11 @@ type CollectJob struct {
 	ExternalID     string `json:"external_id"`
 	Region         string `json:"region"`
 	GCPCredentials string `json:"gcp_credentials"`
+	// repo (secret-scan report ingest)
+	Report         string `json:"report"`
+	Repo           string `json:"repo"`
+	RepoProvider   string `json:"repo_provider"`
+	RepoVisibility string `json:"repo_visibility"`
 	RequestedBy    string `json:"requested_by"`
 }
 
