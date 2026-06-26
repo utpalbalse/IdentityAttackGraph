@@ -35,6 +35,7 @@ Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milest
 | [docs/DETECTIONS.md](docs/DETECTIONS.md) | Every detection, its logic, and evidence shape |
 | [docs/API.md](docs/API.md) | REST API surface |
 | [docs/AUTH.md](docs/AUTH.md) | Bearer-token RBAC (viewer/analyst/admin); OIDC path |
+| [docs/ALERTING.md](docs/ALERTING.md) | Slack/webhook alerting on new findings (severity threshold, at-least-once) |
 | [docs/AWS_COLLECTOR.md](docs/AWS_COLLECTOR.md) | AWS collector: least-priv policy, assume-role, what it collects |
 | [docs/GCP_COLLECTOR.md](docs/GCP_COLLECTOR.md) | GCP collector: SAs, keys, impersonation/WIF trust, project IAM |
 | [docs/K8S_COLLECTOR.md](docs/K8S_COLLECTOR.md) | Kubernetes collector: ServiceAccounts, RBAC, IRSA/Workload-Identity federation |

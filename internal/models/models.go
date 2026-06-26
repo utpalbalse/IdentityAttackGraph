@@ -35,6 +35,22 @@ const (
 	SevCritical Severity = "critical"
 )
 
+// SeverityRank gives an orderable weight for thresholding (e.g. alert on >= high).
+func SeverityRank(s Severity) int {
+	switch s {
+	case SevCritical:
+		return 4
+	case SevHigh:
+		return 3
+	case SevMedium:
+		return 2
+	case SevLow:
+		return 1
+	default:
+		return 0 // info / unknown
+	}
+}
+
 type Criticality string
 
 const (

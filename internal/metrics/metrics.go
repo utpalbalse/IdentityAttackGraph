@@ -43,6 +43,16 @@ var (
 		Help: "Total worker jobs that failed.",
 	}, []string{"job"})
 
+	// Alerting — findings dispatched to notifiers.
+	AlertsSent = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "nhiid_alerts_sent_total",
+		Help: "Total finding alerts dispatched, by severity.",
+	}, []string{"severity"})
+	AlertsFailed = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "nhiid_alerts_failed_total",
+		Help: "Total alert dispatch failures (left pending for retry).",
+	})
+
 	// Derived gauges (refreshed periodically from the store).
 	FindingsOpen = promauto.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "nhiid_findings_open",

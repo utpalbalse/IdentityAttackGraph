@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -117,5 +118,61 @@ func (r *FindingRepo) UpdateStatus(ctx context.Context, id uuid.UUID, status, as
 	_, err := r.pool.Exec(ctx,
 		`UPDATE findings SET status=$1, assignee=$2, notes=$3, updated_at=now() WHERE id=$4`,
 		status, assignee, notes, id)
+	return err
+}
+
+// AlertableFinding is a finding joined with its identity, ready to dispatch to a notifier.
+type AlertableFinding struct {
+	ID           uuid.UUID
+	Detector     string
+	Category     string
+	Severity     string
+	Title        string
+	Narrative    string
+	Evidence     map[string]any
+	IdentityName string
+	Account      string
+	FirstSeenAt  time.Time
+}
+
+// ClaimUnalerted returns open findings at the given severities that have not yet been alerted,
+// oldest first. The caller dispatches them and then calls MarkAlerted on success — so a notifier
+// outage leaves alerted_at NULL and the finding is retried on the next sweep (at-least-once).
+func (r *FindingRepo) ClaimUnalerted(ctx context.Context, severities []string, limit int) ([]AlertableFinding, error) {
+	if limit <= 0 || limit > 500 {
+		limit = 100
+	}
+	rows, err := r.pool.Query(ctx, `
+		SELECT f.id,f.detector,f.category,f.severity,f.title,f.narrative,f.evidence,
+		       COALESCE(i.name,''),COALESCE(i.account_ref,''),f.first_seen_at
+		FROM findings f
+		LEFT JOIN identities i ON i.id = f.identity_id
+		WHERE f.status='open' AND f.alerted_at IS NULL AND f.severity = ANY($1)
+		ORDER BY f.first_seen_at ASC
+		LIMIT $2`, severities, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []AlertableFinding
+	for rows.Next() {
+		var a AlertableFinding
+		var evRaw []byte
+		if err := rows.Scan(&a.ID, &a.Detector, &a.Category, &a.Severity, &a.Title, &a.Narrative,
+			&evRaw, &a.IdentityName, &a.Account, &a.FirstSeenAt); err != nil {
+			return nil, err
+		}
+		_ = json.Unmarshal(evRaw, &a.Evidence)
+		out = append(out, a)
+	}
+	return out, rows.Err()
+}
+
+// MarkAlerted stamps alerted_at on the given findings so they are not alerted again.
+func (r *FindingRepo) MarkAlerted(ctx context.Context, ids []uuid.UUID) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	_, err := r.pool.Exec(ctx, `UPDATE findings SET alerted_at=now() WHERE id = ANY($1)`, ids)
 	return err
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/models"
+	"github.com/nhiid/nhiid/internal/notify"
 	"github.com/nhiid/nhiid/internal/queue"
 	"github.com/nhiid/nhiid/internal/remediate"
 	"github.com/nhiid/nhiid/internal/risk"
@@ -68,6 +69,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Alerting (optional). When configured, new findings >= min severity are dispatched to a
+	// Slack/webhook sink after each detection pass.
+	notifier, err := notify.New(notify.Config{
+		Enabled: cfg.Notify.Enabled, Kind: cfg.Notify.Kind,
+		WebhookURL: cfg.Notify.WebhookURL, MinSeverity: cfg.Notify.MinSeverity,
+	})
+	if err != nil {
+		logger.Error("configure notifier", "err", err)
+		os.Exit(1)
+	}
+	alertSeverities := notify.SeveritiesAtLeast(cfg.Notify.MinSeverity)
+	if notifier != nil {
+		logger.Info("alerting enabled", "kind", notifier.Kind(), "min_severity", cfg.Notify.MinSeverity)
+	}
+
 	detectionEngine := detect.NewEngine()
 	detectionCfg := detect.Config{
 		StaleWindow:         time.Duration(cfg.Detection.StaleWindowDays) * 24 * time.Hour,
@@ -107,6 +123,9 @@ func main() {
 				}
 				return runExposureFindings(ctx, s, logger)
 			})
+			if notifier != nil {
+				runJob("alert", logger, func() error { return runAlerts(ctx, s, notifier, alertSeverities, logger) })
+			}
 		}
 
 	next:

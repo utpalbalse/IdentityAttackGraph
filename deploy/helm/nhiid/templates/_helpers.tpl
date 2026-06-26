@@ -114,6 +114,14 @@ The rest of configuration comes from the mounted config.yaml.
       key: jwt-secret
       optional: true
 {{- end }}
+{{- if .Values.config.notify.enabled }}
+- name: NHIID_NOTIFY_WEBHOOK_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "nhiid.secretName" . }}
+      key: notify-webhook-url
+      optional: true
+{{- end }}
 {{- end -}}
 
 {{/* Volume + mount that overrides /app/configs/config.yaml (and tokens.json in token mode). */}}

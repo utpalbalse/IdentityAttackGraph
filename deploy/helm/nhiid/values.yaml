@@ -55,6 +55,12 @@ config:
     jwtIssuer: ""
     jwtAudience: ""
     # token mode: mount a tokens JSON file via secrets.authTokens (rendered to /app/secrets/tokens.json)
+  notify:
+    # Outbound alerting for new findings (worker). The webhook URL is a secret -> set
+    # secrets.notifyWebhookURL (or supply it via secrets.existingSecret key notify-webhook-url).
+    enabled: false
+    kind: "slack"                # slack | webhook
+    minSeverity: "high"          # info|low|medium|high|critical
 
 # Secret material. For production prefer an existing secret (External Secrets Operator,
 # AWS Secrets Manager CSI, etc.). If create=true, values below are written into a chart Secret.
@@ -65,6 +71,7 @@ secrets:
   databaseDSN: ""
   jwtSecret: ""                  # HS256 secret for auth.mode=jwt
   authTokens: ""                 # JSON array for auth.mode=token: [{"token":"...","subject":"...","role":"admin"}]
+  notifyWebhookURL: ""           # Slack/webhook URL for config.notify (key: notify-webhook-url)
 
 # Production Postgres (RDS). Used when postgresql.enabled=false.
 externalDatabase:

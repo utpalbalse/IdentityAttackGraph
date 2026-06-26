@@ -162,6 +162,7 @@ make down
 ✅ Exports — JSON / SARIF 2.1.0 / CSV  
 ✅ **Helm chart** — api/worker/web, migration hook, IRSA service account, Ingress, HPA/PDB, ServiceMonitor (see [../deploy/helm/README.md](../deploy/helm/README.md))  
 ✅ **Terraform (EKS)** — VPC, EKS, RDS Postgres, ElastiCache, IRSA + least-priv cross-account collector roles (see [../deploy/terraform/README.md](../deploy/terraform/README.md))  
+✅ **Alerting** — Slack / generic-webhook notifications on new findings, severity threshold, at-least-once delivery (see [ALERTING.md](ALERTING.md))  
 
 ❌ Secrets Manager scanner (Phase 1)  
 ❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  
@@ -169,4 +170,3 @@ make down
 ❌ OIDC JWKS auto-fetch — static JWT validation only (v1.0)  
 ❌ Live client-go K8s source — export ingest works; live cluster API pending (Phase 2)  
 ❌ OpenTelemetry traces — metrics implemented, tracing pending (Phase 5)  
-❌ Alerting / Slack integration (Phase 4)  

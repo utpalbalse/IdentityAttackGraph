@@ -29,6 +29,7 @@ or CLI: `nhiid-collector --provider aws --account 123456789012 --collector iam`.
 - `nhiid_jobs_inflight`, `nhiid_jobs_failed_total{job}`
 - `nhiid_records_upserted_total{entity}`
 - `nhiid_http_request_duration_seconds`, `nhiid_findings_open{severity}`
+- `nhiid_alerts_sent_total{severity}`, `nhiid_alerts_failed_total` — notifier dispatch. **Failures rising + sent flat ⇒ sink unreachable; findings queue un-alerted until it recovers.**
 
 ## Alerts → response
 | Alert | Likely cause | Action |

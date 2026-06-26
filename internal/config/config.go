@@ -21,6 +21,17 @@ type Config struct {
 	Detection Detection `yaml:"detection"`
 	Risk      Risk      `yaml:"risk"`
 	Auth      Auth      `yaml:"auth"`
+	Notify    Notify    `yaml:"notify"`
+}
+
+// Notify configures outbound alerting for new findings. Disabled by default. The worker's alert
+// sweep dispatches findings at or above MinSeverity to a Slack incoming webhook or a generic JSON
+// webhook. See internal/notify + docs/ALERTING.md.
+type Notify struct {
+	Enabled     bool   `yaml:"enabled"`
+	Kind        string `yaml:"kind"`         // slack | webhook
+	WebhookURL  string `yaml:"webhook_url"`  // supply via NHIID_NOTIFY_WEBHOOK_URL in production
+	MinSeverity string `yaml:"min_severity"` // info|low|medium|high|critical
 }
 
 // Auth configures API RBAC. Mode "off" (default) leaves the API open; "token" enforces bearer-token
@@ -107,8 +118,9 @@ func Defaults() *Config {
 			StaleWindowDays: 90, MaxCredAgeDays: 365, MaxRotationAgeDays: 180,
 			ImpossibleTravelMaxKMH: 900, UsageSpikeSigma: 4, AnomalyWarmupEvents: 50,
 		},
-		Risk: Risk{WeightsFile: "configs/risk_weights.yaml"},
-		Auth: Auth{Mode: "off"},
+		Risk:   Risk{WeightsFile: "configs/risk_weights.yaml"},
+		Auth:   Auth{Mode: "off"},
+		Notify: Notify{Enabled: false, Kind: "slack", MinSeverity: "high"},
 	}
 }
 
@@ -139,6 +151,18 @@ func applyEnv(c *Config) {
 	}
 	if v := os.Getenv("NHIID_AUTH_JWT_SECRET"); v != "" {
 		c.Auth.JWTSecret = v
+	}
+	if v := os.Getenv("NHIID_NOTIFY_WEBHOOK_URL"); v != "" {
+		c.Notify.WebhookURL = v
+	}
+	if v := os.Getenv("NHIID_NOTIFY_ENABLED"); v != "" {
+		c.Notify.Enabled = v == "true" || v == "1"
+	}
+	if v := os.Getenv("NHIID_NOTIFY_KIND"); v != "" {
+		c.Notify.Kind = v
+	}
+	if v := os.Getenv("NHIID_NOTIFY_MIN_SEVERITY"); v != "" {
+		c.Notify.MinSeverity = v
 	}
 }
 

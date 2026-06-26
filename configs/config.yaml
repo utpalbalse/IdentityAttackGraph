@@ -39,6 +39,13 @@ detection:
 risk:
   weights_file: "configs/risk_weights.yaml"
 
+notify:
+  # Outbound alerting for new findings (worker alert sweep). Disabled by default.
+  enabled: false
+  kind: "slack"            # slack (incoming webhook) | webhook (generic JSON POST)
+  webhook_url: ""          # supply via NHIID_NOTIFY_WEBHOOK_URL (a secret) in production
+  min_severity: "high"     # alert on findings at or above: info|low|medium|high|critical
+
 auth:
   # off   = API open (default; demo/UI work unauthenticated, actor from X-Actor header)
   # token = require `Authorization: Bearer <token>`; tokens map to roles (viewer|analyst|admin)

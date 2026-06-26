@@ -54,3 +54,9 @@ data:
       jwt_role_claim: {{ .Values.config.auth.jwtRoleClaim | quote }}
       jwt_issuer: {{ .Values.config.auth.jwtIssuer | quote }}
       jwt_audience: {{ .Values.config.auth.jwtAudience | quote }}
+
+    notify:
+      enabled: {{ .Values.config.notify.enabled }}
+      kind: {{ .Values.config.notify.kind | quote }}
+      min_severity: {{ .Values.config.notify.minSeverity | quote }}
+      # webhook_url is injected via NHIID_NOTIFY_WEBHOOK_URL (from the Secret)
