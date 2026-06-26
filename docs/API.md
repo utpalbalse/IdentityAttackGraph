@@ -61,7 +61,7 @@ GraphQL is planned (v1.0) for the graph/attack-path surface; REST is authoritati
 ## Jobs & collection
 | Method | Path | Role | Description |
 |--------|------|------|-------------|
-| POST | `/api/v1/collect` | admin | trigger collection `{provider,account,collectors[]}` |
+| POST | `/api/v1/collect` | admin | trigger collection. provider ∈ `fixture\|aws\|gcp\|k8s\|repo` (e.g. `{"provider":"k8s","cluster":"prod","k8s_export":"/path/cluster.json"}`) |
 | GET | `/api/v1/collector-runs` | analyst | recent runs, status, ingestion lag |
 | GET | `/api/v1/snapshots` | viewer | snapshot history |
 

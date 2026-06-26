@@ -26,7 +26,10 @@ type CollectJob struct {
 	Repo           string `json:"repo"`
 	RepoProvider   string `json:"repo_provider"`
 	RepoVisibility string `json:"repo_visibility"`
-	RequestedBy    string `json:"requested_by"`
+	// k8s (cluster export ingest)
+	Cluster     string `json:"cluster"`
+	K8sExport   string `json:"k8s_export"`
+	RequestedBy string `json:"requested_by"`
 }
 
 type Queue struct {

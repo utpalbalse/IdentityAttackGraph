@@ -40,10 +40,15 @@ Open http://localhost:5173 in a browser. You should see:
 ```bash
 make migrate          # Apply schema (auto on `make dev`)
 go run ./cmd/collector --provider fixture --fixture fixtures/demo_env.json
+go run ./cmd/collector --provider k8s --cluster demo --k8s-export fixtures/k8s_cluster.json  # K8s SAs + RBAC + IRSA/WIF
 go run ./cmd/worker --once --job graph
 go run ./cmd/worker --once --job score
 go run ./cmd/worker --once --job detect
 ```
+
+The K8s fixture adds a `prod/deployer` ServiceAccount bound to `cluster-admin` (and annotated for
+IRSA) — after the worker runs it surfaces `over_privileged_sa` + `high_blast_radius`, with an
+attack path pod → ServiceAccount → cluster secrets, plus a `federated_from` edge to the AWS role.
 
 ### Stop the stack
 ```bash
@@ -150,6 +155,7 @@ make down
 ✅ **AWS collector** — real IAM/STS/CloudTrail discovery with assume-role (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md))  
 ✅ **GCP collector** — service accounts, keys, impersonation/WIF trust, project IAM, audit logs (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md))  
 ✅ **Repo secret scanner** — ingests SecretSweep JSON/SARIF reports → exposures → `secret_exposed_in_repo` (see [REPO_SCANNER.md](REPO_SCANNER.md))  
+✅ **Kubernetes collector** — ServiceAccounts, effective RBAC, pod workloads, token creds, and IRSA/Workload-Identity federation edges (pod → cloud attack paths) (see [K8S_COLLECTOR.md](K8S_COLLECTOR.md))  
 ✅ **RBAC** — bearer-token + JWT (HS256/RS256), viewer/analyst/admin, all mutations audited (see [AUTH.md](AUTH.md))  
 ✅ **Prometheus metrics** — `/metrics` listener + derived gauges (ingestion lag, findings, job status)  
 ✅ **NATS JetStream** job queue + **Redis** per-principal rate limiter  
@@ -161,6 +167,6 @@ make down
 ❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  
 ❌ GraphQL API (v1.0)  
 ❌ OIDC JWKS auto-fetch — static JWT validation only (v1.0)  
-❌ Kubernetes collector (Phase 2)  
+❌ Live client-go K8s source — export ingest works; live cluster API pending (Phase 2)  
 ❌ OpenTelemetry traces — metrics implemented, tracing pending (Phase 5)  
 ❌ Alerting / Slack integration (Phase 4)  

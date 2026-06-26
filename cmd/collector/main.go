@@ -11,6 +11,7 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	k8scollector "github.com/nhiid/nhiid/internal/collectors/k8s"
 	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/log"
@@ -18,7 +19,7 @@ import (
 )
 
 func main() {
-	provider := flag.String("provider", "aws", "aws, gcp, repo, or fixture")
+	provider := flag.String("provider", "aws", "aws, gcp, k8s, repo, or fixture")
 	account := flag.String("account", "", "account id / project id")
 	fixtureFile := flag.String("fixture", "fixtures/demo_env.json", "fixture file for demo collector")
 	roleARN := flag.String("role-arn", "", "AWS role ARN to assume for cross-account collection")
@@ -32,6 +33,8 @@ func main() {
 	repoName := flag.String("repo", "", "repository org/name for --provider repo")
 	repoProvider := flag.String("repo-provider", "github", "repo provider (github|gitlab)")
 	repoVisibility := flag.String("repo-visibility", "private", "repo visibility (public|private|internal)")
+	cluster := flag.String("cluster", "", "Kubernetes cluster name for --provider k8s")
+	k8sExport := flag.String("k8s-export", "", "path to a `kubectl get ... -o json` export for --provider k8s")
 	flag.Parse()
 
 	cfg, err := config.Load("configs/config.yaml")
@@ -93,6 +96,17 @@ func main() {
 			ReportPath: *report, Provider: *repoProvider, Repo: *repoName, Visibility: *repoVisibility,
 		})
 		*account = "repo:" + *repoName
+	case "k8s":
+		if *k8sExport == "" {
+			logger.Error("k8s requires -k8s-export (kubectl get ... -o json)")
+			os.Exit(1)
+		}
+		clusterName := *cluster
+		if clusterName == "" {
+			clusterName = "default"
+		}
+		coll = k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: *k8sExport}, logger)
+		*account = "k8s:" + clusterName
 	default:
 		logger.Error("unknown provider", "provider", *provider)
 		os.Exit(1)

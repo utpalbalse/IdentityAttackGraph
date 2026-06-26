@@ -14,6 +14,7 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	k8scollector "github.com/nhiid/nhiid/internal/collectors/k8s"
 	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/queue"
@@ -128,6 +129,8 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 		Repo           string `json:"repo"`
 		RepoProvider   string `json:"repo_provider"`
 		RepoVisibility string `json:"repo_visibility"`
+		Cluster        string `json:"cluster"`
+		K8sExport      string `json:"k8s_export"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
@@ -140,7 +143,8 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 			Provider: req.Provider, Account: req.Account, Project: req.Project, Fixture: req.Fixture,
 			RoleARN: req.RoleARN, ExternalID: req.ExternalID, Region: req.Region,
 			GCPCredentials: req.GCPCredentials, Report: req.Report, Repo: req.Repo,
-			RepoProvider: req.RepoProvider, RepoVisibility: req.RepoVisibility, RequestedBy: actor(r),
+			RepoProvider: req.RepoProvider, RepoVisibility: req.RepoVisibility,
+			Cluster: req.Cluster, K8sExport: req.K8sExport, RequestedBy: actor(r),
 		}
 		if err := h.Queue.PublishCollect(job); err == nil {
 			h.audit(r, "collect.enqueue", "collector", req.Provider, nil, map[string]any{"account": req.Account, "project": req.Project})
@@ -183,8 +187,16 @@ func (h *Handler) Collect(w http.ResponseWriter, r *http.Request) {
 		}
 		coll = repocollector.New(repocollector.Options{ReportPath: req.Report, Provider: req.RepoProvider, Repo: req.Repo, Visibility: req.RepoVisibility})
 		account = "repo:" + req.Repo
+	case "k8s":
+		if req.K8sExport == "" {
+			http.Error(w, "k8s requires a cluster export path", http.StatusBadRequest)
+			return
+		}
+		clusterName := orElse(req.Cluster, "default")
+		coll = k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: req.K8sExport}, h.Logger)
+		account = "k8s:" + clusterName
 	default:
-		http.Error(w, "unknown provider (fixture|aws|gcp|repo)", http.StatusBadRequest)
+		http.Error(w, "unknown provider (fixture|aws|gcp|k8s|repo)", http.StatusBadRequest)
 		return
 	}
 

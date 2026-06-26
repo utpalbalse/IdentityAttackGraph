@@ -14,6 +14,7 @@ import (
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
 	"github.com/nhiid/nhiid/internal/collectors/fixture"
 	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
+	k8scollector "github.com/nhiid/nhiid/internal/collectors/k8s"
 	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
 	"github.com/nhiid/nhiid/internal/config"
 	"github.com/nhiid/nhiid/internal/detect"
@@ -174,6 +175,15 @@ func buildCollector(job queue.CollectJob, logger *slog.Logger) (collectors.Colle
 		return repocollector.New(repocollector.Options{
 			ReportPath: job.Report, Provider: job.RepoProvider, Repo: job.Repo, Visibility: job.RepoVisibility,
 		}), "repo:" + job.Repo, nil
+	case "k8s":
+		if job.K8sExport == "" {
+			return nil, "", fmt.Errorf("k8s requires a cluster export path")
+		}
+		clusterName := job.Cluster
+		if clusterName == "" {
+			clusterName = "default"
+		}
+		return k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: job.K8sExport}, logger), "k8s:" + clusterName, nil
 	default:
 		return nil, "", fmt.Errorf("unknown provider %q", job.Provider)
 	}

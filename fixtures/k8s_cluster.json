@@ -1,0 +1,83 @@
+{
+  "kind": "List",
+  "apiVersion": "v1",
+  "items": [
+    {
+      "kind": "ServiceAccount",
+      "metadata": {
+        "name": "deployer",
+        "namespace": "prod",
+        "creationTimestamp": "2026-01-04T10:00:00Z",
+        "annotations": { "eks.amazonaws.com/role-arn": "arn:aws:iam::123456789012:role/prod-deployer" }
+      },
+      "secrets": [ { "name": "deployer-token-9x2k1" } ]
+    },
+    {
+      "kind": "ServiceAccount",
+      "metadata": {
+        "name": "secrets-sync",
+        "namespace": "prod",
+        "creationTimestamp": "2026-01-04T10:00:00Z",
+        "annotations": { "iam.gke.io/gcp-service-account": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com" }
+      }
+    },
+    {
+      "kind": "ServiceAccount",
+      "metadata": { "name": "configmap-reader", "namespace": "prod", "creationTimestamp": "2026-05-20T10:00:00Z" }
+    },
+    {
+      "kind": "ServiceAccount",
+      "metadata": { "name": "legacy-ci", "namespace": "ci", "creationTimestamp": "2026-01-04T10:00:00Z" },
+      "secrets": [ { "name": "legacy-ci-token-77abc" } ]
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "secret-reader" },
+      "rules": [ { "apiGroups": [""], "resources": ["secrets"], "verbs": ["get", "list", "watch"] } ]
+    },
+    {
+      "kind": "ClusterRole",
+      "metadata": { "name": "rbac-editor" },
+      "rules": [ { "apiGroups": ["rbac.authorization.k8s.io"], "resources": ["clusterrolebindings"], "verbs": ["create", "update"] } ]
+    },
+    {
+      "kind": "Role",
+      "metadata": { "name": "configmap-reader", "namespace": "prod" },
+      "rules": [ { "apiGroups": [""], "resources": ["configmaps"], "verbs": ["get", "list"] } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "deployer-cluster-admin" },
+      "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole", "name": "cluster-admin" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "deployer", "namespace": "prod" } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "secrets-sync-reader" },
+      "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole", "name": "secret-reader" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "secrets-sync", "namespace": "prod" } ]
+    },
+    {
+      "kind": "ClusterRoleBinding",
+      "metadata": { "name": "legacy-ci-rbac" },
+      "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "ClusterRole", "name": "rbac-editor" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "legacy-ci", "namespace": "ci" } ]
+    },
+    {
+      "kind": "RoleBinding",
+      "metadata": { "name": "configmap-reader", "namespace": "prod" },
+      "roleRef": { "apiGroup": "rbac.authorization.k8s.io", "kind": "Role", "name": "configmap-reader" },
+      "subjects": [ { "kind": "ServiceAccount", "name": "configmap-reader", "namespace": "prod" } ]
+    },
+    {
+      "kind": "Pod",
+      "metadata": { "name": "deploy-runner-abc12", "namespace": "prod" },
+      "spec": { "serviceAccountName": "deployer" }
+    },
+    {
+      "kind": "Pod",
+      "metadata": { "name": "secrets-sync-7d9f0", "namespace": "prod" },
+      "spec": { "serviceAccountName": "secrets-sync" }
+    }
+  ]
+}

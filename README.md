@@ -37,6 +37,7 @@ Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milest
 | [docs/AUTH.md](docs/AUTH.md) | Bearer-token RBAC (viewer/analyst/admin); OIDC path |
 | [docs/AWS_COLLECTOR.md](docs/AWS_COLLECTOR.md) | AWS collector: least-priv policy, assume-role, what it collects |
 | [docs/GCP_COLLECTOR.md](docs/GCP_COLLECTOR.md) | GCP collector: SAs, keys, impersonation/WIF trust, project IAM |
+| [docs/K8S_COLLECTOR.md](docs/K8S_COLLECTOR.md) | Kubernetes collector: ServiceAccounts, RBAC, IRSA/Workload-Identity federation |
 | [docs/REPO_SCANNER.md](docs/REPO_SCANNER.md) | Repo secret scanner: SecretSweep report ingest → exposures |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Phased milestone plan with acceptance criteria |
 | [docs/MVP.md](docs/MVP.md) | MVP scope + non-goals |
