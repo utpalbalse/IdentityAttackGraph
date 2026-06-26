@@ -29,7 +29,7 @@ data:
     telemetry:
       log_level: {{ .Values.config.logLevel | quote }}
       log_format: {{ .Values.config.logFormat | quote }}
-      otel_endpoint: ""
+      otel_endpoint: {{ .Values.config.telemetry.otelEndpoint | quote }}
 
     detection:
       stale_window_days: {{ .Values.config.detection.staleWindowDays }}

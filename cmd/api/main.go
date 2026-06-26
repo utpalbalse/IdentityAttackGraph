@@ -22,6 +22,8 @@ import (
 	"github.com/nhiid/nhiid/internal/ratelimit"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
+	"github.com/nhiid/nhiid/internal/tracing"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func main() {
@@ -35,6 +37,16 @@ func main() {
 	slog.SetDefault(logger)
 
 	ctx := context.Background()
+
+	// Distributed tracing (OTLP). No-op unless telemetry.otel_endpoint is set.
+	shutdownTracing, err := tracing.Init(ctx, "nhiid-api", "0.1.0", cfg.Telemetry.OTelEndpoint)
+	if err != nil {
+		logger.Warn("tracing disabled", "err", err)
+	} else if cfg.Telemetry.OTelEndpoint != "" {
+		logger.Info("tracing enabled", "endpoint", cfg.Telemetry.OTelEndpoint)
+	}
+	defer func() { _ = shutdownTracing(context.Background()) }()
+
 	s, err := store.New(ctx, cfg.Database.DSN, cfg.Database.MaxConns, cfg.Database.MinConns)
 	if err != nil {
 		logger.Error("open store", "err", err)
@@ -183,8 +195,9 @@ func main() {
 
 	addr := cfg.Server.HTTPAddr
 	srv := &http.Server{
-		Addr:         addr,
-		Handler:      router,
+		Addr: addr,
+		// otelhttp creates a server span per request (no-op when tracing is disabled).
+		Handler:      otelhttp.NewHandler(router, "nhiid-api"),
 		ReadTimeout:  time.Duration(cfg.Server.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(cfg.Server.WriteTimeout) * time.Second,
 	}

@@ -31,6 +31,14 @@ or CLI: `nhiid-collector --provider aws --account 123456789012 --collector iam`.
 - `nhiid_http_request_duration_seconds`, `nhiid_findings_open{severity}`
 - `nhiid_alerts_sent_total{severity}`, `nhiid_alerts_failed_total` — notifier dispatch. **Failures rising + sent flat ⇒ sink unreachable; findings queue un-alerted until it recovers.**
 
+## Tracing (OpenTelemetry)
+Set `telemetry.otel_endpoint` (or `NHIID_TELEMETRY_OTEL_ENDPOINT`) to an OTLP/gRPC collector
+(`host:4317`) to export spans: server spans per API request (`service.name=nhiid-api`), one span per
+collector run (`collect`, tagged `collector`/`account`/`run_id`), and one per worker job
+(`job:graph|score|detect|alert`, `service.name=nhiid-worker`). Empty endpoint = tracing off
+(no-op, negligible overhead). Use traces to find which endpoint/collector/job is slow; correlate
+with the latency histogram above.
+
 ## Alerts → response
 | Alert | Likely cause | Action |
 |-------|--------------|--------|

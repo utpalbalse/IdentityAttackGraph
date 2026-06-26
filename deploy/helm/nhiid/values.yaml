@@ -40,6 +40,8 @@ config:
   logLevel: info
   logFormat: json
   rateLimitPerMin: 600           # per-principal Redis rate limit; 0 disables
+  telemetry:
+    otelEndpoint: ""             # OTLP/gRPC collector endpoint (host:4317); empty disables tracing
   detection:
     staleWindowDays: 90
     maxCredAgeDays: 365

@@ -43,6 +43,8 @@ secrets:
 config:
   logLevel: info
   rateLimitPerMin: 600
+  telemetry:
+    otelEndpoint: "otel-collector.observability.svc:4317"  # OTLP/gRPC; empty disables tracing
   auth:
     mode: jwt                 # enforce RBAC in production
     jwtIssuer: "https://issuer.example.com/"

@@ -140,6 +140,9 @@ func applyEnv(c *Config) {
 	if v := os.Getenv("NHIID_TELEMETRY_LOG_LEVEL"); v != "" {
 		c.Telemetry.LogLevel = v
 	}
+	if v := os.Getenv("NHIID_TELEMETRY_OTEL_ENDPOINT"); v != "" {
+		c.Telemetry.OTelEndpoint = v
+	}
 	if v := os.Getenv("NHIID_RISK_WEIGHTS_FILE"); v != "" {
 		c.Risk.WeightsFile = v
 	}

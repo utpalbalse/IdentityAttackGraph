@@ -57,10 +57,11 @@ one recomputes score and records delta; SARIF validates.
 
 ## Phase 5 — K8s deploy + observability + hardening
 **Objectives:** production-ready.
-**Status:** mostly done — ✅ Dockerfiles, ✅ Helm chart (`deploy/helm/nhiid`), ✅ Terraform
+**Status:** done — ✅ Dockerfiles, ✅ Helm chart (`deploy/helm/nhiid`), ✅ Terraform
 (`deploy/terraform`: VPC/EKS/RDS/ElastiCache + IRSA + least-priv cross-account collector roles),
-✅ Prometheus metrics (ingestion lag, throughput, job status), ✅ RBAC (token + JWT). Pending:
-OTel traces; OIDC JWKS auto-fetch; `govulncheck` in CI; load test.
+✅ Prometheus metrics (ingestion lag, throughput, job status), ✅ OTel traces (OTLP/gRPC for API
+requests, collector runs, worker jobs), ✅ RBAC (token + JWT), ✅ secret-redacting logs,
+✅ `govulncheck` in CI, ✅ k6 load test (`deploy/loadtest`). Remaining for v1.0: OIDC JWKS auto-fetch.
 **Tasks:** Dockerfiles; Helm chart; Terraform (RDS, EKS, IRSA, least-priv collector roles);
 OTel traces; Prometheus metrics (ingestion lag, throughput, job status); RBAC + OIDC;
 secret-redacting logs; `govulncheck`; load test.

@@ -11,6 +11,10 @@ import (
 	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/models"
 	"github.com/nhiid/nhiid/internal/store"
+	"github.com/nhiid/nhiid/internal/tracing"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Collector is the interface that each provider (AWS, GCP, K8s, GitHub) must implement.
@@ -57,12 +61,23 @@ func Run(ctx context.Context, s *store.Store, coll Collector, accountRef string,
 	}
 	log = log.With("run_id", runID)
 
+	// Trace the collection (no-op unless OTLP tracing is configured).
+	ctx, span := tracing.Tracer("nhiid/collector").Start(ctx, "collect",
+		trace.WithAttributes(
+			attribute.String("collector", id),
+			attribute.String("account", accountRef),
+			attribute.String("run_id", runID.String()),
+		))
+	defer span.End()
+
 	// Collect.
 	start := time.Now()
 	defer func() { metrics.CollectorDuration.WithLabelValues(id).Observe(time.Since(start).Seconds()) }()
 	result, err := coll.Collect(ctx, accountRef, cursor)
 	if err != nil {
 		metrics.CollectorErrors.WithLabelValues(id).Inc()
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "collect failed")
 		log.Error("collection failed", "err", err, "duration", time.Since(start))
 		_ = s.Collectors.FinishRun(ctx, runID, "error", 0, 0, 1)
 		return err
@@ -158,6 +173,7 @@ func Run(ctx context.Context, s *store.Store, coll Collector, accountRef string,
 	}
 
 	// Finish the run.
+	span.SetAttributes(attribute.Int("records_in", len(result.Identities)), attribute.Int("upserted", upserted))
 	metrics.RecordsUpserted.WithLabelValues(id).Add(float64(upserted))
 	if err := s.Collectors.FinishRun(ctx, runID, "success", len(result.Identities), upserted, 0); err != nil {
 		log.Warn("failed to finish run record", "err", err)

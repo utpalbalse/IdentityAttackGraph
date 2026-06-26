@@ -27,6 +27,8 @@ import (
 	"github.com/nhiid/nhiid/internal/remediate"
 	"github.com/nhiid/nhiid/internal/risk"
 	"github.com/nhiid/nhiid/internal/store"
+	"github.com/nhiid/nhiid/internal/tracing"
+	"go.opentelemetry.io/otel/codes"
 )
 
 func main() {
@@ -44,6 +46,16 @@ func main() {
 	slog.SetDefault(logger)
 
 	ctx := context.Background()
+
+	// Distributed tracing (OTLP). No-op unless telemetry.otel_endpoint is set.
+	shutdownTracing, err := tracing.Init(ctx, "nhiid-worker", "0.1.0", cfg.Telemetry.OTelEndpoint)
+	if err != nil {
+		logger.Warn("tracing disabled", "err", err)
+	} else if cfg.Telemetry.OTelEndpoint != "" {
+		logger.Info("tracing enabled", "endpoint", cfg.Telemetry.OTelEndpoint)
+	}
+	defer func() { _ = shutdownTracing(context.Background()) }()
+
 	s, err := store.New(ctx, cfg.Database.DSN, cfg.Database.MaxConns, cfg.Database.MinConns)
 	if err != nil {
 		logger.Error("open store", "err", err)
@@ -109,22 +121,22 @@ func main() {
 		}
 
 		if *job == "graph" || *job == "all" {
-			runJob("graph", logger, func() error { return runGraphBuild(ctx, s, logger) })
+			runJob(ctx, "graph", logger, func() error { return runGraphBuild(ctx, s, logger) })
 		}
 
 		if *job == "score" || *job == "all" {
-			runJob("score", logger, func() error { return runScoring(ctx, s, ids, riskEngine, logger) })
+			runJob(ctx, "score", logger, func() error { return runScoring(ctx, s, ids, riskEngine, logger) })
 		}
 
 		if *job == "detect" || *job == "all" {
-			runJob("detect", logger, func() error {
+			runJob(ctx, "detect", logger, func() error {
 				if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger); err != nil {
 					return err
 				}
 				return runExposureFindings(ctx, s, logger)
 			})
 			if notifier != nil {
-				runJob("alert", logger, func() error { return runAlerts(ctx, s, notifier, alertSeverities, logger) })
+				runJob(ctx, "alert", logger, func() error { return runAlerts(ctx, s, notifier, alertSeverities, logger) })
 			}
 		}
 
@@ -208,11 +220,15 @@ func buildCollector(job queue.CollectJob, logger *slog.Logger) (collectors.Colle
 	}
 }
 
-// runJob runs a worker job, recording success/failure metrics.
-func runJob(name string, logger *slog.Logger, fn func() error) {
+// runJob runs a worker job, recording a trace span + success/failure metrics.
+func runJob(ctx context.Context, name string, logger *slog.Logger, fn func() error) {
+	_, span := tracing.Tracer("nhiid/worker").Start(ctx, "job:"+name)
+	defer span.End()
 	metrics.JobsTotal.WithLabelValues(name).Inc()
 	if err := fn(); err != nil {
 		metrics.JobsFailed.WithLabelValues(name).Inc()
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "job failed")
 		logger.Error(name+" job failed", "err", err)
 	}
 }

@@ -163,10 +163,11 @@ make down
 ✅ **Helm chart** — api/worker/web, migration hook, IRSA service account, Ingress, HPA/PDB, ServiceMonitor (see [../deploy/helm/README.md](../deploy/helm/README.md))  
 ✅ **Terraform (EKS)** — VPC, EKS, RDS Postgres, ElastiCache, IRSA + least-priv cross-account collector roles (see [../deploy/terraform/README.md](../deploy/terraform/README.md))  
 ✅ **Alerting** — Slack / generic-webhook notifications on new findings, severity threshold, at-least-once delivery (see [ALERTING.md](ALERTING.md))  
+✅ **OpenTelemetry tracing** — OTLP/gRPC spans for API requests, collector runs, and worker jobs (no-op unless `telemetry.otel_endpoint` is set)  
+✅ **Secret-redacting logs**, **`govulncheck`** in CI, and a **k6 load test** ([../deploy/loadtest/](../deploy/loadtest/))  
 
 ❌ Secrets Manager scanner (Phase 1)  
 ❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  
 ❌ GraphQL API (v1.0)  
 ❌ OIDC JWKS auto-fetch — static JWT validation only (v1.0)  
 ❌ Live client-go K8s source — export ingest works; live cluster API pending (Phase 2)  
-❌ OpenTelemetry traces — metrics implemented, tracing pending (Phase 5)  
