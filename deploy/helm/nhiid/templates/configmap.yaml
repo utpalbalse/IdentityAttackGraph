@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nhiid.fullname" . }}-config
+  labels:
+    {{- include "nhiid.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      http_addr: ":{{ .Values.api.port }}"
+      metrics_addr: ":{{ .Values.api.metricsPort }}"
+      read_timeout_seconds: 15
+      write_timeout_seconds: 30
+      rate_limit_per_min: {{ .Values.config.rateLimitPerMin }}
+
+    database:
+      # DSN is injected via NHIID_DATABASE_DSN (from the Secret); this is a placeholder.
+      dsn: "postgres://nhiid:nhiid@localhost:5432/nhiid?sslmode=disable"
+      max_conns: 20
+      min_conns: 2
+
+    queue:
+      nats_url: {{ include "nhiid.natsURL" . | quote }}
+      stream: {{ .Values.externalNats.stream | quote }}
+
+    cache:
+      redis_url: {{ include "nhiid.redisURL" . | quote }}
+
+    telemetry:
+      log_level: {{ .Values.config.logLevel | quote }}
+      log_format: {{ .Values.config.logFormat | quote }}
+      otel_endpoint: ""
+
+    detection:
+      stale_window_days: {{ .Values.config.detection.staleWindowDays }}
+      max_cred_age_days: {{ .Values.config.detection.maxCredAgeDays }}
+      max_rotation_age_days: {{ .Values.config.detection.maxRotationAgeDays }}
+      impossible_travel_max_kmh: {{ .Values.config.detection.impossibleTravelMaxKmh }}
+      usage_spike_sigma: {{ .Values.config.detection.usageSpikeSigma }}
+      anomaly_warmup_events: {{ .Values.config.detection.anomalyWarmupEvents }}
+      egress_allowlist:
+        {{- range .Values.config.detection.egressAllowlist }}
+        - {{ . | quote }}
+        {{- end }}
+
+    risk:
+      weights_file: "configs/risk_weights.yaml"
+
+    auth:
+      mode: {{ .Values.config.auth.mode | quote }}
+      {{- if eq .Values.config.auth.mode "token" }}
+      tokens_file: "/app/secrets/tokens.json"
+      {{- end }}
+      jwt_role_claim: {{ .Values.config.auth.jwtRoleClaim | quote }}
+      jwt_issuer: {{ .Values.config.auth.jwtIssuer | quote }}
+      jwt_audience: {{ .Values.config.auth.jwtAudience | quote }}

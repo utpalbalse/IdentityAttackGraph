@@ -1,0 +1,37 @@
+NHIID ({{ .Chart.Name }}-{{ .Chart.Version }}) installed as release "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}".
+
+Components:
+  - API      : {{ include "nhiid.fullname" . }}-api    (http :{{ .Values.api.port }}, metrics :{{ .Values.api.metricsPort }})
+  - Worker   : {{ include "nhiid.fullname" . }}-worker (metrics :{{ .Values.worker.metricsPort }})
+{{- if .Values.web.enabled }}
+  - Web UI   : {{ include "nhiid.fullname" . }}-web    (http :{{ .Values.web.port }})
+{{- end }}
+
+DB migrations ran as a pre-install/pre-upgrade hook (`migrate up`).
+
+Auth mode: {{ .Values.config.auth.mode }}
+{{- if eq .Values.config.auth.mode "off" }}
+  WARNING: auth.mode=off leaves the API open. Set config.auth.mode=token or jwt for any
+  non-demo environment (see docs/AUTH.md).
+{{- end }}
+
+{{- if not (include "nhiid.databaseDSN" .) }}
+
+  WARNING: no database configured. Set externalDatabase.* (production/RDS) or
+  postgresql.enabled=true (in-cluster dev).
+{{- end }}
+
+Reach the API locally:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "nhiid.fullname" . }}-api {{ .Values.api.port }}:{{ .Values.api.port }}
+  curl http://localhost:{{ .Values.api.port }}/healthz
+
+{{- if .Values.ingress.enabled }}
+
+Ingress is enabled at: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}/
+  UI  : /
+  API : /api/v1
+{{- end }}
+
+Seed the demo dataset (no cloud creds needed):
+  kubectl -n {{ .Release.Namespace }} exec deploy/{{ include "nhiid.fullname" . }}-worker -- \
+    collector --provider fixture --fixture fixtures/demo_env.json

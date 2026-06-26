@@ -1,0 +1,75 @@
+# Example production overrides for the nhiid chart on EKS. Pair with the Terraform stack in
+# deploy/terraform (its outputs feed the placeholders below).
+#
+#   helm upgrade --install nhiid deploy/helm/nhiid -n nhiid --create-namespace -f values-prod.yaml
+
+image:
+  repository: ghcr.io/utpalbalse/identityattackgraph
+  tag: "0.1.0"
+
+web:
+  image:
+    repository: ghcr.io/utpalbalse/identityattackgraph-web
+    tag: "0.1.0"
+
+# IRSA: terraform output irsa_role_arn — collectors assume member-account roles with no static creds.
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/nhiid-collector-irsa
+
+# Managed data stores (in-cluster subcharts stay disabled).
+postgresql:
+  enabled: false
+redis:
+  enabled: false
+nats:
+  enabled: false
+
+# Production NATS (e.g. the nats Helm chart in its own release, or a managed endpoint).
+externalNats:
+  url: "nats://nats.nats.svc.cluster.local:4222"
+  stream: "nhiid-jobs"
+
+# terraform output redis_endpoint
+externalRedis:
+  url: "redis://nhiid-redis.xxxxx.ng.0001.use1.cache.amazonaws.com:6379/0"
+
+# DB DSN comes from Secrets Manager via the External Secrets Operator, which materializes a k8s
+# Secret named "nhiid-secret" with a "database-dsn" key (synced from terraform db_dsn_secret_arn).
+secrets:
+  create: false
+  existingSecret: "nhiid-secret"
+
+config:
+  logLevel: info
+  rateLimitPerMin: 600
+  auth:
+    mode: jwt                 # enforce RBAC in production
+    jwtIssuer: "https://issuer.example.com/"
+    jwtAudience: "nhiid"
+    jwtRoleClaim: "role"
+
+# jwt-secret (HS256) should also live in the existingSecret above under key "jwt-secret",
+# or switch to RS256 by mounting a public key and setting auth.jwt_public_key_file.
+
+api:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+  host: nhiid.example.com
+  tls:
+    - hosts: [nhiid.example.com]
+
+metrics:
+  serviceMonitor:
+    enabled: true

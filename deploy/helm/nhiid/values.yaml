@@ -1,0 +1,188 @@
+# Default values for the nhiid chart. Production deployments override the data-store
+# connection details (RDS/ElastiCache/NATS) and the auth block. See deploy/helm/README.md.
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Container image holding all binaries (api, worker, collector, migrate).
+image:
+  repository: ghcr.io/utpalbalse/identityattackgraph
+  # tag defaults to .Chart.AppVersion when empty.
+  tag: ""
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+
+# Service account. On EKS, set an IRSA role ARN here so collectors assume cross-account
+# roles without static credentials (see deploy/terraform IRSA outputs).
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+    # eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/nhiid-collector-irsa
+
+# Pod-level security context (applied to all workloads). The image already runs as uid 10001.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# Non-secret runtime configuration. Rendered into a ConfigMap and mounted as
+# /app/configs/config.yaml (the image's baked-in config is overridden). Secrets
+# (DB DSN, JWT secret) are layered on top via env from the Secret below.
+config:
+  logLevel: info
+  logFormat: json
+  rateLimitPerMin: 600           # per-principal Redis rate limit; 0 disables
+  detection:
+    staleWindowDays: 90
+    maxCredAgeDays: 365
+    maxRotationAgeDays: 180
+    impossibleTravelMaxKmh: 900
+    usageSpikeSigma: 4
+    anomalyWarmupEvents: 50
+    egressAllowlist: []
+  auth:
+    # off | token | jwt
+    mode: "off"
+    jwtRoleClaim: "role"
+    jwtIssuer: ""
+    jwtAudience: ""
+    # token mode: mount a tokens JSON file via secrets.authTokens (rendered to /app/secrets/tokens.json)
+
+# Secret material. For production prefer an existing secret (External Secrets Operator,
+# AWS Secrets Manager CSI, etc.). If create=true, values below are written into a chart Secret.
+secrets:
+  create: true
+  existingSecret: ""             # if set, must contain keys: database-dsn (and jwt-secret / auth-tokens if used)
+  # database-dsn is assembled from externalDatabase / postgresql below unless set here directly.
+  databaseDSN: ""
+  jwtSecret: ""                  # HS256 secret for auth.mode=jwt
+  authTokens: ""                 # JSON array for auth.mode=token: [{"token":"...","subject":"...","role":"admin"}]
+
+# Production Postgres (RDS). Used when postgresql.enabled=false.
+externalDatabase:
+  host: ""
+  port: 5432
+  user: nhiid
+  password: ""
+  database: nhiid
+  sslmode: require
+  dsn: ""                        # full DSN wins over the parts above
+
+# Production Redis (ElastiCache). Used when redis.enabled=false. Empty disables the rate limiter.
+externalRedis:
+  url: ""                        # redis://host:6379/0
+
+# Production NATS. Used when nats.enabled=false. Empty makes /collect run in-process.
+externalNats:
+  url: ""                        # nats://host:4222
+  stream: "nhiid-jobs"
+
+# ---- API ----
+api:
+  replicaCount: 2
+  port: 8080
+  metricsPort: 9090
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ---- Worker ----
+worker:
+  replicaCount: 1                # single consumer is sufficient; jobs are idempotent
+  metricsPort: 9090
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# ---- Web UI ----
+web:
+  enabled: true
+  replicaCount: 2
+  port: 5173
+  image:
+    repository: ghcr.io/utpalbalse/identityattackgraph-web
+    tag: ""
+    pullPolicy: IfNotPresent
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 250m, memory: 256Mi}
+  # nginx serves a read-only static bundle but writes a pid/cache; relax rootfs for web.
+  securityContext:
+    readOnlyRootFilesystem: false
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+# DB migration runs as a pre-install/pre-upgrade Helm hook (`migrate up`).
+migrate:
+  enabled: true
+  backoffLimit: 3
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 500m, memory: 256Mi}
+
+ingress:
+  enabled: false
+  className: ""                  # e.g. "alb" (AWS LB Controller) or "nginx"
+  annotations: {}
+    # alb.ingress.kubernetes.io/scheme: internet-facing
+    # alb.ingress.kubernetes.io/target-type: ip
+  host: nhiid.example.com
+  # /api -> api service, everything else -> web service
+  tls: []
+    # - secretName: nhiid-tls
+    #   hosts: [nhiid.example.com]
+
+# Prometheus Operator ServiceMonitor for the api + worker /metrics endpoints.
+metrics:
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+
+# ---- In-cluster dependencies (dev/standalone only; disabled by default) ----
+postgresql:
+  enabled: false
+  auth:
+    username: nhiid
+    password: nhiid
+    database: nhiid
+  primary:
+    persistence:
+      size: 8Gi
+
+redis:
+  enabled: false
+  architecture: standalone
+  auth:
+    enabled: false
+
+nats:
+  enabled: false
+  config:
+    jetstream:
+      enabled: true

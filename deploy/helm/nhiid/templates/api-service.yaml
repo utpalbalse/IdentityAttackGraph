@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nhiid.fullname" . }}-api
+  labels:
+    {{- include "nhiid.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+    nhiid.io/metrics: "true"
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "nhiid.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  ports:
+    - name: http
+      port: {{ .Values.api.port }}
+      targetPort: http
+    - name: metrics
+      port: {{ .Values.api.metricsPort }}
+      targetPort: metrics

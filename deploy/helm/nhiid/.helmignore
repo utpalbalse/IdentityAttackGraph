@@ -1,0 +1,10 @@
+# Patterns to ignore when packaging the chart.
+.git/
+.gitignore
+*.tmproj
+.vscode/
+.idea/
+*.bak
+*.swp
+*.orig
+.DS_Store

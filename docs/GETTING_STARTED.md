@@ -4,7 +4,7 @@
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.22+ (for collector and worker commands)
+- Go 1.25+ (for collector and worker commands)
 - Node 20+ (for React dev server)
 
 ### One-command stack
@@ -93,9 +93,9 @@ make down
 
 - **Local development:** edit Go code, `make build && make dev` to restart.
 - **Web dev:** `cd web && npm run dev` for Vite hot reload.
-- **AWS integration:** implement `internal/collectors/aws` using AWS SDK; assume role for cross-account access.
-- **GCP integration:** implement `internal/collectors/gcp` using GCP SDKs; use WIF federation.
-- **Production deploy:** use Helm to deploy to EKS; Terraform for RDS/networking.
+- **Point at real AWS:** `go run ./cmd/collector --provider aws --role-arn <arn> --external-id <id>` (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md)).
+- **Point at real GCP:** `go run ./cmd/collector --provider gcp --project <id>` using ADC or a WIF credentials file (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md)).
+- **Production deploy:** `terraform apply` in [../deploy/terraform/](../deploy/terraform/) (VPC/EKS/RDS/ElastiCache/IRSA), then `helm upgrade --install nhiid deploy/helm/nhiid` (see [../deploy/helm/README.md](../deploy/helm/README.md)).
 - **Tests:** unit tests for risk engine, detection logic, graph traversal. Integration tests with a test DB.
 
 ---
@@ -144,18 +144,23 @@ make down
 ✅ Risk engine (6-factor transparent scoring)  
 ✅ Detection engine (9 rule detectors, 6 anomaly detectors)  
 ✅ Graph engine (blast radius, attack-path traversal)  
-✅ REST API (identity list/detail, findings, triage)  
-✅ React dashboard (inventory, triage, detail stub)  
-✅ Docker Compose (local dev)  
+✅ Full REST API (inventory, graph/attack-paths, findings, triage, remediation, exports, snapshots, suppressions, audit, config — see [API.md](API.md))  
+✅ React dashboard (inventory, triage, identity detail, Cytoscape attack-graph view)  
+✅ Docker Compose (local dev, one command)  
 ✅ **AWS collector** — real IAM/STS/CloudTrail discovery with assume-role (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md))  
 ✅ **GCP collector** — service accounts, keys, impersonation/WIF trust, project IAM, audit logs (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md))  
 ✅ **Repo secret scanner** — ingests SecretSweep JSON/SARIF reports → exposures → `secret_exposed_in_repo` (see [REPO_SCANNER.md](REPO_SCANNER.md))  
+✅ **RBAC** — bearer-token + JWT (HS256/RS256), viewer/analyst/admin, all mutations audited (see [AUTH.md](AUTH.md))  
+✅ **Prometheus metrics** — `/metrics` listener + derived gauges (ingestion lag, findings, job status)  
+✅ **NATS JetStream** job queue + **Redis** per-principal rate limiter  
+✅ Exports — JSON / SARIF 2.1.0 / CSV  
+✅ **Helm chart** — api/worker/web, migration hook, IRSA service account, Ingress, HPA/PDB, ServiceMonitor (see [../deploy/helm/README.md](../deploy/helm/README.md))  
+✅ **Terraform (EKS)** — VPC, EKS, RDS Postgres, ElastiCache, IRSA + least-priv cross-account collector roles (see [../deploy/terraform/README.md](../deploy/terraform/README.md))  
 
 ❌ Secrets Manager scanner (Phase 1)  
-❌ GitHub/GitLab secret scanner (Phase 1)  
+❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  
 ❌ GraphQL API (v1.0)  
+❌ OIDC JWKS auto-fetch — static JWT validation only (v1.0)  
 ❌ Kubernetes collector (Phase 2)  
-❌ Helm chart / Terraform (v1.0)  
-❌ Prometheus metrics / OpenTelemetry traces (v1.0)  
-❌ RBAC + OIDC authentication (v1.0)  
-❌ Alerting / Slack integration (v1.0)  
+❌ OpenTelemetry traces — metrics implemented, tracing pending (Phase 5)  
+❌ Alerting / Slack integration (Phase 4)  

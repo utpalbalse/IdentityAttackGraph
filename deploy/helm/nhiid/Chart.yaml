@@ -1,0 +1,42 @@
+apiVersion: v2
+name: nhiid
+description: |
+  IdentityAttackGraph (NHIID) — non-human identity inventory & detection.
+  Deploys the API, worker, and web UI. Postgres/Redis/NATS are expected to be
+  provided externally (RDS/ElastiCache/managed NATS) in production; optional
+  in-cluster subcharts are available for dev/standalone use.
+type: application
+
+# Chart version is independent of the app version.
+version: 0.1.0
+# appVersion tracks the container image tag default (overridable via image.tag).
+appVersion: "0.1.0"
+
+home: https://github.com/utpalbalse/IdentityAttackGraph
+sources:
+  - https://github.com/utpalbalse/IdentityAttackGraph
+maintainers:
+  - name: utpalbalse
+
+keywords:
+  - security
+  - identity
+  - cspm
+  - non-human-identity
+  - attack-graph
+
+# In-cluster data stores for dev/standalone installs. Disabled by default — production
+# points at RDS/ElastiCache/managed NATS via externalDatabase/externalRedis/externalNats.
+dependencies:
+  - name: postgresql
+    version: "15.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: "20.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+  - name: nats
+    version: "1.x.x"
+    repository: https://nats-io.github.io/k8s/helm/charts/
+    condition: nats.enabled

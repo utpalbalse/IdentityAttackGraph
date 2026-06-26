@@ -1,0 +1,38 @@
+# Copy to terraform.tfvars and adjust. All values have sensible defaults except where noted.
+
+region      = "us-east-1"
+name        = "nhiid"
+environment = "dev"
+
+# --- Networking ---
+vpc_cidr = "10.40.0.0/16"
+az_count = 3
+
+# --- EKS ---
+kubernetes_version  = "1.30"
+node_instance_types = ["t3.large"]
+node_desired_size   = 2
+node_min_size       = 2
+node_max_size       = 5
+
+# Lock the public API endpoint down to your egress CIDR(s) for anything beyond a demo.
+cluster_public_access_cidrs = ["0.0.0.0/0"]
+
+# --- RDS ---
+db_instance_class      = "db.t4g.medium"
+db_engine_version      = "16.4"
+db_multi_az            = false # true for prod
+db_deletion_protection = false # true for prod
+
+# --- Redis ---
+redis_enabled   = true
+redis_node_type = "cache.t4g.micro"
+
+# --- Collector (cross-account discovery) ---
+app_namespace       = "nhiid"
+app_service_account = "nhiid"
+# Member accounts NHIID may assume into. Leave empty to allow any account's collector role.
+collector_member_account_ids = [
+  # "111122223333",
+  # "444455556666",
+]
