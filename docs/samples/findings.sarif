@@ -1,0 +1,1100 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "IdentityAttackGraph",
+          "informationUri": "https://github.com/utpalbalse/IdentityAttackGraph",
+          "version": "0.1.0",
+          "rules": [
+            {
+              "id": "secret_exposed_in_repo",
+              "name": "secret_exposed_in_repo",
+              "shortDescription": {
+                "text": "Credential material exposed in repository"
+              },
+              "properties": {
+                "category": "exposure"
+              }
+            },
+            {
+              "id": "orphaned_identity",
+              "name": "orphaned_identity",
+              "shortDescription": {
+                "text": "Orphaned non-human identity"
+              },
+              "properties": {
+                "category": "hygiene"
+              }
+            },
+            {
+              "id": "high_blast_radius",
+              "name": "high_blast_radius",
+              "shortDescription": {
+                "text": "High blast radius identity"
+              },
+              "properties": {
+                "category": "blast_radius"
+              }
+            },
+            {
+              "id": "stale_access_key",
+              "name": "stale_access_key",
+              "shortDescription": {
+                "text": "Stale unused credential"
+              },
+              "properties": {
+                "category": "hygiene"
+              }
+            },
+            {
+              "id": "over_privileged_sa",
+              "name": "over_privileged_sa",
+              "shortDescription": {
+                "text": "Over-privileged service identity"
+              },
+              "properties": {
+                "category": "privilege"
+              }
+            },
+            {
+              "id": "ai_agent_overscoped",
+              "name": "ai_agent_overscoped",
+              "shortDescription": {
+                "text": "Over-scoped AI-agent identity"
+              },
+              "properties": {
+                "category": "ai_agent"
+              }
+            },
+            {
+              "id": "privilege_creep",
+              "name": "privilege_creep",
+              "shortDescription": {
+                "text": "Privilege creep beyond peer baseline"
+              },
+              "properties": {
+                "category": "privilege"
+              }
+            },
+            {
+              "id": "first_use_sensitive_action",
+              "name": "first_use_sensitive_action",
+              "shortDescription": {
+                "text": "First use of sensitive action"
+              },
+              "properties": {
+                "category": "anomaly"
+              }
+            },
+            {
+              "id": "impossible_travel",
+              "name": "impossible_travel",
+              "shortDescription": {
+                "text": "Impossible travel detected"
+              },
+              "properties": {
+                "category": "anomaly"
+              }
+            },
+            {
+              "id": "conditionless_assume_role",
+              "name": "conditionless_assume_role",
+              "shortDescription": {
+                "text": "Conditionless assume-role trust"
+              },
+              "properties": {
+                "category": "trust"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material (pattern \"bearer_token\") was found in repository at acme/billing:.github/workflows/deploy.yml. Rotate and revoke the exposed credential and purge it from history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".github/workflows/deploy.yml"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 85,
+            "identity": "",
+            "severity": "critical",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material (pattern \"database_password\") was found in repository at acme/billing:k8s/db-secret.yaml. Rotate and revoke the exposed credential and purge it from history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "k8s/db-secret.yaml"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 85,
+            "identity": "",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material (pattern \"generic_api_key\") was found in repository at acme/billing:config/settings.py. Rotate and revoke the exposed credential and purge it from history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/settings.py"
+                },
+                "region": {
+                  "startLine": 48
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 85,
+            "identity": "",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material (pattern \"gcp_service_account_key\") was found in repository at acme/billing:deploy/gcp-sa.json. Rotate and revoke the exposed credential and purge it from history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "deploy/gcp-sa.json"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 85,
+            "identity": "",
+            "severity": "critical",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material (pattern \"aws_access_key\") was found in repository at acme/billing:.env. Rotate and revoke the exposed credential and purge it from history."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".env"
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 85,
+            "identity": "",
+            "severity": "critical",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "billing-admin",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/billing-admin",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 70,
+            "identity": "billing-admin",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-deployer",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-deployer",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 70,
+            "identity": "prod-deployer",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 70,
+            "identity": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-orphaned",
+                  "fullyQualifiedName": "arn:aws:iam::987654321098:user/svc-orphaned",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:987654321098",
+            "confidence": 70,
+            "identity": "svc-orphaned",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/configmap-reader",
+                  "fullyQualifiedName": "k8s://demo/prod/configmap-reader",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 70,
+            "identity": "prod/configmap-reader",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"ci-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 70,
+            "identity": "ci-deployer",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci-deployer\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 76,
+            "identity": "ci-deployer",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "stale_access_key",
+          "level": "warning",
+          "message": {
+            "text": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci/legacy-ci",
+                  "fullyQualifiedName": "k8s://demo/ci/legacy-ci",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 80,
+            "identity": "ci/legacy-ci",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci/legacy-ci",
+                  "fullyQualifiedName": "k8s://demo/ci/legacy-ci",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 70,
+            "identity": "ci/legacy-ci",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci/legacy-ci",
+                  "fullyQualifiedName": "k8s://demo/ci/legacy-ci",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 76,
+            "identity": "ci/legacy-ci",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci/legacy-ci",
+                  "fullyQualifiedName": "k8s://demo/ci/legacy-ci",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 78,
+            "identity": "ci/legacy-ci",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod/secrets-sync\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/secrets-sync",
+                  "fullyQualifiedName": "k8s://demo/prod/secrets-sync",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 76,
+            "identity": "prod/secrets-sync",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod/secrets-sync\" holds excessive privilege ([role:prod/secrets-sync:rbac:admin role:prod/secrets-sync:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/secrets-sync",
+                  "fullyQualifiedName": "k8s://demo/prod/secrets-sync",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 78,
+            "identity": "prod/secrets-sync",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "stale_access_key",
+          "level": "warning",
+          "message": {
+            "text": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-copilot-agent",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 80,
+            "identity": "prod-copilot-agent",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"prod-copilot-agent\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-copilot-agent",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 70,
+            "identity": "prod-copilot-agent",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "ai_agent_overscoped",
+          "level": "error",
+          "message": {
+            "text": "AI-agent identity \"prod-copilot-agent\" is over-scoped (broad API scope=true, uncontrolled tools=true, TTL=720h). Autonomous agents with broad, long-lived, weakly-scoped access are high-consequence targets."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-copilot-agent",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 70,
+            "identity": "prod-copilot-agent",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod-copilot-agent\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-copilot-agent",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 76,
+            "identity": "prod-copilot-agent",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod-copilot-agent\" holds excessive privilege ([role:prod-copilot-agent:admin role:prod-copilot-agent:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod-copilot-agent",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 78,
+            "identity": "prod-copilot-agent",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "stale_access_key",
+          "level": "warning",
+          "message": {
+            "text": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/deployer",
+                  "fullyQualifiedName": "k8s://demo/prod/deployer",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 80,
+            "identity": "prod/deployer",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod/deployer\" can reach high-impact resources (crown jewels: 2, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/deployer",
+                  "fullyQualifiedName": "k8s://demo/prod/deployer",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 76,
+            "identity": "prod/deployer",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"prod/deployer\" holds excessive privilege ([role:prod/deployer:rbac:admin role:prod/deployer:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/deployer",
+                  "fullyQualifiedName": "k8s://demo/prod/deployer",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 78,
+            "identity": "prod/deployer",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "stale_access_key",
+          "level": "warning",
+          "message": {
+            "text": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "data-processor@project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "data-processor@project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 80,
+            "identity": "data-processor@project.iam.gserviceaccount.com",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"data-processor@project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "data-processor@project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "data-processor@project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 70,
+            "identity": "data-processor@project.iam.gserviceaccount.com",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"data-processor@project.iam.gserviceaccount.com\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "data-processor@project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "data-processor@project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 76,
+            "identity": "data-processor@project.iam.gserviceaccount.com",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"data-processor@project.iam.gserviceaccount.com\" holds excessive privilege ([role:data-processor:admin role:data-processor:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "data-processor@project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "data-processor@project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 78,
+            "identity": "data-processor@project.iam.gserviceaccount.com",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "privilege_creep",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"svc-billing-export\" has 180 permissions, exceeding the peer-group P90 of 168. Permissions were likely granted over time without commensurate review."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 65,
+            "identity": "svc-billing-export",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "stale_access_key",
+          "level": "warning",
+          "message": {
+            "text": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 80,
+            "identity": "svc-billing-export",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "first_use_sensitive_action",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" invoked sensitive action \"iam:CreateAccessKey\" for the first time. First-time sensitive-action use often marks the pivot point in an intrusion."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 78,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "impossible_travel",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" authenticated from US then RU in 0.3 hours (8887 km, 33325 km/h) — impossible travel."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 82,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 76,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "conditionless_assume_role",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 72,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "conditionless_assume_role",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 72,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "over_privileged_sa",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 78,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "secret_exposed_in_repo",
+          "level": "error",
+          "message": {
+            "text": "Credential material for identity \"svc-billing-export\" was found in a repository at .env (pattern aws_akia). The exposed credential can reach a crown-jewel resource, making this an immediate priority."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ".env"
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 85,
+            "identity": "svc-billing-export",
+            "severity": "critical",
+            "status": "open"
+          }
+        }
+      ]
+    }
+  ]
+}

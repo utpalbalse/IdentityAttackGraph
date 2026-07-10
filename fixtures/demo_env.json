@@ -74,6 +74,30 @@
         "external_id": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
         "account_ref": "gcp:my-gcp-project"
       }
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440006",
+      "kind": "ai_agent",
+      "name": "prod-copilot-agent",
+      "arn_or_email": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "provider": "aws",
+      "state": "active",
+      "risk_score": 0,
+      "is_ai_agent": true,
+      "ai_agent_meta": {
+        "framework": "langchain",
+        "model": "gpt-4o",
+        "ttl_hours": 720,
+        "broad_api_scope": true,
+        "uncontrolled_tools": true,
+        "tools": ["s3.read", "secretsmanager.read", "lambda.invoke", "http.request", "shell.exec"]
+      },
+      "attributes": {"owner_team": "ml-platform"},
+      "provenance": {
+        "source": "fixture",
+        "external_id": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+        "account_ref": "aws:123456789012"
+      }
     }
   ],
   "credentials": [
@@ -94,6 +118,15 @@
       "status": "active",
       "source": "fixture",
       "account_ref": "gcp:my-gcp-project"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440013",
+      "identity_id": "550e8400-e29b-41d4-a716-446655440006",
+      "cred_type": "api_client_token",
+      "external_id": "aiat_live_9f3c8b21_redacted",
+      "status": "active",
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
     }
   ],
   "roles": [
@@ -141,6 +174,21 @@
       "owner_identity_id": "550e8400-e29b-41d4-a716-446655440003",
       "source": "fixture",
       "policy_document": {"has_priv_escalation": true, "roles": ["roles/owner"]}
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440023",
+      "provider": "aws",
+      "external_id": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account_ref": "aws:123456789012",
+      "name": "prod-copilot-agent",
+      "privilege_level": "admin",
+      "is_assumable": false,
+      "permission_count": 62,
+      "wildcard_action_count": 3,
+      "wildcard_resource_count": 2,
+      "owner_identity_id": "550e8400-e29b-41d4-a716-446655440006",
+      "source": "fixture",
+      "policy_document": {"has_priv_escalation": true}
     }
   ],
   "trust_edges": [
@@ -187,6 +235,17 @@
       "effect": "allow",
       "source": "fixture",
       "account_ref": "gcp:my-gcp-project"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440043",
+      "role_id": "550e8400-e29b-41d4-a716-446655440023",
+      "resource_urn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/app/master",
+      "resource_kind": "secretsmanager",
+      "resource_criticality": "crown_jewel",
+      "actions": ["secretsmanager:GetSecretValue", "*"],
+      "effect": "allow",
+      "source": "fixture",
+      "account_ref": "aws:123456789012"
     }
   ],
   "usage_events": [

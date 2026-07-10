@@ -72,11 +72,18 @@ dashboards show lag/throughput; least-priv policy CI-linted.
 
 ## Phase 6 — Demo dataset + attack simulation + release polish
 **Objectives:** compelling, reproducible demo + release.
+**Status:** done — ✅ rich synthetic fixture (multi-account AWS+GCP + K8s, repo leak, conditionless
+assume chain, **over-scoped AI agent**), ✅ `cmd/simulate` scripted attack-path walkthrough
+(`internal/simulate` + tests) that narrates foothold → crown jewel with live detections and the
+severing remediation, ✅ `make demo` / `make sim` + `scripts/simulate_attack.{sh,ps1}`, ✅ committed
+sample reports (`docs/samples/`: SARIF/JSON/CSV + simulation), ✅ README "See it in action" +
+`docs/DEMO.md`, ✅ release workflow (`.github/workflows/release.yml`: GHCR images + GitHub release on
+tag). Also root-caused a dormant `ai_agent_overscoped` detector (List now hydrates ai_agent_meta).
 **Tasks:** rich synthetic fixture (multi-account AWS+GCP, repo leak, assume chain, AI agent);
 scripted "attack" that walks an attack path; screenshots/gif; README polish; sample reports;
 tagged release + container images.
-**Modules:** `fixtures/`, `scripts/simulate_attack.*`, docs.
-**Acceptance:** `make seed` → end-to-end demo with detections + attack-path; v0.1 released.
+**Modules:** `fixtures/`, `cmd/simulate`, `internal/simulate`, `scripts/simulate_attack.*`, docs.
+**Acceptance:** `make demo` → end-to-end demo with detections + attack-path; v0.1 released.
 **Risks:** demo realism. **Deps:** Phase 5.
 
 ---

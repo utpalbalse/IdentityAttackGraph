@@ -114,7 +114,7 @@ func (r *IdentityRepo) List(ctx context.Context, f IdentityFilter) ([]models.Ide
 	if len(where) > 0 {
 		clause = " WHERE " + strings.Join(where, " AND ")
 	}
-	q := "SELECT id,kind,name,arn_or_email,provider,account_ref,state,risk_score,is_ai_agent,last_seen_at,source,external_id,collected_at FROM identities" +
+	q := "SELECT id,kind,name,arn_or_email,provider,account_ref,state,risk_score,is_ai_agent,last_seen_at,source,external_id,collected_at,attributes,ai_agent_meta FROM identities" +
 		clause + " ORDER BY risk_score DESC LIMIT " + fmt.Sprintf("%d", f.Limit)
 
 	rows, err := r.pool.Query(ctx, q, args...)
@@ -125,11 +125,17 @@ func (r *IdentityRepo) List(ctx context.Context, f IdentityFilter) ([]models.Ide
 	var out []models.Identity
 	for rows.Next() {
 		var id models.Identity
+		var attrsRaw, aiMetaRaw []byte
 		if err := rows.Scan(&id.ID, &id.Kind, &id.Name, &id.ARNOrEmail, &id.Provider,
 			&id.Prov.AccountRef, &id.State, &id.RiskScore, &id.IsAIAgent,
-			&id.LastSeenAt, &id.Prov.Source, &id.Prov.ExternalID, &id.Prov.CollectedAt); err != nil {
+			&id.LastSeenAt, &id.Prov.Source, &id.Prov.ExternalID, &id.Prov.CollectedAt,
+			&attrsRaw, &aiMetaRaw); err != nil {
 			return nil, err
 		}
+		// Attributes + AI-agent metadata drive detectors (ai_agent_overscoped) and suppressions
+		// (break_glass), so the list path must hydrate them, not just the single-Get path.
+		_ = json.Unmarshal(attrsRaw, &id.Attributes)
+		_ = json.Unmarshal(aiMetaRaw, &id.AIAgentMeta)
 		out = append(out, id)
 	}
 	return out, rows.Err()

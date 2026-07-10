@@ -165,6 +165,8 @@ make down
 ✅ **Alerting** — Slack / generic-webhook notifications on new findings, severity threshold, at-least-once delivery (see [ALERTING.md](ALERTING.md))  
 ✅ **OpenTelemetry tracing** — OTLP/gRPC spans for API requests, collector runs, and worker jobs (no-op unless `telemetry.otel_endpoint` is set)  
 ✅ **Secret-redacting logs**, **`govulncheck`** in CI, and a **k6 load test** ([../deploy/loadtest/](../deploy/loadtest/))  
+✅ **Attack-path simulation** — `make demo` / `simulate` narrates leaked-key → crown-jewel, over-scoped AI agent, and cross-cloud K8s paths with live detections + remediation (see [DEMO.md](DEMO.md))  
+✅ **Release automation** — GHCR images + GitHub release on version tag ([../.github/workflows/release.yml](../.github/workflows/release.yml))  
 
 ❌ Secrets Manager scanner (Phase 1)  
 ❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  

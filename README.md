@@ -28,6 +28,7 @@ Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milest
 
 | Doc | What's in it |
 |-----|--------------|
+| [docs/DEMO.md](docs/DEMO.md) | **Start here** — one-command demo + narrated attack path |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, component diagram, data flow |
 | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Assets, threats, trust boundaries, mitigations |
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Unified schema, entities, graph model |
@@ -50,7 +51,7 @@ No local Go or Node toolchain required — everything builds and runs in contain
 
 ```bash
 make dev          # compose up: postgres, redis, nats, migrate (one-shot), api, worker, web
-make seed         # load synthetic multi-account AWS+GCP fixture (no cloud creds needed)
+make demo         # seed AWS+GCP+K8s fixtures, run graph/score/detect, print the attack simulation
 open http://localhost:5173
 ```
 
@@ -58,12 +59,28 @@ open http://localhost:5173
 api/worker/web start from compiled binaries). On Windows without `make`, use the compose commands
 directly: `docker compose -f deploy/docker-compose.yml up --build -d`.
 
-The seed dataset includes:
-- Orphaned access keys
-- Over-privileged service accounts
-- Cross-account assume-role chains
-- Credentials exposed in repositories
-- Detections fire without any real cloud credentials
+## See it in action
+
+`make demo` ends by narrating the worst attack paths it finds — computed live from the graph, with
+the detections that caught each and the one remediation that severs it (full output in
+[docs/DEMO.md](docs/DEMO.md) and [docs/samples/](docs/samples/)):
+
+```text
+━━━ Scenario 1 · Leaked credential → crown jewel
+  target  svc-billing-export  (risk 67)
+  RECON   attacker finds credential material at .env:12 (pattern aws_akia) — belongs to svc-billing-export
+  STEP 0  ▸ svc-billing-export [identity]
+  STEP 1  → assumes role billing-admin [role] ▲ high
+  STEP 2  → gains access to arn:aws:s3:::prod-billing [resource] ◆ CROWN JEWEL
+  IMPACT  1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
+  CAUGHT  secret_exposed_in_repo (critical), conditionless_assume_role (high), high_blast_radius (high), …
+  FIX     reduce_scope  →  risk 67→30 (−37)
+```
+
+The synthetic dataset ships the mistakes attackers exploit: a key committed to a repo, a
+conditionless assume-role chain to a crown-jewel bucket, an **over-scoped AI agent** reaching a
+secret, a **Kubernetes** ServiceAccount bound to cluster-admin with an IRSA edge into AWS, GCP
+impersonation, and orphaned/stale credentials — all detected with **no cloud credentials**.
 
 ## Architecture at a glance
 
