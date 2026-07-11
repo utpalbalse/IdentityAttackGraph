@@ -19,8 +19,8 @@
         "secret": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
         "store": "aws_secretsmanager"
       },
-      "first_seen": "2026-07-10T19:58:24.935611-04:00",
-      "last_seen": "2026-07-10T19:58:24.935611-04:00"
+      "first_seen": "2026-07-10T20:05:25.03592-04:00",
+      "last_seen": "2026-07-10T20:05:25.03592-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -42,8 +42,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-07-10T19:58:24.931125-04:00",
-      "last_seen": "2026-07-10T19:58:24.931125-04:00"
+      "first_seen": "2026-07-10T20:05:25.031427-04:00",
+      "last_seen": "2026-07-10T20:05:25.031427-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -65,8 +65,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-07-10T19:58:24.929657-04:00",
-      "last_seen": "2026-07-10T19:58:24.929657-04:00"
+      "first_seen": "2026-07-10T20:05:25.030165-04:00",
+      "last_seen": "2026-07-10T20:05:25.030165-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -88,8 +88,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-07-10T19:58:24.927919-04:00",
-      "last_seen": "2026-07-10T19:58:24.927919-04:00"
+      "first_seen": "2026-07-10T20:05:25.028778-04:00",
+      "last_seen": "2026-07-10T20:05:25.028778-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -111,8 +111,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-07-10T19:58:24.926113-04:00",
-      "last_seen": "2026-07-10T19:58:24.926113-04:00"
+      "first_seen": "2026-07-10T20:05:25.027422-04:00",
+      "last_seen": "2026-07-10T20:05:25.027422-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -134,56 +134,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-07-10T19:58:24.924379-04:00",
-      "last_seen": "2026-07-10T19:58:24.924379-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-      "identity_arn": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "gcp:my-gcp-project",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-10T19:58:24.918217-04:00",
-      "last_seen": "2026-07-10T19:58:24.918217-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod/configmap-reader",
-      "identity_arn": "k8s://demo/prod/configmap-reader",
-      "account": "k8s:demo",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "k8s:demo",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-10T19:58:24.910763-04:00",
-      "last_seen": "2026-07-10T19:58:24.910763-04:00"
+      "first_seen": "2026-07-10T20:05:25.02616-04:00",
+      "last_seen": "2026-07-10T20:05:25.02616-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -206,8 +158,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.903224-04:00",
-      "last_seen": "2026-07-10T19:58:24.903224-04:00"
+      "first_seen": "2026-07-10T20:05:25.019993-04:00",
+      "last_seen": "2026-07-10T20:05:25.019993-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -230,8 +182,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.893972-04:00",
-      "last_seen": "2026-07-10T19:58:24.893972-04:00"
+      "first_seen": "2026-07-10T20:05:25.011793-04:00",
+      "last_seen": "2026-07-10T20:05:25.011793-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -254,8 +206,147 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.885694-04:00",
-      "last_seen": "2026-07-10T19:58:24.885694-04:00"
+      "first_seen": "2026-07-10T20:05:25.00217-04:00",
+      "last_seen": "2026-07-10T20:05:25.00217-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod/configmap-reader",
+      "identity_arn": "k8s://demo/prod/configmap-reader",
+      "account": "k8s:demo",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "k8s:demo",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T20:05:24.99337-04:00",
+      "last_seen": "2026-07-10T20:05:24.99337-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+      "identity_arn": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "gcp:my-gcp-project",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T20:05:24.985296-04:00",
+      "last_seen": "2026-07-10T20:05:24.985296-04:00"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "legacy-ci-token-77abc",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "k8s_sa_token"
+      },
+      "first_seen": "2026-07-10T20:05:24.975279-04:00",
+      "last_seen": "2026-07-10T20:05:24.975279-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "k8s:demo",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T20:05:24.971758-04:00",
+      "last_seen": "2026-07-10T20:05:24.971758-04:00"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 0,
+        "nearest_crown_jewel_hops": -1,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-10T20:05:24.96758-04:00",
+      "last_seen": "2026-07-10T20:05:24.96758-04:00"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:ci/legacy-ci:rbac:admin",
+          "role:ci/legacy-ci:rbac:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-10T20:05:24.96516-04:00",
+      "last_seen": "2026-07-10T20:05:24.96516-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -278,8 +369,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.877168-04:00",
-      "last_seen": "2026-07-10T19:58:24.877168-04:00"
+      "first_seen": "2026-07-10T20:05:24.957563-04:00",
+      "last_seen": "2026-07-10T20:05:24.957563-04:00"
     },
     {
       "detector": "suspicious_role_chain",
@@ -303,8 +394,8 @@
         "total_hops": 3,
         "trust_hops": 1
       },
-      "first_seen": "2026-07-10T19:58:24.875555-04:00",
-      "last_seen": "2026-07-10T19:58:24.875555-04:00"
+      "first_seen": "2026-07-10T20:05:24.956104-04:00",
+      "last_seen": "2026-07-10T20:05:24.956104-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -326,96 +417,8 @@
           "3 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.871556-04:00",
-      "last_seen": "2026-07-10T19:58:24.871556-04:00"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Stale unused credential",
-      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "legacy-ci-token-77abc",
-        "last_used": null,
-        "type": "k8s_sa_token"
-      },
-      "first_seen": "2026-07-10T19:58:24.863429-04:00",
-      "last_seen": "2026-07-10T19:58:24.863429-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "k8s:demo",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-10T19:58:24.860662-04:00",
-      "last_seen": "2026-07-10T19:58:24.860662-04:00"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 0,
-        "nearest_crown_jewel_hops": -1,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-10T19:58:24.856143-04:00",
-      "last_seen": "2026-07-10T19:58:24.856143-04:00"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:ci/legacy-ci:rbac:admin",
-          "role:ci/legacy-ci:rbac:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-10T19:58:24.853083-04:00",
-      "last_seen": "2026-07-10T19:58:24.853083-04:00"
+      "first_seen": "2026-07-10T20:05:24.952457-04:00",
+      "last_seen": "2026-07-10T20:05:24.952457-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -437,8 +440,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.843744-04:00",
-      "last_seen": "2026-07-10T19:58:24.843744-04:00"
+      "first_seen": "2026-07-10T20:05:24.943431-04:00",
+      "last_seen": "2026-07-10T20:05:24.943431-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -460,8 +463,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T19:58:24.840711-04:00",
-      "last_seen": "2026-07-10T19:58:24.840711-04:00"
+      "first_seen": "2026-07-10T20:05:24.940752-04:00",
+      "last_seen": "2026-07-10T20:05:24.940752-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -471,16 +474,19 @@
       "identity_name": "prod-copilot-agent",
       "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
       "account": "aws:123456789012",
-      "title": "Stale unused credential",
-      "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
       "status": "open",
       "evidence": {
         "credential": "aiat_live_9f3c8b21_redacted",
         "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
         "type": "api_client_token"
       },
-      "first_seen": "2026-07-10T19:58:24.831358-04:00",
-      "last_seen": "2026-07-10T19:58:24.831358-04:00"
+      "first_seen": "2026-07-10T20:05:24.930539-04:00",
+      "last_seen": "2026-07-10T20:05:24.930539-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -503,8 +509,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.828367-04:00",
-      "last_seen": "2026-07-10T19:58:24.828367-04:00"
+      "first_seen": "2026-07-10T20:05:24.927377-04:00",
+      "last_seen": "2026-07-10T20:05:24.927377-04:00"
     },
     {
       "detector": "ai_agent_overscoped",
@@ -529,8 +535,8 @@
         "ttl_hours": 720,
         "uncontrolled_tools": true
       },
-      "first_seen": "2026-07-10T19:58:24.824094-04:00",
-      "last_seen": "2026-07-10T19:58:24.824094-04:00"
+      "first_seen": "2026-07-10T20:05:24.92347-04:00",
+      "last_seen": "2026-07-10T20:05:24.92347-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -552,8 +558,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.820471-04:00",
-      "last_seen": "2026-07-10T19:58:24.820471-04:00"
+      "first_seen": "2026-07-10T20:05:24.918957-04:00",
+      "last_seen": "2026-07-10T20:05:24.918957-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -575,8 +581,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T19:58:24.818007-04:00",
-      "last_seen": "2026-07-10T19:58:24.818007-04:00"
+      "first_seen": "2026-07-10T20:05:24.916167-04:00",
+      "last_seen": "2026-07-10T20:05:24.916167-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -586,16 +592,19 @@
       "identity_name": "prod/deployer",
       "identity_arn": "k8s://demo/prod/deployer",
       "account": "k8s:demo",
-      "title": "Stale unused credential",
-      "narrative": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
       "status": "open",
       "evidence": {
         "credential": "deployer-token-9x2k1",
         "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
         "type": "k8s_sa_token"
       },
-      "first_seen": "2026-07-10T19:58:24.809424-04:00",
-      "last_seen": "2026-07-10T19:58:24.809424-04:00"
+      "first_seen": "2026-07-10T20:05:24.904979-04:00",
+      "last_seen": "2026-07-10T20:05:24.904979-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -618,8 +627,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.805944-04:00",
-      "last_seen": "2026-07-10T19:58:24.805944-04:00"
+      "first_seen": "2026-07-10T20:05:24.899522-04:00",
+      "last_seen": "2026-07-10T20:05:24.899522-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -641,8 +650,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T19:58:24.803545-04:00",
-      "last_seen": "2026-07-10T19:58:24.803545-04:00"
+      "first_seen": "2026-07-10T20:05:24.896857-04:00",
+      "last_seen": "2026-07-10T20:05:24.896857-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -652,16 +661,19 @@
       "identity_name": "data-processor@project.iam.gserviceaccount.com",
       "identity_arn": "data-processor@project.iam.gserviceaccount.com",
       "account": "gcp:my-gcp-project",
-      "title": "Stale unused credential",
-      "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
       "status": "open",
       "evidence": {
         "credential": "key-id-12345",
         "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
         "type": "gcp_sa_key"
       },
-      "first_seen": "2026-07-10T19:58:24.794659-04:00",
-      "last_seen": "2026-07-10T19:58:24.794659-04:00"
+      "first_seen": "2026-07-10T20:05:24.884544-04:00",
+      "last_seen": "2026-07-10T20:05:24.884544-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -684,8 +696,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.791637-04:00",
-      "last_seen": "2026-07-10T19:58:24.791637-04:00"
+      "first_seen": "2026-07-10T20:05:24.88207-04:00",
+      "last_seen": "2026-07-10T20:05:24.88207-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -707,8 +719,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.787579-04:00",
-      "last_seen": "2026-07-10T19:58:24.787579-04:00"
+      "first_seen": "2026-07-10T20:05:24.87817-04:00",
+      "last_seen": "2026-07-10T20:05:24.87817-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -730,8 +742,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T19:58:24.784998-04:00",
-      "last_seen": "2026-07-10T19:58:24.784998-04:00"
+      "first_seen": "2026-07-10T20:05:24.875493-04:00",
+      "last_seen": "2026-07-10T20:05:24.875493-04:00"
     },
     {
       "detector": "privilege_creep",
@@ -749,8 +761,8 @@
         "peer_p90": 168,
         "permission_count": 180
       },
-      "first_seen": "2026-07-10T19:58:24.776602-04:00",
-      "last_seen": "2026-07-10T19:58:24.776602-04:00"
+      "first_seen": "2026-07-10T20:05:24.867682-04:00",
+      "last_seen": "2026-07-10T20:05:24.867682-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -760,16 +772,19 @@
       "identity_name": "svc-billing-export",
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
-      "title": "Stale unused credential",
-      "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
       "status": "open",
       "evidence": {
         "credential": "AKIAIOSFODNN7EXAMPLE",
         "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
         "type": "aws_access_key"
       },
-      "first_seen": "2026-07-10T19:58:24.772728-04:00",
-      "last_seen": "2026-07-10T19:58:24.772728-04:00"
+      "first_seen": "2026-07-10T20:05:24.864111-04:00",
+      "last_seen": "2026-07-10T20:05:24.864111-04:00"
     },
     {
       "detector": "suspicious_role_chain",
@@ -792,8 +807,8 @@
         "total_hops": 2,
         "trust_hops": 1
       },
-      "first_seen": "2026-07-10T19:58:24.771357-04:00",
-      "last_seen": "2026-07-10T19:58:24.771357-04:00"
+      "first_seen": "2026-07-10T20:05:24.862807-04:00",
+      "last_seen": "2026-07-10T20:05:24.862807-04:00"
     },
     {
       "detector": "first_use_sensitive_action",
@@ -812,8 +827,8 @@
         "region": "ru-central-1",
         "src_ip": "203.0.113.9/32"
       },
-      "first_seen": "2026-07-10T19:58:24.768927-04:00",
-      "last_seen": "2026-07-10T19:58:24.768927-04:00"
+      "first_seen": "2026-07-10T20:05:24.860462-04:00",
+      "last_seen": "2026-07-10T20:05:24.860462-04:00"
     },
     {
       "detector": "impossible_travel",
@@ -841,8 +856,8 @@
         },
         "implied_kmh": 33324.61160356317
       },
-      "first_seen": "2026-07-10T19:58:24.766343-04:00",
-      "last_seen": "2026-07-10T19:58:24.766343-04:00"
+      "first_seen": "2026-07-10T20:05:24.858154-04:00",
+      "last_seen": "2026-07-10T20:05:24.858154-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -864,8 +879,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.760821-04:00",
-      "last_seen": "2026-07-10T19:58:24.760821-04:00"
+      "first_seen": "2026-07-10T20:05:24.854362-04:00",
+      "last_seen": "2026-07-10T20:05:24.854362-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -886,8 +901,8 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.756642-04:00",
-      "last_seen": "2026-07-10T19:58:24.756642-04:00"
+      "first_seen": "2026-07-10T20:05:24.850234-04:00",
+      "last_seen": "2026-07-10T20:05:24.850234-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -908,8 +923,8 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.752241-04:00",
-      "last_seen": "2026-07-10T19:58:24.752241-04:00"
+      "first_seen": "2026-07-10T20:05:24.845164-04:00",
+      "last_seen": "2026-07-10T20:05:24.845164-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -930,8 +945,8 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.747996-04:00",
-      "last_seen": "2026-07-10T19:58:24.747996-04:00"
+      "first_seen": "2026-07-10T20:05:24.841087-04:00",
+      "last_seen": "2026-07-10T20:05:24.841087-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -952,8 +967,30 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T19:58:24.743535-04:00",
-      "last_seen": "2026-07-10T19:58:24.743535-04:00"
+      "first_seen": "2026-07-10T20:05:24.8374-04:00",
+      "last_seen": "2026-07-10T20:05:24.8374-04:00"
+    },
+    {
+      "detector": "conditionless_assume_role",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 72,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Conditionless assume-role trust",
+      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
+      "status": "open",
+      "evidence": {
+        "edge": "can_assume",
+        "missing_conditions": [
+          "ExternalId",
+          "MFA",
+          "SourceIp"
+        ]
+      },
+      "first_seen": "2026-07-10T20:05:24.833497-04:00",
+      "last_seen": "2026-07-10T20:05:24.833497-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -964,7 +1001,7 @@
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
       "title": "Over-privileged service identity",
-      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
       "status": "open",
       "evidence": {
         "admin": true,
@@ -973,13 +1010,14 @@
           "write:arn:aws:s3:::prod-billing",
           "write:arn:aws:s3:::prod-billing",
           "write:arn:aws:s3:::prod-billing",
+          "write:arn:aws:s3:::prod-billing",
           "write:arn:aws:s3:::prod-billing"
         ],
         "priv_escalation": false,
         "write_crown_jewel": true
       },
-      "first_seen": "2026-07-10T19:58:24.740167-04:00",
-      "last_seen": "2026-07-10T19:58:24.740167-04:00"
+      "first_seen": "2026-07-10T20:05:24.831031-04:00",
+      "last_seen": "2026-07-10T20:05:24.831031-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -1000,8 +1038,8 @@
         "pattern": "aws_akia",
         "verified": true
       },
-      "first_seen": "2026-07-10T19:58:24.732509-04:00",
-      "last_seen": "2026-07-10T19:58:24.732509-04:00"
+      "first_seen": "2026-07-10T20:05:24.824693-04:00",
+      "last_seen": "2026-07-10T20:05:24.824693-04:00"
     }
   ]
 }

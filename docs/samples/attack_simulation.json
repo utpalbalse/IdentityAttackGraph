@@ -73,7 +73,7 @@
       ],
       "findings": [
         {
-          "id": "627128ec-ada7-4cc3-a6df-e09379225b91",
+          "id": "0faf0610-316e-4fc8-84ff-5f10d1704a0a",
           "detector": "privilege_creep",
           "category": "privilege",
           "severity": "medium",
@@ -89,31 +89,34 @@
           "fingerprint": "59834025f30c8cc4bb4b47f1dc77b548",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.776602-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.776602-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.867682-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.867682-04:00"
         },
         {
-          "id": "a5280197-bc87-4b6d-88c6-68171ff15ebe",
+          "id": "31df7acc-6829-4654-91be-7a3feef7dbe2",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
           "confidence": 80,
           "identity_id": "550e8400-e29b-41d4-a716-446655440001",
-          "title": "Stale unused credential",
-          "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+          "title": "Credential stale or overdue for rotation",
+          "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
           "evidence": {
             "credential": "AKIAIOSFODNN7EXAMPLE",
             "last_used": null,
+            "reasons": [
+              "unused_beyond_window"
+            ],
             "type": "aws_access_key"
           },
           "fingerprint": "8aa91e810772cf9b40695dee55d6c073",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.772728-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.772728-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.864111-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.864111-04:00"
         },
         {
-          "id": "a279bc65-b403-4be4-8df1-1aaab5b38488",
+          "id": "30d46757-26ba-464e-ba08-f76d3e11a9e6",
           "detector": "suspicious_role_chain",
           "category": "trust",
           "severity": "high",
@@ -134,11 +137,11 @@
           "fingerprint": "073a98b254387da12f0c4f1442a080a7",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.771357-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.771357-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.862807-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.862807-04:00"
         },
         {
-          "id": "9c79963c-4932-4047-94a8-40285879f0c5",
+          "id": "9874d3d5-6ccf-456e-ac0f-5d6dd7f595af",
           "detector": "first_use_sensitive_action",
           "category": "anomaly",
           "severity": "high",
@@ -155,11 +158,11 @@
           "fingerprint": "c6db3bcac5c291e59f67ed6e1bf0c8f5",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.768927-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.768927-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.860462-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.860462-04:00"
         },
         {
-          "id": "6aa639c5-60e7-46e5-a4d1-41ecf9e691a8",
+          "id": "c902e229-6e56-43ec-b7ff-beddd532a54b",
           "detector": "impossible_travel",
           "category": "anomaly",
           "severity": "high",
@@ -185,11 +188,11 @@
           "fingerprint": "b5ed73e14995c5c809240036a624e7d8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.766343-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.766343-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.858154-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.858154-04:00"
         },
         {
-          "id": "69af2b5d-73fd-4bf5-afa4-f9bdfa317453",
+          "id": "2dfceee9-b20a-46d0-a9da-01648127175e",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -209,11 +212,34 @@
           "fingerprint": "976a0f74054a1ae1f87c5213e1b20d64",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.760821-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.760821-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.854362-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.854362-04:00"
         },
         {
-          "id": "198b24a3-951a-4d85-98d4-6c4e45c22682",
+          "id": "953914d8-b9e8-4504-aa04-f52b0dd94ccc",
+          "detector": "conditionless_assume_role",
+          "category": "trust",
+          "severity": "high",
+          "confidence": 72,
+          "identity_id": "550e8400-e29b-41d4-a716-446655440001",
+          "title": "Conditionless assume-role trust",
+          "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
+          "evidence": {
+            "edge": "can_assume",
+            "missing_conditions": [
+              "ExternalId",
+              "MFA",
+              "SourceIp"
+            ]
+          },
+          "fingerprint": "8d95beb8b2bc0a2637969b2cda669b35",
+          "status": "open",
+          "risk_contribution": 0,
+          "first_seen_at": "2026-07-10T20:05:24.850234-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.850234-04:00"
+        },
+        {
+          "id": "9616ec9c-7cb1-480e-b083-c125ec558592",
           "detector": "conditionless_assume_role",
           "category": "trust",
           "severity": "high",
@@ -232,11 +258,11 @@
           "fingerprint": "edeba37f9541c1c3fba9fb4a81962b5a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.756642-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.756642-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.845164-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.845164-04:00"
         },
         {
-          "id": "bd71e110-5670-4fdd-a308-f89e39b0dc0e",
+          "id": "bb523979-1998-48f4-98bc-b3ad474bb88f",
           "detector": "conditionless_assume_role",
           "category": "trust",
           "severity": "high",
@@ -255,11 +281,11 @@
           "fingerprint": "4f1748cd39540f65d7a1277a459abf0e",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.752241-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.752241-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.841087-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.841087-04:00"
         },
         {
-          "id": "5795dcf7-a5f2-4c92-9122-e724b7ddb9c6",
+          "id": "566f4e2b-4be7-49ba-8de0-1e053b844a20",
           "detector": "conditionless_assume_role",
           "category": "trust",
           "severity": "high",
@@ -278,11 +304,11 @@
           "fingerprint": "23a9058f293008a74484ccbe54ecc5e9",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.747996-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.747996-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.8374-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.8374-04:00"
         },
         {
-          "id": "c3905d1e-22f6-4cbb-bec3-cf5fdc1d5154",
+          "id": "1e429735-0c9b-455b-bb25-cec6a0b2deb5",
           "detector": "conditionless_assume_role",
           "category": "trust",
           "severity": "high",
@@ -301,22 +327,23 @@
           "fingerprint": "c926ef6bc7d3bcea5931355510adff21",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.743535-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.743535-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.833497-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.833497-04:00"
         },
         {
-          "id": "fca4f535-052d-45af-ba04-8427c322fb79",
+          "id": "d9a6e172-f5f1-4f74-9347-61f55908a8ba",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
           "confidence": 78,
           "identity_id": "550e8400-e29b-41d4-a716-446655440001",
           "title": "Over-privileged service identity",
-          "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+          "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
           "evidence": {
             "admin": true,
             "matched": [
               "role:billing-admin:admin",
+              "write:arn:aws:s3:::prod-billing",
               "write:arn:aws:s3:::prod-billing",
               "write:arn:aws:s3:::prod-billing",
               "write:arn:aws:s3:::prod-billing",
@@ -328,11 +355,11 @@
           "fingerprint": "2fe7d0e07a1182bd0471e4c6c3532282",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.740167-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.740167-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.831031-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.831031-04:00"
         },
         {
-          "id": "31a3dc79-bb62-43de-9183-7fe3f0d9012a",
+          "id": "e48c36cd-60cd-4a45-b282-7c0667db036b",
           "detector": "secret_exposed_in_repo",
           "category": "exposure",
           "severity": "critical",
@@ -351,13 +378,13 @@
           "fingerprint": "efcb1c2c10f53137e7db07e6f153217e",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.732509-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.732509-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.824693-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.824693-04:00"
         }
       ],
       "top_remediation": {
-        "id": "81659c66-13f0-40a7-864a-fc03d69c1535",
-        "finding_id": "69af2b5d-73fd-4bf5-afa4-f9bdfa317453",
+        "id": "2094c155-e878-4816-ab0a-5e27c17e3ced",
+        "finding_id": "2dfceee9-b20a-46d0-a9da-01648127175e",
         "action": "reduce_scope",
         "status": "recommended",
         "risk_before": 70,
@@ -443,27 +470,30 @@
       },
       "findings": [
         {
-          "id": "05b0d4aa-1f8d-44af-b3cf-79bc174b414f",
+          "id": "3a0face6-95ea-4bb9-804d-2d9d2d63c7f9",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
           "confidence": 80,
           "identity_id": "550e8400-e29b-41d4-a716-446655440006",
-          "title": "Stale unused credential",
-          "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+          "title": "Credential stale or overdue for rotation",
+          "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
           "evidence": {
             "credential": "aiat_live_9f3c8b21_redacted",
             "last_used": null,
+            "reasons": [
+              "unused_beyond_window"
+            ],
             "type": "api_client_token"
           },
           "fingerprint": "021cfee138a3294de06f17681e9a937c",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.831358-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.831358-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.930539-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.930539-04:00"
         },
         {
-          "id": "dc6fd872-fbcd-4ba7-a6ae-a37360642d38",
+          "id": "32335ed5-3584-4bb1-8843-8cafa07719d6",
           "detector": "orphaned_identity",
           "category": "hygiene",
           "severity": "medium",
@@ -484,11 +514,11 @@
           "fingerprint": "33d772f39909c0fe944b62a2c8621ea1",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.828367-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.828367-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.927377-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.927377-04:00"
         },
         {
-          "id": "1a6222f3-a400-4415-82fa-673b7baf2ce8",
+          "id": "036d29c3-461c-4703-9ac3-02fad18feaf1",
           "detector": "ai_agent_overscoped",
           "category": "ai_agent",
           "severity": "high",
@@ -511,11 +541,11 @@
           "fingerprint": "6805073fa76fdad8f5bf2efa2529d669",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.824094-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.824094-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.92347-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.92347-04:00"
         },
         {
-          "id": "da7fb2e7-3830-4d4d-8f94-be25f6f1c973",
+          "id": "704313e6-a096-4d41-87bd-511b9b92b60b",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -535,11 +565,11 @@
           "fingerprint": "ef5fd9a96dbfc2ad824fd9f8d35e818d",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.820471-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.820471-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.918957-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.918957-04:00"
         },
         {
-          "id": "804b5c95-2adb-44ac-a384-e3af45a6bcf8",
+          "id": "17f16f6c-f1d0-4231-8859-ccc272420e36",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
@@ -559,13 +589,13 @@
           "fingerprint": "44cd3d9a09c8f41b5221cacab4567f2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.818007-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.818007-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.916167-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.916167-04:00"
         }
       ],
       "top_remediation": {
-        "id": "76081b99-1a96-4541-b690-970085319c32",
-        "finding_id": "dc6fd872-fbcd-4ba7-a6ae-a37360642d38",
+        "id": "0205fcb6-59dd-439e-986b-63b05fabec13",
+        "finding_id": "32335ed5-3584-4bb1-8843-8cafa07719d6",
         "action": "remove_identity",
         "status": "recommended",
         "risk_before": 39,
@@ -583,7 +613,7 @@
         "provider": "gcp",
         "state": "active",
         "is_ai_agent": false,
-        "risk_score": 51,
+        "risk_score": 54,
         "provenance": {
           "source": "fixture",
           "external_id": "data-processor@project.iam.gserviceaccount.com",
@@ -634,27 +664,30 @@
       },
       "findings": [
         {
-          "id": "875f1991-6445-4c55-9edc-b5f9273f904a",
+          "id": "5e7bc977-f2e7-4e8d-aa6f-0880b54f93b0",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
           "confidence": 80,
           "identity_id": "550e8400-e29b-41d4-a716-446655440003",
-          "title": "Stale unused credential",
-          "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted.",
+          "title": "Credential stale or overdue for rotation",
+          "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
           "evidence": {
             "credential": "key-id-12345",
             "last_used": null,
+            "reasons": [
+              "unused_beyond_window"
+            ],
             "type": "gcp_sa_key"
           },
           "fingerprint": "87c611ae5cc1f5ec799f31a4fc145f58",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.794659-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.794659-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.884544-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.884544-04:00"
         },
         {
-          "id": "29c36d95-e915-4b30-ac9a-2c990751ee86",
+          "id": "06ba9943-7b31-463a-8840-31339fe571cf",
           "detector": "orphaned_identity",
           "category": "hygiene",
           "severity": "medium",
@@ -675,11 +708,11 @@
           "fingerprint": "22a478ed03af05c6103fec95ed400c2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.791637-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.791637-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.88207-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.88207-04:00"
         },
         {
-          "id": "3af35f5f-7d9b-467f-8580-76802a3eebea",
+          "id": "f4b3c51f-05e2-4589-ab7c-fc3fd586f9cb",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -699,11 +732,11 @@
           "fingerprint": "7287c724892741202be2a8dfdc2214c8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.787579-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.787579-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.87817-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.87817-04:00"
         },
         {
-          "id": "153ac59f-581a-463d-a4e6-e2ff7541e699",
+          "id": "06740c2d-f363-462f-980e-7e558c9d79f3",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
@@ -723,18 +756,18 @@
           "fingerprint": "27a464a8ba7d6bd613676bbb150d8535",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T19:58:24.784998-04:00",
-          "last_seen_at": "2026-07-10T19:58:24.784998-04:00"
+          "first_seen_at": "2026-07-10T20:05:24.875493-04:00",
+          "last_seen_at": "2026-07-10T20:05:24.875493-04:00"
         }
       ],
       "top_remediation": {
-        "id": "567bb79b-0019-469e-a190-6aa1e1999859",
-        "finding_id": "29c36d95-e915-4b30-ac9a-2c990751ee86",
+        "id": "dc2184f8-4431-4a1f-8f2b-eae87252298b",
+        "finding_id": "06ba9943-7b31-463a-8840-31339fe571cf",
         "action": "remove_identity",
         "status": "recommended",
-        "risk_before": 51,
+        "risk_before": 54,
         "risk_after": 2,
-        "risk_delta": 49,
+        "risk_delta": 52,
         "notes": "Remove the unaccounted-for identity (or assign an owner)."
       }
     }

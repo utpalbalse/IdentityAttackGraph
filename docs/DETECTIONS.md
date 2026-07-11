@@ -45,9 +45,13 @@ AND last_seen older than grace`. Excludes break-glass identities via allowlist t
 unaccounted for — a classic abandoned credential an attacker can use without anyone noticing."
 
 ### stale_identity / stale_access_key
-**Definition:** no legitimate usage in `stale_window` (default 90d), or `last_used_at` null and
-`age > 30d`. For keys, uses CloudTrail `last_used` + key `last_used_at`.
-**Evidence:** last_seen, age, window. **Narrative:** dormant credential = unmonitored attack surface.
+**stale_identity:** no legitimate usage in `stale_window` (default 90d), or `last_used_at` null and
+`age > 30d`.
+**stale_access_key:** an active credential that is unused beyond `stale_window`, **or** older than
+`max_rotation_age` (rotation overdue), **or** older than `max_cred_age` (hard age limit → escalated
+to high). A long-lived key is a risk even if actively used — the reasons are listed in evidence.
+**Evidence:** last_used, age_days, matched `reasons`. **Narrative:** dormant/long-lived credential
+= unmonitored attack surface.
 
 ### unused_secret
 **Definition:** managed secret with `referenced_by_count = 0` and no access within the staleness

@@ -81,14 +81,43 @@ func (staleAccessKey) Detect(s Subject, cfg Config, now time.Time) []models.Find
 			continue
 		}
 		stale := c.LastUsedAt == nil || now.Sub(*c.LastUsedAt) > cfg.StaleWindow
-		if !stale {
+
+		// Age-based rotation hygiene: a long-lived credential is a risk even if actively used.
+		var ageDays int = -1
+		overRotation, overMax := false, false
+		if c.CreatedAtSource != nil {
+			age := now.Sub(*c.CreatedAtSource)
+			ageDays = int(age.Hours() / 24)
+			overRotation = cfg.MaxRotationAge > 0 && age > cfg.MaxRotationAge
+			overMax = cfg.MaxCredAge > 0 && age > cfg.MaxCredAge
+		}
+		if !stale && !overRotation && !overMax {
 			continue
 		}
-		ev := map[string]any{"credential": c.ExternalID, "type": c.CredType, "last_used": c.LastUsedAt}
-		narr := fmt.Sprintf("Credential %s (%s) on identity %q has not been used within the staleness window. "+
-			"Unused long-lived keys should be disabled then deleted.", c.ExternalID, c.CredType, s.Identity.Name)
-		out = append(out, finding(s, "stale_access_key", "hygiene", models.SevMedium, 80,
-			"Stale unused credential", narr, ev, c.ExternalID))
+
+		reasons := []string{}
+		if stale {
+			reasons = append(reasons, "unused_beyond_window")
+		}
+		if overRotation {
+			reasons = append(reasons, "rotation_overdue")
+		}
+		if overMax {
+			reasons = append(reasons, "exceeds_max_age")
+		}
+		sev := models.SevMedium
+		if overMax {
+			sev = models.SevHigh // past the hard age limit — rotate now
+		}
+		ev := map[string]any{"credential": c.ExternalID, "type": c.CredType, "last_used": c.LastUsedAt, "reasons": reasons}
+		if ageDays >= 0 {
+			ev["age_days"] = ageDays
+		}
+		narr := fmt.Sprintf("Credential %s (%s) on identity %q needs rotation (%v). "+
+			"Long-lived or unused credentials should be rotated then deleted.",
+			c.ExternalID, c.CredType, s.Identity.Name, reasons)
+		out = append(out, finding(s, "stale_access_key", "hygiene", sev, 80,
+			"Credential stale or overdue for rotation", narr, ev, c.ExternalID))
 	}
 	return out
 }

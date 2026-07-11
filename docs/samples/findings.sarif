@@ -40,13 +40,13 @@
               }
             },
             {
-              "id": "suspicious_role_chain",
-              "name": "suspicious_role_chain",
+              "id": "stale_access_key",
+              "name": "stale_access_key",
               "shortDescription": {
-                "text": "Suspicious role/impersonation chain"
+                "text": "Credential stale or overdue for rotation"
               },
               "properties": {
-                "category": "trust"
+                "category": "hygiene"
               }
             },
             {
@@ -60,16 +60,6 @@
               }
             },
             {
-              "id": "stale_access_key",
-              "name": "stale_access_key",
-              "shortDescription": {
-                "text": "Stale unused credential"
-              },
-              "properties": {
-                "category": "hygiene"
-              }
-            },
-            {
               "id": "over_privileged_sa",
               "name": "over_privileged_sa",
               "shortDescription": {
@@ -77,6 +67,16 @@
               },
               "properties": {
                 "category": "privilege"
+              }
+            },
+            {
+              "id": "suspicious_role_chain",
+              "name": "suspicious_role_chain",
+              "shortDescription": {
+                "text": "Suspicious role/impersonation chain"
+              },
+              "properties": {
+                "category": "trust"
               }
             },
             {
@@ -291,56 +291,6 @@
           "ruleId": "orphaned_identity",
           "level": "warning",
           "message": {
-            "text": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-                  "fullyQualifiedName": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "gcp:my-gcp-project",
-            "confidence": 70,
-            "identity": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-            "severity": "medium",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "orphaned_identity",
-          "level": "warning",
-          "message": {
-            "text": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "prod/configmap-reader",
-                  "fullyQualifiedName": "k8s://demo/prod/configmap-reader",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "k8s:demo",
-            "confidence": 70,
-            "identity": "prod/configmap-reader",
-            "severity": "medium",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "orphaned_identity",
-          "level": "warning",
-          "message": {
             "text": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
           },
           "locations": [
@@ -416,14 +366,39 @@
           "ruleId": "orphaned_identity",
           "level": "warning",
           "message": {
-            "text": "Identity \"ci-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+            "text": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
           },
           "locations": [
             {
               "logicalLocations": [
                 {
-                  "name": "ci-deployer",
-                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "name": "prod/configmap-reader",
+                  "fullyQualifiedName": "k8s://demo/prod/configmap-reader",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 70,
+            "identity": "prod/configmap-reader",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
                   "kind": "resource"
                 }
               ]
@@ -432,58 +407,8 @@
           "properties": {
             "account": "gcp:my-gcp-project",
             "confidence": 70,
-            "identity": "ci-deployer",
+            "identity": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
             "severity": "medium",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "suspicious_role_chain",
-          "level": "error",
-          "message": {
-            "text": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "ci-deployer",
-                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "gcp:my-gcp-project",
-            "confidence": 66,
-            "identity": "ci-deployer",
-            "severity": "high",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "high_blast_radius",
-          "level": "error",
-          "message": {
-            "text": "Identity \"ci-deployer\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "ci-deployer",
-                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "gcp:my-gcp-project",
-            "confidence": 76,
-            "identity": "ci-deployer",
-            "severity": "high",
             "status": "open"
           }
         },
@@ -491,7 +416,7 @@
           "ruleId": "stale_access_key",
           "level": "warning",
           "message": {
-            "text": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+            "text": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted."
           },
           "locations": [
             {
@@ -588,6 +513,81 @@
           }
         },
         {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"ci-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 70,
+            "identity": "ci-deployer",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "suspicious_role_chain",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 66,
+            "identity": "ci-deployer",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "high_blast_radius",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci-deployer\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 76,
+            "identity": "ci-deployer",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
           "ruleId": "high_blast_radius",
           "level": "error",
           "message": {
@@ -641,7 +641,7 @@
           "ruleId": "stale_access_key",
           "level": "warning",
           "message": {
-            "text": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+            "text": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted."
           },
           "locations": [
             {
@@ -766,7 +766,7 @@
           "ruleId": "stale_access_key",
           "level": "warning",
           "message": {
-            "text": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+            "text": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted."
           },
           "locations": [
             {
@@ -841,7 +841,7 @@
           "ruleId": "stale_access_key",
           "level": "warning",
           "message": {
-            "text": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+            "text": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted."
           },
           "locations": [
             {
@@ -966,7 +966,7 @@
           "ruleId": "stale_access_key",
           "level": "warning",
           "message": {
-            "text": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" has not been used within the staleness window. Unused long-lived keys should be disabled then deleted."
+            "text": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted."
           },
           "locations": [
             {
@@ -1188,10 +1188,35 @@
           }
         },
         {
+          "ruleId": "conditionless_assume_role",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 72,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
           "ruleId": "over_privileged_sa",
           "level": "error",
           "message": {
-            "text": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+            "text": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
           },
           "locations": [
             {

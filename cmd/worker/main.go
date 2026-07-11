@@ -104,6 +104,7 @@ func main() {
 		ImpossibleTravelKMH: cfg.Detection.ImpossibleTravelMaxKMH,
 		UsageSpikeSigma:     cfg.Detection.UsageSpikeSigma,
 		AnomalyWarmupEvents: cfg.Detection.AnomalyWarmupEvents,
+		EgressAllowlist:     cfg.Detection.EgressAllowlist,
 	}
 
 	tick := time.NewTicker(60 * time.Second)

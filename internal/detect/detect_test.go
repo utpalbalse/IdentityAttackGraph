@@ -72,6 +72,46 @@ func TestSuspiciousRoleChainCorroborated(t *testing.T) {
 	}
 }
 
+func TestEgressAllowlistSuppressesGeoAnomaly(t *testing.T) {
+	base := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	usage := []models.UsageEvent{
+		{EventTime: base, SrcCountry: "US", SrcIP: "203.0.113.5"},
+		{EventTime: base.Add(2 * time.Minute), SrcCountry: "RU", SrcIP: "203.0.113.9"},
+	}
+	s := Subject{Identity: models.Identity{ID: uuid.New(), Name: "svc"}, Usage: usage}
+	cfg := Config{ImpossibleTravelKMH: 900}
+
+	if fs := (impossibleTravel{}).Detect(s, cfg, time.Now()); len(fs) == 0 {
+		t.Fatal("impossible travel should fire without an allowlist")
+	}
+	cfg.EgressAllowlist = []string{"203.0.113.0/24"}
+	if fs := (impossibleTravel{}).Detect(s, cfg, time.Now()); len(fs) != 0 {
+		t.Fatalf("allowlisted egress IPs should suppress the anomaly, got %d", len(fs))
+	}
+}
+
+func TestStaleAccessKeyAgeBased(t *testing.T) {
+	now := time.Now()
+	cfg := Config{StaleWindow: 90 * 24 * time.Hour, MaxCredAge: 365 * 24 * time.Hour, MaxRotationAge: 180 * 24 * time.Hour}
+	used := now.Add(-1 * time.Hour) // actively used...
+
+	// ...but 400 days old -> exceeds max age -> high severity.
+	created := now.Add(-400 * 24 * time.Hour)
+	s := Subject{Identity: models.Identity{ID: uuid.New(), Name: "svc"},
+		Creds: []models.Credential{{ExternalID: "AKIA", CredType: "aws_access_key", Status: "active", LastUsedAt: &used, CreatedAtSource: &created}}}
+	if fs := (staleAccessKey{}).Detect(s, cfg, now); len(fs) != 1 || fs[0].Severity != models.SevHigh {
+		t.Fatalf("old actively-used key should fire high (exceeds_max_age), got %+v", fs)
+	}
+
+	// Fresh + recently used -> nothing.
+	fresh := now.Add(-10 * 24 * time.Hour)
+	s2 := Subject{Identity: models.Identity{ID: uuid.New(), Name: "svc"},
+		Creds: []models.Credential{{ExternalID: "AKIA2", Status: "active", LastUsedAt: &used, CreatedAtSource: &fresh}}}
+	if fs := (staleAccessKey{}).Detect(s2, cfg, now); len(fs) != 0 {
+		t.Fatalf("fresh recently-used key should not fire, got %d", len(fs))
+	}
+}
+
 func TestUnusedSecretFinding(t *testing.T) {
 	now := time.Now()
 	win := 90 * 24 * time.Hour

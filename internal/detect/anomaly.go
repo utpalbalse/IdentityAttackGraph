@@ -3,10 +3,43 @@ package detect
 import (
 	"fmt"
 	"math"
+	"net"
 	"time"
 
 	"github.com/nhiid/nhiid/internal/models"
 )
+
+// egressAllowed reports whether ip falls within any allowlisted CIDR (known VPN/egress ranges).
+func egressAllowed(ip string, cidrs []string) bool {
+	if ip == "" || len(cidrs) == 0 {
+		return false
+	}
+	p := net.ParseIP(ip)
+	if p == nil {
+		return false
+	}
+	for _, c := range cidrs {
+		if _, n, err := net.ParseCIDR(c); err == nil && n.Contains(p) {
+			return true
+		}
+	}
+	return false
+}
+
+// filterEgress drops events from allowlisted egress/VPN ranges so they don't trip geo/ASN anomalies
+// (a documented false-positive control). Returns the input unchanged when no allowlist is set.
+func filterEgress(evs []models.UsageEvent, cidrs []string) []models.UsageEvent {
+	if len(cidrs) == 0 {
+		return evs
+	}
+	out := make([]models.UsageEvent, 0, len(evs))
+	for _, e := range evs {
+		if !egressAllowed(e.SrcIP, cidrs) {
+			out = append(out, e)
+		}
+	}
+	return out
+}
 
 // ---- impossible_travel -------------------------------------------------------
 
@@ -14,10 +47,11 @@ type impossibleTravel struct{}
 
 func (impossibleTravel) ID() string { return "impossible_travel" }
 func (impossibleTravel) Detect(s Subject, cfg Config, now time.Time) []models.Finding {
-	if len(s.Usage) < 2 || len(s.Usage) < cfg.AnomalyWarmupEvents/5 {
+	usage := filterEgress(s.Usage, cfg.EgressAllowlist)
+	if len(usage) < 2 || len(usage) < cfg.AnomalyWarmupEvents/5 {
 		return nil
 	}
-	events := usageWithGeo(s.Usage)
+	events := usageWithGeo(usage)
 	for i := 1; i < len(events); i++ {
 		a, b := events[i-1], events[i]
 		if a.SrcCountry == "" || b.SrcCountry == "" || a.SrcCountry == b.SrcCountry {
@@ -54,11 +88,12 @@ type unusualGeo struct{}
 
 func (unusualGeo) ID() string { return "unusual_geo" }
 func (unusualGeo) Detect(s Subject, cfg Config, now time.Time) []models.Finding {
-	if len(s.Usage) < cfg.AnomalyWarmupEvents {
+	usage := filterEgress(s.Usage, cfg.EgressAllowlist)
+	if len(usage) < cfg.AnomalyWarmupEvents {
 		return nil
 	}
-	baseline := baselineCountries(s.Usage[:len(s.Usage)-1])
-	recent := s.Usage[len(s.Usage)-1]
+	baseline := baselineCountries(usage[:len(usage)-1])
+	recent := usage[len(usage)-1]
 	if recent.SrcCountry == "" || baseline[recent.SrcCountry] {
 		return nil
 	}
@@ -78,11 +113,12 @@ type newASNOrRuntime struct{}
 
 func (newASNOrRuntime) ID() string { return "new_asn_or_runtime" }
 func (newASNOrRuntime) Detect(s Subject, cfg Config, now time.Time) []models.Finding {
-	if len(s.Usage) < cfg.AnomalyWarmupEvents {
+	usage := filterEgress(s.Usage, cfg.EgressAllowlist)
+	if len(usage) < cfg.AnomalyWarmupEvents {
 		return nil
 	}
-	hist := s.Usage[:len(s.Usage)-1]
-	cur := s.Usage[len(s.Usage)-1]
+	hist := usage[:len(usage)-1]
+	cur := usage[len(usage)-1]
 	baseASN := map[int]bool{}
 	baseRT := map[string]bool{}
 	for _, e := range hist {
