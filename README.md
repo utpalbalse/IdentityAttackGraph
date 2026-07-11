@@ -15,6 +15,12 @@
 
 [Quick start](#-quick-start-one-command) · [See it in action](#-see-it-in-action) · [Architecture](#-architecture) · [Detections](#-detection-engine) · [Docs](#-documentation)
 
+<br/>
+
+<img src="assets/dashboard.svg" alt="IdentityAttackGraph Overview console — 12 identities across AWS/GCP/Kubernetes, findings-by-severity distribution, and the risk-ranked triage queue" width="100%"/>
+
+<sub>The dashboard: multi-cloud NHI inventory, severity distribution, and the risk-ranked triage queue.</sub>
+
 </div>
 
 ---
@@ -40,7 +46,11 @@ IdentityAttackGraph answers six questions across your entire multi-cloud estate:
 
 ## ✨ See it in action
 
-One command seeds a synthetic multi-cloud environment (AWS + GCP + Kubernetes) with the exact mistakes attackers exploit, runs the full pipeline, and narrates the worst attack paths it finds — each with the detections that caught it and the single remediation that severs it:
+<div align="center">
+<img src="assets/attack-graph.svg" alt="Attack-path graph — a leaked AWS key, an over-scoped AI agent, and a Kubernetes pod that federates into AWS via IRSA, each reaching a crown-jewel resource" width="94%"/>
+</div>
+
+The **attack-graph view**: capability edges (assume / has-permissions / binds-to / federated-from) connect footholds to crown jewels. One command seeds a synthetic multi-cloud environment with the exact mistakes attackers exploit, runs the full pipeline, and narrates the worst paths it finds — each with the detections that caught it and the single remediation that severs it:
 
 ```text
 ━━━ Scenario 1 · Leaked credential → crown jewel
@@ -63,6 +73,12 @@ One command seeds a synthetic multi-cloud environment (AWS + GCP + Kubernetes) w
 ```
 
 Everything above is computed **live from the graph** — the path, the detections, and the risk delta. Full output and machine-readable/SARIF samples: [`docs/DEMO.md`](docs/DEMO.md) · [`docs/samples/`](docs/samples/).
+
+Every score is **explainable** — a transparent weighted sum of six factors with per-factor evidence, never a black box:
+
+<div align="center">
+<img src="assets/risk-breakdown.svg" alt="Explainable risk breakdown for svc-billing-export — risk 67 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with weights and signals" width="70%"/>
+</div>
 
 ---
 
