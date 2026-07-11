@@ -283,5 +283,29 @@
       "verified": true,
       "source": "fixture"
     }
+  ],
+  "secrets": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440071",
+      "store": "aws_secretsmanager",
+      "external_id": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
+      "account_ref": "aws:123456789012",
+      "name": "legacy/unused-db-creds",
+      "rotation_enabled": false,
+      "version_count": 1,
+      "referenced_by_count": 0,
+      "source": "fixture"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440072",
+      "store": "aws_secretsmanager",
+      "external_id": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/app/master",
+      "account_ref": "aws:123456789012",
+      "name": "prod/app/master",
+      "rotation_enabled": true,
+      "version_count": 8,
+      "referenced_by_count": 3,
+      "source": "fixture"
+    }
   ]
 }

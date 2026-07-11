@@ -10,6 +10,16 @@
           "version": "0.1.0",
           "rules": [
             {
+              "id": "unused_secret",
+              "name": "unused_secret",
+              "shortDescription": {
+                "text": "Unused managed secret"
+              },
+              "properties": {
+                "category": "hygiene"
+              }
+            },
+            {
               "id": "secret_exposed_in_repo",
               "name": "secret_exposed_in_repo",
               "shortDescription": {
@@ -27,6 +37,16 @@
               },
               "properties": {
                 "category": "hygiene"
+              }
+            },
+            {
+              "id": "suspicious_role_chain",
+              "name": "suspicious_role_chain",
+              "shortDescription": {
+                "text": "Suspicious role/impersonation chain"
+              },
+              "properties": {
+                "category": "trust"
               }
             },
             {
@@ -113,6 +133,30 @@
         }
       },
       "results": [
+        {
+          "ruleId": "unused_secret",
+          "level": "note",
+          "message": {
+            "text": "Secret \"legacy/unused-db-creds\" in aws_secretsmanager has no references and was last accessed never. Unreferenced secrets are dead credential material — delete them to shrink the attack surface."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "",
+            "confidence": 75,
+            "identity": "",
+            "severity": "low",
+            "status": "open"
+          }
+        },
         {
           "ruleId": "secret_exposed_in_repo",
           "level": "error",
@@ -247,6 +291,56 @@
           "ruleId": "orphaned_identity",
           "level": "warning",
           "message": {
+            "text": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+                  "fullyQualifiedName": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 70,
+            "identity": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
+            "text": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "prod/configmap-reader",
+                  "fullyQualifiedName": "k8s://demo/prod/configmap-reader",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "k8s:demo",
+            "confidence": 70,
+            "identity": "prod/configmap-reader",
+            "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "orphaned_identity",
+          "level": "warning",
+          "message": {
             "text": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
           },
           "locations": [
@@ -297,31 +391,6 @@
           "ruleId": "orphaned_identity",
           "level": "warning",
           "message": {
-            "text": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-                  "fullyQualifiedName": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "gcp:my-gcp-project",
-            "confidence": 70,
-            "identity": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-            "severity": "medium",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "orphaned_identity",
-          "level": "warning",
-          "message": {
             "text": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
           },
           "locations": [
@@ -339,31 +408,6 @@
             "account": "aws:987654321098",
             "confidence": 70,
             "identity": "svc-orphaned",
-            "severity": "medium",
-            "status": "open"
-          }
-        },
-        {
-          "ruleId": "orphaned_identity",
-          "level": "warning",
-          "message": {
-            "text": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing."
-          },
-          "locations": [
-            {
-              "logicalLocations": [
-                {
-                  "name": "prod/configmap-reader",
-                  "fullyQualifiedName": "k8s://demo/prod/configmap-reader",
-                  "kind": "resource"
-                }
-              ]
-            }
-          ],
-          "properties": {
-            "account": "k8s:demo",
-            "confidence": 70,
-            "identity": "prod/configmap-reader",
             "severity": "medium",
             "status": "open"
           }
@@ -390,6 +434,31 @@
             "confidence": 70,
             "identity": "ci-deployer",
             "severity": "medium",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "suspicious_role_chain",
+          "level": "error",
+          "message": {
+            "text": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "ci-deployer",
+                  "fullyQualifiedName": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "gcp:my-gcp-project",
+            "confidence": 66,
+            "identity": "ci-deployer",
+            "severity": "high",
             "status": "open"
           }
         },
@@ -919,6 +988,31 @@
           }
         },
         {
+          "ruleId": "suspicious_role_chain",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 2 hop(s) — lateral movement that escalates beyond any single direct grant."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 66,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
           "ruleId": "first_use_sensitive_action",
           "level": "error",
           "message": {
@@ -1044,10 +1138,60 @@
           }
         },
         {
+          "ruleId": "conditionless_assume_role",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 72,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
+          "ruleId": "conditionless_assume_role",
+          "level": "error",
+          "message": {
+            "text": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role."
+          },
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "name": "svc-billing-export",
+                  "fullyQualifiedName": "arn:aws:iam::123456789012:user/svc-billing-export",
+                  "kind": "resource"
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "account": "aws:123456789012",
+            "confidence": 72,
+            "identity": "svc-billing-export",
+            "severity": "high",
+            "status": "open"
+          }
+        },
+        {
           "ruleId": "over_privileged_sa",
           "level": "error",
           "message": {
-            "text": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
+            "text": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege."
           },
           "locations": [
             {

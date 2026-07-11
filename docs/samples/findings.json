@@ -1,6 +1,28 @@
 {
   "findings": [
     {
+      "detector": "unused_secret",
+      "category": "hygiene",
+      "severity": "low",
+      "confidence": 75,
+      "identity_name": "",
+      "identity_arn": "",
+      "account": "",
+      "title": "Unused managed secret",
+      "narrative": "Secret \"legacy/unused-db-creds\" in aws_secretsmanager has no references and was last accessed never. Unreferenced secrets are dead credential material — delete them to shrink the attack surface.",
+      "status": "open",
+      "evidence": {
+        "last_accessed": null,
+        "name": "legacy/unused-db-creds",
+        "referenced_by": 0,
+        "rotation_enabled": false,
+        "secret": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
+        "store": "aws_secretsmanager"
+      },
+      "first_seen": "2026-07-10T19:58:24.935611-04:00",
+      "last_seen": "2026-07-10T19:58:24.935611-04:00"
+    },
+    {
       "detector": "secret_exposed_in_repo",
       "category": "exposure",
       "severity": "critical",
@@ -20,8 +42,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-06-21T03:19:23.005328-04:00",
-      "last_seen": "2026-07-10T19:38:29.673588-04:00"
+      "first_seen": "2026-07-10T19:58:24.931125-04:00",
+      "last_seen": "2026-07-10T19:58:24.931125-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -43,8 +65,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-06-21T03:19:23.00417-04:00",
-      "last_seen": "2026-07-10T19:38:29.66948-04:00"
+      "first_seen": "2026-07-10T19:58:24.929657-04:00",
+      "last_seen": "2026-07-10T19:58:24.929657-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -66,8 +88,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-06-21T03:19:23.002697-04:00",
-      "last_seen": "2026-07-10T19:38:29.667653-04:00"
+      "first_seen": "2026-07-10T19:58:24.927919-04:00",
+      "last_seen": "2026-07-10T19:58:24.927919-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -89,8 +111,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-06-21T03:19:23.001221-04:00",
-      "last_seen": "2026-07-10T19:38:29.665694-04:00"
+      "first_seen": "2026-07-10T19:58:24.926113-04:00",
+      "last_seen": "2026-07-10T19:58:24.926113-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -112,56 +134,8 @@
         "repository": "acme/billing",
         "verified": false
       },
-      "first_seen": "2026-06-21T03:19:22.999741-04:00",
-      "last_seen": "2026-07-10T19:38:29.653169-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "billing-admin",
-      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-06-21T03:19:22.966459-04:00",
-      "last_seen": "2026-07-10T19:38:29.636937-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod-deployer",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-06-26T07:28:00.777454-04:00",
-      "last_seen": "2026-07-10T19:38:29.627684-04:00"
+      "first_seen": "2026-07-10T19:58:24.924379-04:00",
+      "last_seen": "2026-07-10T19:58:24.924379-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -184,32 +158,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-06-26T07:28:00.767874-04:00",
-      "last_seen": "2026-07-10T19:38:29.620552-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "svc-orphaned",
-      "identity_arn": "arn:aws:iam::987654321098:user/svc-orphaned",
-      "account": "aws:987654321098",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:987654321098",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-06-21T03:19:22.984258-04:00",
-      "last_seen": "2026-07-10T19:38:29.614433-04:00"
+      "first_seen": "2026-07-10T19:58:24.918217-04:00",
+      "last_seen": "2026-07-10T19:58:24.918217-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -232,8 +182,80 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-06-26T07:25:51.53588-04:00",
-      "last_seen": "2026-07-10T19:38:29.607092-04:00"
+      "first_seen": "2026-07-10T19:58:24.910763-04:00",
+      "last_seen": "2026-07-10T19:58:24.910763-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "billing-admin",
+      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T19:58:24.903224-04:00",
+      "last_seen": "2026-07-10T19:58:24.903224-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod-deployer",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T19:58:24.893972-04:00",
+      "last_seen": "2026-07-10T19:58:24.893972-04:00"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "svc-orphaned",
+      "identity_arn": "arn:aws:iam::987654321098:user/svc-orphaned",
+      "account": "aws:987654321098",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:987654321098",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-10T19:58:24.885694-04:00",
+      "last_seen": "2026-07-10T19:58:24.885694-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -256,8 +278,33 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.995754-04:00",
-      "last_seen": "2026-07-10T19:38:29.601388-04:00"
+      "first_seen": "2026-07-10T19:58:24.877168-04:00",
+      "last_seen": "2026-07-10T19:58:24.877168-04:00"
+    },
+    {
+      "detector": "suspicious_role_chain",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 66,
+      "identity_name": "ci-deployer",
+      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Suspicious role/impersonation chain",
+      "narrative": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant.",
+      "status": "open",
+      "evidence": {
+        "edge_sequence": [
+          "impersonates",
+          "has_permissions",
+          "binds_to"
+        ],
+        "impact": "crown_jewel",
+        "observed_pivot_events": 0,
+        "total_hops": 3,
+        "trust_hops": 1
+      },
+      "first_seen": "2026-07-10T19:58:24.875555-04:00",
+      "last_seen": "2026-07-10T19:58:24.875555-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -279,8 +326,8 @@
           "3 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.989905-04:00",
-      "last_seen": "2026-07-10T19:38:29.598036-04:00"
+      "first_seen": "2026-07-10T19:58:24.871556-04:00",
+      "last_seen": "2026-07-10T19:58:24.871556-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -298,8 +345,8 @@
         "last_used": null,
         "type": "k8s_sa_token"
       },
-      "first_seen": "2026-06-26T07:25:51.501352-04:00",
-      "last_seen": "2026-07-10T19:38:29.590594-04:00"
+      "first_seen": "2026-07-10T19:58:24.863429-04:00",
+      "last_seen": "2026-07-10T19:58:24.863429-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -322,8 +369,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-06-26T07:25:51.498129-04:00",
-      "last_seen": "2026-07-10T19:38:29.588388-04:00"
+      "first_seen": "2026-07-10T19:58:24.860662-04:00",
+      "last_seen": "2026-07-10T19:58:24.860662-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -344,8 +391,8 @@
           "1 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-26T07:25:51.493392-04:00",
-      "last_seen": "2026-07-10T19:38:29.585229-04:00"
+      "first_seen": "2026-07-10T19:58:24.856143-04:00",
+      "last_seen": "2026-07-10T19:58:24.856143-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -367,8 +414,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-06-26T07:25:51.48874-04:00",
-      "last_seen": "2026-07-10T19:38:29.582932-04:00"
+      "first_seen": "2026-07-10T19:58:24.853083-04:00",
+      "last_seen": "2026-07-10T19:58:24.853083-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -390,8 +437,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-26T07:25:51.528325-04:00",
-      "last_seen": "2026-07-10T19:38:29.575029-04:00"
+      "first_seen": "2026-07-10T19:58:24.843744-04:00",
+      "last_seen": "2026-07-10T19:58:24.843744-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -413,8 +460,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-06-26T07:25:51.525255-04:00",
-      "last_seen": "2026-07-10T19:38:29.572668-04:00"
+      "first_seen": "2026-07-10T19:58:24.840711-04:00",
+      "last_seen": "2026-07-10T19:58:24.840711-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -432,8 +479,8 @@
         "last_used": null,
         "type": "api_client_token"
       },
-      "first_seen": "2026-07-10T19:38:28.849615-04:00",
-      "last_seen": "2026-07-10T19:38:29.564408-04:00"
+      "first_seen": "2026-07-10T19:58:24.831358-04:00",
+      "last_seen": "2026-07-10T19:58:24.831358-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -456,8 +503,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T19:38:28.842991-04:00",
-      "last_seen": "2026-07-10T19:38:29.561999-04:00"
+      "first_seen": "2026-07-10T19:58:24.828367-04:00",
+      "last_seen": "2026-07-10T19:58:24.828367-04:00"
     },
     {
       "detector": "ai_agent_overscoped",
@@ -482,8 +529,8 @@
         "ttl_hours": 720,
         "uncontrolled_tools": true
       },
-      "first_seen": "2026-07-10T19:38:28.831365-04:00",
-      "last_seen": "2026-07-10T19:38:29.557621-04:00"
+      "first_seen": "2026-07-10T19:58:24.824094-04:00",
+      "last_seen": "2026-07-10T19:58:24.824094-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -505,8 +552,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T19:38:28.819596-04:00",
-      "last_seen": "2026-07-10T19:38:29.553826-04:00"
+      "first_seen": "2026-07-10T19:58:24.820471-04:00",
+      "last_seen": "2026-07-10T19:58:24.820471-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -528,8 +575,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T19:38:28.813046-04:00",
-      "last_seen": "2026-07-10T19:38:29.550211-04:00"
+      "first_seen": "2026-07-10T19:58:24.818007-04:00",
+      "last_seen": "2026-07-10T19:58:24.818007-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -547,8 +594,8 @@
         "last_used": null,
         "type": "k8s_sa_token"
       },
-      "first_seen": "2026-06-26T07:25:51.516841-04:00",
-      "last_seen": "2026-07-10T19:38:29.540643-04:00"
+      "first_seen": "2026-07-10T19:58:24.809424-04:00",
+      "last_seen": "2026-07-10T19:58:24.809424-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -571,8 +618,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-26T07:25:51.511996-04:00",
-      "last_seen": "2026-07-10T19:38:29.536622-04:00"
+      "first_seen": "2026-07-10T19:58:24.805944-04:00",
+      "last_seen": "2026-07-10T19:58:24.805944-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -594,8 +641,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-06-26T07:25:51.508779-04:00",
-      "last_seen": "2026-07-10T19:38:29.533862-04:00"
+      "first_seen": "2026-07-10T19:58:24.803545-04:00",
+      "last_seen": "2026-07-10T19:58:24.803545-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -613,8 +660,8 @@
         "last_used": null,
         "type": "gcp_sa_key"
       },
-      "first_seen": "2026-06-21T03:19:22.977624-04:00",
-      "last_seen": "2026-07-10T19:38:29.524145-04:00"
+      "first_seen": "2026-07-10T19:58:24.794659-04:00",
+      "last_seen": "2026-07-10T19:58:24.794659-04:00"
     },
     {
       "detector": "orphaned_identity",
@@ -637,8 +684,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.975618-04:00",
-      "last_seen": "2026-07-10T19:38:29.52161-04:00"
+      "first_seen": "2026-07-10T19:58:24.791637-04:00",
+      "last_seen": "2026-07-10T19:58:24.791637-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -660,8 +707,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.972353-04:00",
-      "last_seen": "2026-07-10T19:38:29.518331-04:00"
+      "first_seen": "2026-07-10T19:58:24.787579-04:00",
+      "last_seen": "2026-07-10T19:58:24.787579-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -683,8 +730,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-06-21T03:19:22.970138-04:00",
-      "last_seen": "2026-07-10T19:38:29.515692-04:00"
+      "first_seen": "2026-07-10T19:58:24.784998-04:00",
+      "last_seen": "2026-07-10T19:58:24.784998-04:00"
     },
     {
       "detector": "privilege_creep",
@@ -702,8 +749,8 @@
         "peer_p90": 168,
         "permission_count": 180
       },
-      "first_seen": "2026-07-10T19:38:28.573557-04:00",
-      "last_seen": "2026-07-10T19:38:29.508226-04:00"
+      "first_seen": "2026-07-10T19:58:24.776602-04:00",
+      "last_seen": "2026-07-10T19:58:24.776602-04:00"
     },
     {
       "detector": "stale_access_key",
@@ -721,8 +768,32 @@
         "last_used": null,
         "type": "aws_access_key"
       },
-      "first_seen": "2026-06-21T03:19:22.9615-04:00",
-      "last_seen": "2026-07-10T19:38:29.505275-04:00"
+      "first_seen": "2026-07-10T19:58:24.772728-04:00",
+      "last_seen": "2026-07-10T19:58:24.772728-04:00"
+    },
+    {
+      "detector": "suspicious_role_chain",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 66,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Suspicious role/impersonation chain",
+      "narrative": "Identity \"svc-billing-export\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 2 hop(s) — lateral movement that escalates beyond any single direct grant.",
+      "status": "open",
+      "evidence": {
+        "edge_sequence": [
+          "assumes",
+          "binds_to"
+        ],
+        "impact": "crown_jewel",
+        "observed_pivot_events": 0,
+        "total_hops": 2,
+        "trust_hops": 1
+      },
+      "first_seen": "2026-07-10T19:58:24.771357-04:00",
+      "last_seen": "2026-07-10T19:58:24.771357-04:00"
     },
     {
       "detector": "first_use_sensitive_action",
@@ -741,8 +812,8 @@
         "region": "ru-central-1",
         "src_ip": "203.0.113.9/32"
       },
-      "first_seen": "2026-06-21T03:19:22.959089-04:00",
-      "last_seen": "2026-07-10T19:38:29.503064-04:00"
+      "first_seen": "2026-07-10T19:58:24.768927-04:00",
+      "last_seen": "2026-07-10T19:58:24.768927-04:00"
     },
     {
       "detector": "impossible_travel",
@@ -770,8 +841,8 @@
         },
         "implied_kmh": 33324.61160356317
       },
-      "first_seen": "2026-06-21T03:19:22.95685-04:00",
-      "last_seen": "2026-07-10T19:38:29.50065-04:00"
+      "first_seen": "2026-07-10T19:58:24.766343-04:00",
+      "last_seen": "2026-07-10T19:58:24.766343-04:00"
     },
     {
       "detector": "high_blast_radius",
@@ -793,8 +864,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.953823-04:00",
-      "last_seen": "2026-07-10T19:38:29.497192-04:00"
+      "first_seen": "2026-07-10T19:58:24.760821-04:00",
+      "last_seen": "2026-07-10T19:58:24.760821-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -815,8 +886,8 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T19:38:28.552087-04:00",
-      "last_seen": "2026-07-10T19:38:29.493265-04:00"
+      "first_seen": "2026-07-10T19:58:24.756642-04:00",
+      "last_seen": "2026-07-10T19:58:24.756642-04:00"
     },
     {
       "detector": "conditionless_assume_role",
@@ -837,8 +908,52 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-06-21T03:19:22.950465-04:00",
-      "last_seen": "2026-07-10T19:38:29.489674-04:00"
+      "first_seen": "2026-07-10T19:58:24.752241-04:00",
+      "last_seen": "2026-07-10T19:58:24.752241-04:00"
+    },
+    {
+      "detector": "conditionless_assume_role",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 72,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Conditionless assume-role trust",
+      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
+      "status": "open",
+      "evidence": {
+        "edge": "can_assume",
+        "missing_conditions": [
+          "ExternalId",
+          "MFA",
+          "SourceIp"
+        ]
+      },
+      "first_seen": "2026-07-10T19:58:24.747996-04:00",
+      "last_seen": "2026-07-10T19:58:24.747996-04:00"
+    },
+    {
+      "detector": "conditionless_assume_role",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 72,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Conditionless assume-role trust",
+      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
+      "status": "open",
+      "evidence": {
+        "edge": "can_assume",
+        "missing_conditions": [
+          "ExternalId",
+          "MFA",
+          "SourceIp"
+        ]
+      },
+      "first_seen": "2026-07-10T19:58:24.743535-04:00",
+      "last_seen": "2026-07-10T19:58:24.743535-04:00"
     },
     {
       "detector": "over_privileged_sa",
@@ -849,20 +964,22 @@
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
       "title": "Over-privileged service identity",
-      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
       "status": "open",
       "evidence": {
         "admin": true,
         "matched": [
           "role:billing-admin:admin",
           "write:arn:aws:s3:::prod-billing",
+          "write:arn:aws:s3:::prod-billing",
+          "write:arn:aws:s3:::prod-billing",
           "write:arn:aws:s3:::prod-billing"
         ],
         "priv_escalation": false,
         "write_crown_jewel": true
       },
-      "first_seen": "2026-06-21T03:19:22.948148-04:00",
-      "last_seen": "2026-07-10T19:38:29.486993-04:00"
+      "first_seen": "2026-07-10T19:58:24.740167-04:00",
+      "last_seen": "2026-07-10T19:58:24.740167-04:00"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -883,8 +1000,8 @@
         "pattern": "aws_akia",
         "verified": true
       },
-      "first_seen": "2026-06-21T03:19:22.943347-04:00",
-      "last_seen": "2026-07-10T19:38:29.481266-04:00"
+      "first_seen": "2026-07-10T19:58:24.732509-04:00",
+      "last_seen": "2026-07-10T19:58:24.732509-04:00"
     }
   ]
 }

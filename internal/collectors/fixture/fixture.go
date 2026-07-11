@@ -26,6 +26,7 @@ func (c *Collector) ID() string { return "fixture" }
 type FixtureData struct {
 	Identities       []models.Identity        `json:"identities"`
 	Credentials      []models.Credential      `json:"credentials"`
+	Secrets          []models.Secret          `json:"secrets"`
 	Roles            []models.Role            `json:"roles"`
 	TrustEdges       []models.TrustEdge       `json:"trust_edges"`
 	ResourceBindings []models.ResourceBinding `json:"resource_bindings"`
@@ -47,6 +48,7 @@ func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[s
 	return collectors.Result{
 		Identities:       fixture.Identities,
 		Credentials:      fixture.Credentials,
+		Secrets:          fixture.Secrets,
 		Roles:            fixture.Roles,
 		TrustEdges:       fixture.TrustEdges,
 		ResourceBindings: fixture.ResourceBindings,

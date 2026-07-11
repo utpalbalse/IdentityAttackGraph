@@ -133,7 +133,10 @@ func main() {
 				if err := runDetection(ctx, s, ids, detectionEngine, detectionCfg, riskEngine, logger); err != nil {
 					return err
 				}
-				return runExposureFindings(ctx, s, logger)
+				if err := runExposureFindings(ctx, s, logger); err != nil {
+					return err
+				}
+				return runSecretFindings(ctx, s, detectionCfg, logger)
 			})
 			if notifier != nil {
 				runJob(ctx, "alert", logger, func() error { return runAlerts(ctx, s, notifier, alertSeverities, logger) })
@@ -439,6 +442,41 @@ func runExposureFindings(ctx context.Context, s *store.Store, logger *slog.Logge
 		raised++
 	}
 	logger.Info("repo-scoped exposure findings", "exposures", len(exps), "raised", raised)
+	return nil
+}
+
+// runSecretFindings raises unused_secret findings for managed secrets that nothing references and
+// that haven't been accessed within the staleness window. Identity-agnostic, like repo-scoped
+// exposures — a dedicated pass over the secret inventory rather than a per-identity detector.
+func runSecretFindings(ctx context.Context, s *store.Store, cfg detect.Config, logger *slog.Logger) error {
+	secs, err := s.Secrets.List(ctx, 5000)
+	if err != nil {
+		return err
+	}
+	if len(secs) == 0 {
+		return nil
+	}
+	sups, _ := s.Suppressions.ListActive(ctx)
+	isSuppressed := suppressor(sups)
+	snapID, _ := s.Snapshots.Latest(ctx)
+	now := time.Now()
+	raised := 0
+	for _, sec := range secs {
+		if isSuppressed("unused_secret", uuid.Nil) {
+			continue
+		}
+		f, ok := detect.UnusedSecretFinding(sec, cfg.StaleWindow, now)
+		if !ok {
+			continue
+		}
+		f.SnapshotID = snapID
+		if _, err := s.Findings.Upsert(ctx, f); err != nil {
+			logger.Error("upsert unused-secret finding", "err", err)
+			continue
+		}
+		raised++
+	}
+	logger.Info("unused-secret findings", "secrets", len(secs), "raised", raised)
 	return nil
 }
 

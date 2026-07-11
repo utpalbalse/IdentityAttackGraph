@@ -65,15 +65,16 @@ func (r *SecretRepo) Upsert(ctx context.Context, s models.Secret) (uuid.UUID, er
 	err := r.pool.QueryRow(ctx, `
 		INSERT INTO secrets
 			(store,external_id,account_ref,name,last_rotated_at,rotation_enabled,
-			 version_count,material_fingerprint,last_accessed_at,source,collected_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())
+			 version_count,material_fingerprint,referenced_by_count,last_accessed_at,source,collected_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())
 		ON CONFLICT (store, external_id) DO UPDATE SET
 			last_rotated_at=EXCLUDED.last_rotated_at, rotation_enabled=EXCLUDED.rotation_enabled,
-			version_count=EXCLUDED.version_count, last_accessed_at=EXCLUDED.last_accessed_at,
+			version_count=EXCLUDED.version_count, material_fingerprint=EXCLUDED.material_fingerprint,
+			referenced_by_count=EXCLUDED.referenced_by_count, last_accessed_at=EXCLUDED.last_accessed_at,
 			updated_at=now()
 		RETURNING id`,
 		s.Store, s.ExternalID, s.AccountRef, s.Name, s.LastRotatedAt, s.RotationEnabled,
-		s.VersionCount, s.MaterialFingerprint, s.LastAccessedAt, s.Source,
+		s.VersionCount, s.MaterialFingerprint, s.ReferencedByCount, s.LastAccessedAt, s.Source,
 	).Scan(&id)
 	return id, err
 }

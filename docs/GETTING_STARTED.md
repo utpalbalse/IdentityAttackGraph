@@ -147,7 +147,7 @@ make down
 ✅ Core data model + SQL schema  
 ✅ Store layer (identity, credential, role, finding repos)  
 ✅ Risk engine (6-factor transparent scoring)  
-✅ Detection engine (9 rule detectors, 6 anomaly detectors)  
+✅ Detection engine (17 detectors: 10 rule + 7 anomaly)  
 ✅ Graph engine (blast radius, attack-path traversal)  
 ✅ Full REST API (inventory, graph/attack-paths, findings, triage, remediation, exports, snapshots, suppressions, audit, config — see [API.md](API.md))  
 ✅ React dashboard (inventory, triage, identity detail, Cytoscape attack-graph view)  

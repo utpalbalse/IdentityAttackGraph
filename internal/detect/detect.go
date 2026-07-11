@@ -62,7 +62,7 @@ func NewEngine() *Engine {
 		conditionlessTrust{}, wildcardTrust{}, secretExposedInRepo{}, highBlastRadius{},
 		aiAgentOverscoped{},
 		impossibleTravel{}, unusualGeo{}, newASNOrRuntime{}, usageSpike{}, firstUseSensitive{},
-		privilegeCreep{},
+		privilegeCreep{}, suspiciousRoleChain{},
 	}}
 }
 

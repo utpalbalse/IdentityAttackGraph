@@ -50,8 +50,11 @@ unaccounted for — a classic abandoned credential an attacker can use without a
 **Evidence:** last_seen, age, window. **Narrative:** dormant credential = unmonitored attack surface.
 
 ### unused_secret
-**Definition:** managed secret with `referenced_by_count = 0` and no access in window.
-**Evidence:** store, ARN, last access, references.
+**Definition:** managed secret with `referenced_by_count = 0` and no access within the staleness
+window (or never accessed). Raised by a dedicated pass over the secret inventory (identity-agnostic,
+like repo-scoped exposures), not a per-identity detector.
+**Evidence:** store, external id, name, last access, reference count — never the secret value.
+Implemented in [internal/detect/secret.go](../internal/detect/secret.go).
 
 ### over_privileged_sa
 **Definition:** identity holds `admin`/`*:*`/`iam:*`, OR write to crown-jewel, OR a
@@ -117,10 +120,13 @@ baseline by `creep_factor`, **or** exceeds peer-group P90. Distinguishes "grante
 "used more". **Evidence:** before/after permission sets, peer P90.
 
 ### suspicious_role_chain
-Anomalous assume-role / token-mint **sequence**: a chain observed in usage (A→B→C) that is
-either new for this identity or reaches higher privilege than any single grant. The graph engine
-supplies candidate chains; the detector confirms via observed `usage_events`.
-**Evidence:** the observed chain with timestamps + the privilege gained at each hop.
+Anomalous assume-role / impersonation / federation **sequence**: an attack path with ≥1 trust
+pivot (`assumes`/`impersonates`/`federated_from`/`can_mint_token`) spanning ≥2 hops that reaches
+higher privilege (admin or crown-jewel) than any single direct grant — i.e. lateral movement, not a
+direct binding. The graph engine's attack-path traversal supplies the candidate chains; observed
+assume/impersonate `usage_events` corroborate and raise confidence (66 → 82).
+**Evidence:** the capability edge sequence, trust-hop count, impact, and observed-pivot count.
+Implemented in [internal/detect/rolechain.go](../internal/detect/rolechain.go).
 
 ---
 
