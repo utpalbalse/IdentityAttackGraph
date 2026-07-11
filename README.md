@@ -1,69 +1,46 @@
-# IdentityAttackGraph — Non-Human Identity Inventory & Detection
+<div align="center">
 
-> Discover, inventory, normalize, score, and detect abuse of **non-human identities** (service accounts, 
-> access keys, API tokens, workload identities, secrets, certificates, and AI-agent identities) 
-> across multi-account AWS and multi-project GCP.
+# IdentityAttackGraph
 
-IdentityAttackGraph answers six critical security questions:
+### Non-Human Identity Inventory, Risk Scoring & Attack-Path Detection
 
-1. **What** machine identities exist?
-2. **Where** are they used (which workloads, repos, resources)?
-3. **Which** are over-privileged, stale, or orphaned?
-4. **Which** are behaving abnormally **right now**?
-5. **What** is the blast radius if one is compromised?
-6. **What** should we remediate first, and how much risk does that remove?
+**Discover, normalize, risk-score, and detect abuse of the machine identities that run modern cloud — service accounts, access keys, API tokens, workload identities, secrets, and AI-agent identities — across multi-account AWS, multi-project GCP, and Kubernetes, then walk the exact attack path from a leaked credential to a crown-jewel resource.**
 
-This is a **from-scratch** security platform. The inventory model, normalization, graph engine,
-risk scoring, attack-path reasoning, and detection logic are all implemented here — not a
-wrapper around existing tools. We integrate with cloud provider APIs for data collection only.
+[![CI](https://github.com/utpalbalse/IdentityAttackGraph/actions/workflows/ci.yml/badge.svg)](https://github.com/utpalbalse/IdentityAttackGraph/actions/workflows/ci.yml)
+![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)
+![Postgres](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
+![React](https://img.shields.io/badge/React%20%2B%20TS-Cytoscape-61DAFB?logo=react&logoColor=white)
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+![Status](https://img.shields.io/badge/status-MVP%20%2B%20v1.0%20complete-brightgreen)
+
+[Quick start](#-quick-start-one-command) · [See it in action](#-see-it-in-action) · [Architecture](#-architecture) · [Detections](#-detection-engine) · [Docs](#-documentation)
+
+</div>
 
 ---
 
-## Status
+## The problem
 
-Early, actively-built MVP. See [docs/ROADMAP.md](docs/ROADMAP.md) for the milestone plan and
-[docs/MVP.md](docs/MVP.md) for what is in/out of the first shippable cut.
+Human logins are a solved-ish problem — MFA, SSO, conditional access. **Non-human identities (NHIs) are not.** They now outnumber humans in the cloud 10–50×, they hold the privileges that actually reach production data, they rarely rotate, and they routinely federate across trust boundaries (a Kubernetes pod assuming an AWS role via IRSA; a CI service account impersonating a GCP owner). When one is over-privileged, leaked, or orphaned, the blast radius is enormous — and most tools inventory identities in flat lists that can't answer the only question that matters: **"if this one is compromised, what can the attacker actually reach, and how?"**
 
-## Documentation
+IdentityAttackGraph answers six questions across your entire multi-cloud estate:
 
-| Doc | What's in it |
-|-----|--------------|
-| [docs/DEMO.md](docs/DEMO.md) | **Start here** — one-command demo + narrated attack path |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, component diagram, data flow |
-| [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Assets, threats, trust boundaries, mitigations |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Unified schema, entities, graph model |
-| [docs/RISK_MODEL.md](docs/RISK_MODEL.md) | Scoring formula, factor weights, rationale |
-| [docs/DETECTIONS.md](docs/DETECTIONS.md) | Every detection, its logic, and evidence shape |
-| [docs/API.md](docs/API.md) | REST API surface |
-| [docs/AUTH.md](docs/AUTH.md) | Bearer-token RBAC (viewer/analyst/admin); OIDC path |
-| [docs/ALERTING.md](docs/ALERTING.md) | Slack/webhook alerting on new findings (severity threshold, at-least-once) |
-| [docs/AWS_COLLECTOR.md](docs/AWS_COLLECTOR.md) | AWS collector: least-priv policy, assume-role, what it collects |
-| [docs/GCP_COLLECTOR.md](docs/GCP_COLLECTOR.md) | GCP collector: SAs, keys, impersonation/WIF trust, project IAM |
-| [docs/K8S_COLLECTOR.md](docs/K8S_COLLECTOR.md) | Kubernetes collector: ServiceAccounts, RBAC, IRSA/Workload-Identity federation |
-| [docs/REPO_SCANNER.md](docs/REPO_SCANNER.md) | Repo secret scanner: SecretSweep report ingest → exposures |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Phased milestone plan with acceptance criteria |
-| [docs/MVP.md](docs/MVP.md) | MVP scope + non-goals |
-| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Operating, troubleshooting, on-call |
+| | Question | How it's answered |
+|--|----------|-------------------|
+| **1** | **What** machine identities exist? | Provider collectors → one normalized inventory |
+| **2** | **Where** are they used (workloads, repos, resources)? | Workload + repo-exposure mapping |
+| **3** | **Which** are over-privileged, stale, or orphaned? | 6-factor risk score + hygiene detectors |
+| **4** | **Which** are behaving abnormally **right now**? | Statistical anomaly detection over usage |
+| **5** | **What** is the **blast radius** if one is compromised? | In-memory attack-graph traversal |
+| **6** | **What** to remediate first — and how much risk does it remove? | Ranked remediations with measurable risk delta |
 
-## Quick start (local, one command)
+> **Built from scratch — not a wrapper.** The inventory model, normalization, graph engine, risk scoring, attack-path reasoning, and every detector are original code. Cloud provider APIs are used for data collection only; there is no Semgrep/Wazuh/Suricata under the hood.
 
-No local Go or Node toolchain required — everything builds and runs in containers.
+---
 
-```bash
-make dev          # compose up: postgres, redis, nats, migrate (one-shot), api, worker, web
-make demo         # seed AWS+GCP+K8s fixtures, run graph/score/detect, print the attack simulation
-open http://localhost:5173
-```
+## ✨ See it in action
 
-`make dev` runs DB migrations automatically (the `migrate` service applies the embedded SQL, then
-api/worker/web start from compiled binaries). On Windows without `make`, use the compose commands
-directly: `docker compose -f deploy/docker-compose.yml up --build -d`.
-
-## See it in action
-
-`make demo` ends by narrating the worst attack paths it finds — computed live from the graph, with
-the detections that caught each and the one remediation that severs it (full output in
-[docs/DEMO.md](docs/DEMO.md) and [docs/samples/](docs/samples/)):
+One command seeds a synthetic multi-cloud environment (AWS + GCP + Kubernetes) with the exact mistakes attackers exploit, runs the full pipeline, and narrates the worst attack paths it finds — each with the detections that caught it and the single remediation that severs it:
 
 ```text
 ━━━ Scenario 1 · Leaked credential → crown jewel
@@ -72,50 +49,215 @@ the detections that caught each and the one remediation that severs it (full out
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
   STEP 2  → gains access to arn:aws:s3:::prod-billing [resource] ◆ CROWN JEWEL
-  IMPACT  1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
-  CAUGHT  secret_exposed_in_repo (critical), conditionless_assume_role (high), high_blast_radius (high), …
-  FIX     reduce_scope  →  risk 67→30 (−37)
+  IMPACT  1 crown jewel reachable · nearest crown jewel 2 hops · reaches admin: true
+  CAUGHT  secret_exposed_in_repo (critical), suspicious_role_chain (high),
+          conditionless_assume_role (high), high_blast_radius (high), …
+  FIX     reduce_scope  →  risk 67 → 30  (−37)
+
+━━━ Scenario 2 · Over-scoped AI agent
+  target  prod-copilot-agent  (risk 39)
+  AGENT   framework=langchain model=gpt-4o ttl=720h broad_scope=true uncontrolled_tools=true
+  STEP 2  → gains access to arn:aws:secretsmanager:…:secret:prod/app/master ◆ CROWN JEWEL
+  CAUGHT  ai_agent_overscoped (high), high_blast_radius (high), over_privileged_sa (high)
+  FIX     remove_identity  →  risk 39 → 2  (−37)
 ```
 
-The synthetic dataset ships the mistakes attackers exploit: a key committed to a repo, a
-conditionless assume-role chain to a crown-jewel bucket, an **over-scoped AI agent** reaching a
-secret, a **Kubernetes** ServiceAccount bound to cluster-admin with an IRSA edge into AWS, GCP
-impersonation, and orphaned/stale credentials — all detected with **no cloud credentials**.
+Everything above is computed **live from the graph** — the path, the detections, and the risk delta. Full output and machine-readable/SARIF samples: [`docs/DEMO.md`](docs/DEMO.md) · [`docs/samples/`](docs/samples/).
 
-## Architecture at a glance
+---
 
-```
- collectors (aws/gcp/k8s/repo)  ->  normalizer  ->  Postgres (system of record)
-                                                       |
-                                            graph builder (nodes+edges)
-                                                       |
-                      +--------------------------------+--------------------------------+
-                      |                                |                                 |
-                 risk engine                    detection engine                  graph engine
-              (explainable score)           (rules + anomaly)                 (attack-path traversal)
-                      |                                |                                 |
-                      +--------------------------------+---------------------------------+
-                                                       |
-                                              REST API  ->  React UI
-```
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full text component diagram and data flow.
-
-## Repository layout
-
-See [docs/ARCHITECTURE.md#repository-structure](docs/ARCHITECTURE.md) for the annotated tree.
-Top level:
+## 🏗 Architecture
 
 ```
-cmd/            # entrypoints: api, worker, collector, migrate
-internal/       # core engine (models, store, graph, risk, detect, collectors, api)
-migrations/     # versioned SQL schema
-web/            # React + TypeScript dashboard
-deploy/         # docker-compose, Dockerfiles, helm, terraform
-fixtures/       # synthetic demo datasets
-docs/           # design documentation
+                    ┌──────────── COLLECTORS (normalize → unified model) ────────────┐
+   AWS  ──────────► IAM · STS · CloudTrail · Secrets Manager   (assume-role + ExternalId)
+   GCP  ──────────► service accounts · keys · impersonation/WIF · Cloud Audit Logs
+   K8s  ──────────► ServiceAccounts · RBAC · pods · IRSA/Workload-Identity   (live client-go OR export)
+   Repos ─────────► built-in secret scanner (entropy) OR SecretSweep report ingest
+                    └───────────────────────────────┬────────────────────────────────┘
+                                                     │  deterministic UUIDv5 → idempotent, cross-collector reconciliation
+                                                     ▼
+                                        PostgreSQL 16  (system of record)
+                                                     │
+                                        graph projection (nodes + capability edges)
+                                                     │
+        ┌────────────────────────────────────────────┼────────────────────────────────────────────┐
+        ▼                                             ▼                                             ▼
+   RISK ENGINE                               DETECTION ENGINE                              GRAPH ENGINE
+   6 explainable factors                     17 detectors (rule + anomaly)                 in-memory DAG, BFS/DFS
+   hot-reloadable weights                    evidence + narrative + dedupe                 blast radius + attack paths
+        └────────────────────────────────────────────┼────────────────────────────────────────────┘
+                                                     ▼
+                        REST + GraphQL API  ·  React/Cytoscape UI  ·  Slack/webhook alerts  ·  SARIF/JSON/CSV export
+                        NATS JetStream queue  ·  Redis rate limit  ·  Prometheus metrics  ·  OpenTelemetry traces
 ```
+
+The **attack graph** is a from-scratch directed property graph (no Neo4j) whose edges are *capabilities* — `assumes`, `impersonates`, `federated_from`, `binds_to`, `has_permissions`, `uses`. Because every identity gets a **deterministic UUIDv5** derived from its provider identity, a Kubernetes ServiceAccount's IRSA annotation reconciles onto the *exact* AWS IAM role node — producing a single **pod → cloud role → crown-jewel** path across cloud boundaries, regardless of which collector ran first.
+
+---
+
+## 🔎 Capabilities
+
+<table>
+<tr><td width="50%" valign="top">
+
+**Collection (multi-cloud, least-privilege)**
+- **AWS** — IAM users/roles, access keys + last-used, assume-role trust, Secrets Manager inventory, CloudTrail usage
+- **GCP** — service accounts, keys, impersonation / Workload Identity Federation, project IAM, Cloud Audit Logs
+- **Kubernetes** — ServiceAccounts, effective RBAC, pods, token secrets, IRSA/WIF federation — from a **live cluster (client-go)** or a `kubectl` export
+- **Repositories** — built-in secret scanner (curated patterns + Shannon entropy) or SecretSweep report ingest
+- Cross-account via **assume-role + ExternalId**; in-cluster via **IRSA** — no long-lived target credentials stored
+
+</td><td width="50%" valign="top">
+
+**Analysis & response**
+- **6-factor explainable risk** — privilege · blast-radius · exposure · trust · usage · freshness; tunable, hot-reloadable weights; per-factor evidence
+- **17 detectors** — 10 rule + 7 statistical anomaly, each with evidence, an attack narrative, and a stable fingerprint
+- **Attack-path & blast-radius** traversal to crown jewels / admin
+- **Triage + remediation** with measurable **risk-delta** tracking
+- **Alerting** — Slack / generic webhook, severity threshold, at-least-once
+- **Exports** — SARIF 2.1.0 (GitHub code scanning), JSON, CSV
+
+</td></tr>
+<tr><td valign="top">
+
+**API & UX**
+- **REST** + **GraphQL** (`/api/v1/graphql`) read surface
+- **RBAC** — bearer token or **OIDC JWT with JWKS auto-fetch** (keys cached by `kid`, refreshed on rotation); viewer / analyst / admin
+- Audited mutations, admin-gated suppressions, snapshots
+- **React + TypeScript + Cytoscape** attack-graph dashboard
+
+</td><td valign="top">
+
+**Platform & operations**
+- **One-command** Docker Compose local stack
+- **Helm chart** (api/worker/web, migration hook, IRSA SA, Ingress, HPA/PDB, ServiceMonitor)
+- **Terraform** for EKS/RDS/ElastiCache + least-priv cross-account collector roles
+- **Prometheus** metrics + **OpenTelemetry** traces; secret-redacting logs
+- **NATS JetStream** work queue; **Redis** rate limiting
+- CI (build/vet/test/gofmt/**govulncheck**) + **k6** load test
+
+</td></tr>
+</table>
+
+---
+
+## 🚀 Quick start (one command)
+
+No local Go or Node toolchain required — everything builds and runs in containers.
+
+```bash
+make dev      # compose up: postgres, redis, nats, migrate, api, worker, web
+make demo     # seed AWS+GCP+K8s fixtures, run the pipeline, print the attack simulation
+open http://localhost:5173
+```
+
+Point it at real clouds — same pipeline, same graph, same detections:
+
+```bash
+collector --provider aws --role-arn <arn> --external-id <id>            # docs/AWS_COLLECTOR.md
+collector --provider gcp --project <project-id>                        # docs/GCP_COLLECTOR.md
+collector --provider k8s --cluster prod --kubeconfig ~/.kube/config    # or --k8s-export cluster.json
+collector --provider repo --scan-path ./checkout --repo acme/api      # or --report secretsweep.json
+```
+
+---
+
+## 🧠 Detection engine
+
+Every detection is **custom-built, explainable, and evidenced** — a stable detector id, severity, structured evidence, an attacker-framed narrative, and a fingerprint for dedupe. Detectors are **rule-based** (deterministic over current state) or **anomaly-based** (statistical over usage history with per-identity + peer baselines).
+
+<details>
+<summary><b>All 17 detectors</b></summary>
+
+| Detector | Type | Catches |
+|----------|------|---------|
+| `orphaned_identity` | rule | Active identity with no owner, workload, or repo reference |
+| `stale_identity` | rule | No legitimate usage within the staleness window |
+| `stale_access_key` | rule | Unused, rotation-overdue, or past max-age credential |
+| `over_privileged_sa` | rule | Admin / `*:*` / privilege-escalation / crown-jewel write |
+| `conditionless_assume_role` | rule | Assume-role trust with no ExternalId/MFA/IP guard |
+| `wildcard_trust` | rule | Trust policy principal is `*` or external |
+| `secret_exposed_in_repo` | rule | Credential material found in a repository (location + fingerprint only) |
+| `high_blast_radius` | rule | Reaches a crown jewel or escalates to admin via the graph |
+| `ai_agent_overscoped` | rule | AI agent with broad scope / long TTL / uncontrolled tools |
+| `unused_secret` | rule | Managed secret with no references and no recent access |
+| `impossible_travel` | anomaly | Two events implying travel faster than physically possible |
+| `unusual_geo` | anomaly | First use from a new country vs. baseline |
+| `new_asn_or_runtime` | anomaly | Access from an unrecognized ASN / runtime |
+| `usage_spike` | anomaly | Event volume exceeds `mean + Nσ` of the hourly baseline |
+| `first_use_sensitive_action` | anomaly | First-ever invocation of a sensitive action (the intrusion pivot) |
+| `privilege_creep` | anomaly | Permission count exceeds the identity's history or peer-group P90 |
+| `suspicious_role_chain` | anomaly | Multi-hop assume/impersonate/federate chain to higher privilege |
+
+**False-positive controls:** anomaly warm-up, egress/VPN CIDR allowlist, break-glass identities, ≥2-signal corroboration, admin-gated audited suppressions, fingerprint dedupe, and confidence scoring. See [`docs/DETECTIONS.md`](docs/DETECTIONS.md).
+
+</details>
+
+---
+
+## 🛡 Security engineering
+
+- **No secret material is ever stored, logged, or returned.** Exposures carry *location + fingerprint* only; the log handler scrubs credential-shaped values; Secrets Manager metadata is read without ever calling `GetSecretValue`.
+- **Least-privilege, no-static-credential collection** — cross-account via `sts:AssumeRole` + `ExternalId` (confused-deputy guard), in-cluster via IRSA/Workload Identity. The exact read-only IAM policy is documented and codified in Terraform.
+- **Explainable by design** — the risk score is a transparent weighted sum with per-factor evidence, not a black-box model, so an analyst can see *why* an identity scored 78.
+- **Idempotent & replay-safe** — deterministic UUIDv5 identity ids make every collector re-run a no-op and let trust edges cross-reference principals before they're persisted.
+- See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md).
+
+---
+
+## 🧪 Quality
+
+- **Unit-tested** across the risk engine, every detector, the graph traversal, all four collectors (AWS policy analysis, GCP roles, the K8s normalizer + **fake-clientset** live source, the repo scanner), JWKS validation (via a real `httptest` OIDC server), and the GraphQL schema (in-memory data source).
+- **CI** on every push: `go build` · `go vet` · `go test` · `gofmt` · `govulncheck`.
+- **Load-tested** with a k6 script enforcing p95/p99 latency + error-rate SLOs.
+- **~13k lines of Go**, 6 SQL migrations, zero secret material in the data model.
+
+---
+
+## 🧰 Tech stack
+
+**Backend** Go 1.26 · pgx · chi · PostgreSQL 16 (partitioned `usage_events`, `pg_trgm` search, recursive CTEs)
+**APIs** REST (chi) · GraphQL (graphql-go) · SARIF 2.1.0
+**Async & cache** NATS JetStream · Redis
+**Observability** Prometheus · OpenTelemetry (OTLP)
+**Frontend** React · TypeScript · Vite · Cytoscape
+**Cloud SDKs** AWS SDK for Go v2 · Google Cloud SDKs · Kubernetes client-go
+**Deploy** Docker Compose · Helm · Terraform (EKS/RDS/ElastiCache/IRSA) · GitHub Actions
+
+---
+
+## 📚 Documentation
+
+| Doc | What's in it |
+|-----|--------------|
+| [DEMO.md](docs/DEMO.md) | **Start here** — one-command demo + narrated attack path |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component design, data flow, deployment topology |
+| [THREAT_MODEL.md](docs/THREAT_MODEL.md) | Assets, threats, trust boundaries, mitigations |
+| [DATA_MODEL.md](docs/DATA_MODEL.md) | Unified schema, entities, graph model |
+| [RISK_MODEL.md](docs/RISK_MODEL.md) | Scoring formula, factor weights, rationale |
+| [DETECTIONS.md](docs/DETECTIONS.md) | Every detector, its logic, evidence shape, FP controls |
+| [API.md](docs/API.md) · [AUTH.md](docs/AUTH.md) | REST + GraphQL surface · RBAC / OIDC-JWKS |
+| [AWS_COLLECTOR.md](docs/AWS_COLLECTOR.md) · [GCP_COLLECTOR.md](docs/GCP_COLLECTOR.md) · [K8S_COLLECTOR.md](docs/K8S_COLLECTOR.md) · [REPO_SCANNER.md](docs/REPO_SCANNER.md) | Per-collector detail + least-priv policy |
+| [ALERTING.md](docs/ALERTING.md) · [RUNBOOK.md](docs/RUNBOOK.md) · [ROADMAP.md](docs/ROADMAP.md) | Alerting · operations · milestone plan |
+
+---
+
+## 🗺 Repository layout
+
+```
+cmd/         entrypoints: api · worker · collector · migrate · simulate
+internal/    engine: models · store · graph · risk · detect · collectors · api · graphqlapi · auth · notify · tracing
+migrations/  versioned SQL schema (partitioning, pg_trgm, recursive CTEs)
+web/         React + TypeScript + Cytoscape dashboard
+deploy/      docker-compose · Dockerfiles · helm · terraform · loadtest
+docs/        design docs + committed sample reports
+```
+
+## Status
+
+Phases 0–6 complete: discovery → graph → risk → detection → triage/remediation → export, plus production deploy (Helm/Terraform), observability (Prometheus + OTel), RBAC/OIDC, alerting, GraphQL, and a narrated attack-path demo. See [ROADMAP.md](docs/ROADMAP.md).
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+[Apache-2.0](LICENSE).

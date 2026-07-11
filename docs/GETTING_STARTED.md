@@ -4,7 +4,7 @@
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.25+ (for collector and worker commands)
+- Go 1.26+ (for collector and worker commands)
 - Node 20+ (for React dev server)
 
 ### One-command stack

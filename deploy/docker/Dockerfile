@@ -1,6 +1,6 @@
 # Single image that contains all NHIID binaries (api, worker, collector, migrate).
 # Services in docker-compose select which one to run via `command:`.
-FROM golang:1.25-alpine AS build
+FROM golang:1.26-alpine AS build
 WORKDIR /src
 RUN apk add --no-cache git
 COPY go.mod go.sum ./
