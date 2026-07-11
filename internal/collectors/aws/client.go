@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/cloudtrail"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
@@ -39,6 +40,7 @@ type clients struct {
 	iam        *iam.Client
 	cloudtrail *cloudtrail.Client
 	sts        *sts.Client
+	sm         *secretsmanager.Client
 	accountID  string
 }
 
@@ -75,6 +77,7 @@ func newClients(ctx context.Context, opts Options) (*clients, error) {
 		iam:        iam.NewFromConfig(cfg),
 		cloudtrail: cloudtrail.NewFromConfig(cfg),
 		sts:        sts.NewFromConfig(cfg),
+		sm:         secretsmanager.NewFromConfig(cfg),
 	}
 
 	// Resolve the account id for canonical account_ref and self-checks.

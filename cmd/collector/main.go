@@ -30,11 +30,13 @@ func main() {
 	gcpCreds := flag.String("gcp-credentials", "", "path to GCP credentials/WIF file (else uses ADC)")
 	auditLookback := flag.Int("audit-lookback-hours", 24, "hours of GCP Cloud Audit Log history on first run")
 	report := flag.String("report", "", "secret-scanner report (SecretSweep JSON or SARIF) for --provider repo")
+	scanPath := flag.String("scan-path", "", "path to a checked-out repo to scan directly for --provider repo")
 	repoName := flag.String("repo", "", "repository org/name for --provider repo")
 	repoProvider := flag.String("repo-provider", "github", "repo provider (github|gitlab)")
 	repoVisibility := flag.String("repo-visibility", "private", "repo visibility (public|private|internal)")
 	cluster := flag.String("cluster", "", "Kubernetes cluster name for --provider k8s")
-	k8sExport := flag.String("k8s-export", "", "path to a `kubectl get ... -o json` export for --provider k8s")
+	k8sExport := flag.String("k8s-export", "", "path to a `kubectl get ... -o json` export for --provider k8s (omit for live collection)")
+	kubeconfig := flag.String("kubeconfig", "", "kubeconfig path for live --provider k8s (empty = in-cluster/default)")
 	flag.Parse()
 
 	cfg, err := config.Load("configs/config.yaml")
@@ -88,24 +90,21 @@ func main() {
 		}, logger)
 		*account = "gcp:" + projectID
 	case "repo":
-		if *report == "" {
-			logger.Error("repo requires -report (SecretSweep JSON/SARIF)")
+		if *report == "" && *scanPath == "" {
+			logger.Error("repo requires -report (SecretSweep JSON/SARIF) or -scan-path (directory to scan)")
 			os.Exit(1)
 		}
 		coll = repocollector.New(repocollector.Options{
-			ReportPath: *report, Provider: *repoProvider, Repo: *repoName, Visibility: *repoVisibility,
+			ReportPath: *report, ScanPath: *scanPath, Provider: *repoProvider, Repo: *repoName, Visibility: *repoVisibility,
 		})
 		*account = "repo:" + *repoName
 	case "k8s":
-		if *k8sExport == "" {
-			logger.Error("k8s requires -k8s-export (kubectl get ... -o json)")
-			os.Exit(1)
-		}
 		clusterName := *cluster
 		if clusterName == "" {
 			clusterName = "default"
 		}
-		coll = k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: *k8sExport}, logger)
+		// Live collection (via client-go) when no export is given.
+		coll = k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: *k8sExport, Kubeconfig: *kubeconfig}, logger)
 		*account = "k8s:" + clusterName
 	default:
 		logger.Error("unknown provider", "provider", *provider)

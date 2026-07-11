@@ -66,6 +66,13 @@ data "aws_iam_policy_document" "permissions" {
   }
 
   statement {
+    sid       = "SecretsInventory"
+    effect    = "Allow"
+    actions   = ["secretsmanager:ListSecrets"] # metadata only; GetSecretValue is intentionally excluded
+    resources = ["*"]
+  }
+
+  statement {
     sid       = "StsIdentity"
     effect    = "Allow"
     actions   = ["sts:GetCallerIdentity"]

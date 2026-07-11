@@ -10,27 +10,31 @@ pod ─uses→ k8s ServiceAccount ─has_permissions→ effective RBAC ─binds_
                               └─federated_from→ AWS IAM role / GCP service account ─→ cloud crown jewels
 ```
 
-## Input: a cluster export
+## Two sources, one normalizer
 
-The collector ingests a `kubectl -o json` export. This keeps it dependency-free and lets it run
-from anywhere with kubeconfig access (CI, a jump host) without granting the platform live cluster
-credentials. Produce the export with one command:
+The collector has two interchangeable sources feeding the **identical** normalization:
+
+**1. Live cluster (client-go).** Collect straight from the API server using a kubeconfig or, in a
+pod, in-cluster config (a read-only ServiceAccount is enough):
+
+```bash
+go run ./cmd/collector --provider k8s --cluster prod-us-east-1                 # in-cluster / default kubeconfig
+go run ./cmd/collector --provider k8s --cluster prod-us-east-1 --kubeconfig ~/.kube/config
+# or via the API (admin): {"provider":"k8s","cluster":"prod","kubeconfig":"/path"}  (or omit for in-cluster)
+```
+
+**2. kubectl export.** Dependency-free ingest of a `kubectl -o json` export — handy for CI or a jump
+host without granting the platform live credentials:
 
 ```bash
 kubectl get serviceaccounts,roles,clusterroles,rolebindings,clusterrolebindings,pods \
   -A -o json > cluster.json
-```
-
-Then collect:
-
-```bash
 go run ./cmd/collector --provider k8s --cluster prod-us-east-1 --k8s-export cluster.json
-# or via the API (admin):
-curl -XPOST localhost:8080/api/v1/collect \
-  -d '{"provider":"k8s","cluster":"prod-us-east-1","k8s_export":"/path/cluster.json"}'
 ```
 
-The account ref is `k8s:<cluster>`. Re-running is idempotent (deterministic UUIDv5 ids).
+The account ref is `k8s:<cluster>`. Re-running is idempotent (deterministic UUIDv5 ids). The live
+source lists ServiceAccounts, Roles/ClusterRoles, Role/ClusterRoleBindings, Pods, and token Secrets;
+the required RBAC is read (`get`/`list`) on those resources.
 
 ## What it normalizes
 
@@ -85,8 +89,6 @@ admin role); a stale `k8s_sa_token` raises `stale_access_key`.
 
 ## Not yet
 
-- Live `client-go` source (kubeconfig / in-cluster) — the normalization is identical; only the
-  object source differs.
-- K8s audit-log ingestion for usage signals (anomaly detectors). The export path carries no audit
+- K8s audit-log ingestion for usage signals (anomaly detectors). Neither source carries audit
   events, so usage-based anomalies are AWS/GCP-only for now.
 - Group subjects (`system:serviceaccounts:*`) — only direct `ServiceAccount` subjects are mapped.

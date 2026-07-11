@@ -1,15 +1,27 @@
-# Repository Secret Scanner (SecretSweep ingest)
+# Repository Secret Scanner
 
-The `repo` collector turns a secret-scanner report into normalized **repositories** + **exposures**,
-so the `secret_exposed_in_repo` detector fires on real repositories — not just the demo fixture.
+The `repo` collector turns repository secrets into normalized **repositories** + **exposures**, so
+the `secret_exposed_in_repo` detector fires on real repositories — not just the demo fixture. It has
+two sources:
 
-It composes with **[SecretSweep](https://github.com/utpalbalse/SecretSweep)** (a Python secret
-scanner: 36 credential patterns + Shannon-entropy analysis over source, git history, K8s/Terraform,
-archives, notebooks, and CI configs) by **ingesting its report**, rather than embedding a Python
-runtime in NHIID's Go image. SecretSweep runs where it belongs (CI or a workstation); NHIID ingests
-the output. This is the same composition model NHIID already uses for SARIF export.
+1. **Built-in live scanner** (`--scan-path`) — walks a checked-out working tree directly with a
+   curated set of high-confidence provider patterns (AWS AKIA, GitHub PAT, GCP SA key, PEM private
+   key, Slack/Google/JWT) plus an **entropy-guarded** generic `key = value` rule. Skips VCS/vendored
+   dirs and binary files; the matched value is examined for entropy then **discarded, never stored**.
 
-Implementation: [internal/collectors/repo/](../internal/collectors/repo/).
+   ```bash
+   go run ./cmd/collector --provider repo --scan-path ./checkout --repo acme/widgets
+   # or via the API (admin): {"provider":"repo","scan_path":"/path","repo":"acme/widgets"}
+   ```
+
+2. **SecretSweep report ingest** (`--report`) — composes with
+   **[SecretSweep](https://github.com/utpalbalse/SecretSweep)** (a Python scanner: 36 patterns +
+   entropy over source, git history, K8s/Terraform, archives, notebooks, CI configs) by ingesting
+   its JSON/SARIF report, so that richer scanner can run where it belongs (CI) without embedding a
+   Python runtime in NHIID's Go image.
+
+Both produce the identical normalized exposures. Implementation:
+[internal/collectors/repo/](../internal/collectors/repo/) (`scan.go` for the live scanner).
 
 ---
 

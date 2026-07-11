@@ -88,6 +88,21 @@ tagged release + container images.
 
 ---
 
+## Post-MVP backlog — implemented
+
+The v1.0 / later-phase items that were previously deferred are now done:
+
+- ✅ **AWS Secrets Manager scanner** — secret inventory (rotation + last-accessed) → `unused_secret`
+  (`internal/collectors/aws/secrets.go`).
+- ✅ **Live repository secret scanner** — `repo --scan-path` walks a working tree with curated
+  patterns + entropy, complementing SecretSweep report ingest (`internal/collectors/repo/scan.go`).
+- ✅ **GraphQL API** — `/api/v1/graphql` over inventory, findings, attack paths, blast radius
+  (`internal/graphqlapi`).
+- ✅ **OIDC JWKS auto-fetch** — RS256 keys discovered from the issuer's `.well-known` (or an explicit
+  JWKS URL), cached by `kid`, refreshed on rotation (`internal/auth/jwks.go`).
+- ✅ **Live client-go Kubernetes source** — collect from a live cluster (kubeconfig / in-cluster) in
+  addition to kubectl-export ingest (`internal/collectors/k8s/live.go`).
+
 ## Cross-phase definition of done
 - Unit + integration tests for new modules; collectors have replay fixtures.
 - New detections documented in `docs/DETECTIONS.md` with evidence shape.

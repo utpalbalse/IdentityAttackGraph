@@ -49,11 +49,23 @@ func (c *Collector) Collect(ctx context.Context, accountRefIn string, cursor map
 
 	res := b.result(newCursor)
 	res.UsageEvents = events
+
+	// Phase 3: Secrets Manager inventory (metadata only — never the secret value). Non-fatal.
+	secrets, serr := clients.collectSecrets(ctx, ref)
+	if serr != nil {
+		if c.log != nil {
+			c.log.Warn("secrets manager collection degraded", "err", serr)
+		}
+	} else {
+		res.Secrets = secrets
+	}
+
 	if c.log != nil {
 		c.log.Info("aws collection complete",
 			"identities", len(res.Identities), "credentials", len(res.Credentials),
 			"roles", len(res.Roles), "trust_edges", len(res.TrustEdges),
-			"bindings", len(res.ResourceBindings), "usage_events", len(res.UsageEvents))
+			"bindings", len(res.ResourceBindings), "usage_events", len(res.UsageEvents),
+			"secrets", len(res.Secrets))
 	}
 	return res, nil
 }

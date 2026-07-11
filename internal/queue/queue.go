@@ -21,14 +21,16 @@ type CollectJob struct {
 	ExternalID     string `json:"external_id"`
 	Region         string `json:"region"`
 	GCPCredentials string `json:"gcp_credentials"`
-	// repo (secret-scan report ingest)
+	// repo (secret-scan report ingest or direct scan)
 	Report         string `json:"report"`
+	ScanPath       string `json:"scan_path"`
 	Repo           string `json:"repo"`
 	RepoProvider   string `json:"repo_provider"`
 	RepoVisibility string `json:"repo_visibility"`
-	// k8s (cluster export ingest)
+	// k8s (cluster export ingest or live client-go collection)
 	Cluster     string `json:"cluster"`
 	K8sExport   string `json:"k8s_export"`
+	Kubeconfig  string `json:"kubeconfig"`
 	RequestedBy string `json:"requested_by"`
 }
 

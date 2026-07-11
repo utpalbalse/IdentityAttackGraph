@@ -167,9 +167,10 @@ make down
 ✅ **Secret-redacting logs**, **`govulncheck`** in CI, and a **k6 load test** ([../deploy/loadtest/](../deploy/loadtest/))  
 ✅ **Attack-path simulation** — `make demo` / `simulate` narrates leaked-key → crown-jewel, over-scoped AI agent, and cross-cloud K8s paths with live detections + remediation (see [DEMO.md](DEMO.md))  
 ✅ **Release automation** — GHCR images + GitHub release on version tag ([../.github/workflows/release.yml](../.github/workflows/release.yml))  
+✅ **Secrets Manager scanner** — AWS Secrets Manager inventory (rotation + last-accessed) feeding `unused_secret` (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md))  
+✅ **Live secret scanner** — repo collector `--scan-path` walks a working tree (curated patterns + entropy) → exposures, in addition to SecretSweep report ingest (see [REPO_SCANNER.md](REPO_SCANNER.md))  
+✅ **GraphQL API** — `/api/v1/graphql` over inventory, findings, attack paths, and blast radius (see [API.md](API.md))  
+✅ **OIDC JWKS auto-fetch** — RS256 keys fetched + cached by `kid` from the issuer's `.well-known` (or an explicit JWKS URL), refreshed on rotation (see [AUTH.md](AUTH.md))  
+✅ **Live client-go K8s source** — collect ServiceAccounts/RBAC/pods from a live cluster (kubeconfig or in-cluster), or ingest a kubectl export (see [K8S_COLLECTOR.md](K8S_COLLECTOR.md))  
 
-❌ Secrets Manager scanner (Phase 1)  
-❌ Live GitHub/GitLab secret scanner — report ingest only, no live scan (Phase 1)  
-❌ GraphQL API (v1.0)  
-❌ OIDC JWKS auto-fetch — static JWT validation only (v1.0)  
-❌ Live client-go K8s source — export ingest works; live cluster API pending (Phase 2)  
+Everything documented is implemented — there are no `❌` items left in the MVP + v1.0 scope.  

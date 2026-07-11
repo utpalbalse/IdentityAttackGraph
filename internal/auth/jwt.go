@@ -4,17 +4,21 @@ import (
 	"crypto/rsa"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWTConfig configures JWT/OIDC validation. HS256 uses Secret; RS256 (the OIDC shape) uses an IdP
-// public key in PEM. RoleClaim names the claim carrying the role/groups; Issuer/Audience are
-// optional standard checks. (Auto-fetching RS256 keys from a JWKS URL is the remaining step toward
-// full OIDC; a configured public key is already interoperable with any IdP.)
+// JWTConfig configures JWT/OIDC validation. HS256 uses Secret; RS256 (the OIDC shape) uses either a
+// static IdP public key (PublicKeyPEM) or keys fetched automatically from a JWKS endpoint — set
+// JWKSURL directly, or set only Issuer and the JWKS URI is discovered from the issuer's
+// `.well-known/openid-configuration`. RoleClaim names the claim carrying the role/groups;
+// Issuer/Audience are optional standard checks. JWKSTTL bounds key caching (default 15m).
 type JWTConfig struct {
 	Secret       string
 	PublicKeyPEM []byte
+	JWKSURL      string
+	JWKSTTL      time.Duration
 	RoleClaim    string
 	Issuer       string
 	Audience     string
@@ -23,6 +27,7 @@ type JWTConfig struct {
 type jwtValidator struct {
 	cfg    JWTConfig
 	rsaPub *rsa.PublicKey
+	jwks   *jwksProvider
 }
 
 func newJWTValidator(cfg JWTConfig) (*jwtValidator, error) {
@@ -37,8 +42,13 @@ func newJWTValidator(cfg JWTConfig) (*jwtValidator, error) {
 		}
 		v.rsaPub = pub
 	}
-	if cfg.Secret == "" && v.rsaPub == nil {
-		return nil, errors.New("jwt mode requires a secret (HS256) or public key (RS256)")
+	// Enable JWKS auto-fetch when a JWKS URL is given, or when only an issuer is configured (no
+	// static RS256 key and no HS256 secret) — the OIDC discovery path.
+	if cfg.JWKSURL != "" || (cfg.Issuer != "" && v.rsaPub == nil && cfg.Secret == "") {
+		v.jwks = newJWKSProvider(cfg.Issuer, cfg.JWKSURL, cfg.JWKSTTL)
+	}
+	if cfg.Secret == "" && v.rsaPub == nil && v.jwks == nil {
+		return nil, errors.New("jwt mode requires a secret (HS256), a public key, or a JWKS URL/issuer (RS256)")
 	}
 	return v, nil
 }
@@ -52,6 +62,10 @@ func (v *jwtValidator) validate(tokenStr string) (Principal, error) {
 			}
 			return []byte(v.cfg.Secret), nil
 		case *jwt.SigningMethodRSA:
+			if v.jwks != nil {
+				kid, _ := t.Header["kid"].(string)
+				return v.jwks.keyByID(kid)
+			}
 			if v.rsaPub == nil {
 				return nil, errors.New("RS-signed token but no public key configured")
 			}

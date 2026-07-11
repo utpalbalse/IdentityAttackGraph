@@ -16,6 +16,7 @@ import (
 	"github.com/nhiid/nhiid/internal/api"
 	"github.com/nhiid/nhiid/internal/auth"
 	"github.com/nhiid/nhiid/internal/config"
+	"github.com/nhiid/nhiid/internal/graphqlapi"
 	"github.com/nhiid/nhiid/internal/log"
 	"github.com/nhiid/nhiid/internal/metrics"
 	"github.com/nhiid/nhiid/internal/queue"
@@ -71,6 +72,7 @@ func main() {
 	if cfg.Auth.Mode == "jwt" {
 		jwtCfg = &auth.JWTConfig{
 			Secret:    cfg.Auth.JWTSecret,
+			JWKSURL:   cfg.Auth.JWTJWKSURL,
 			RoleClaim: cfg.Auth.JWTRoleClaim,
 			Issuer:    cfg.Auth.JWTIssuer,
 			Audience:  cfg.Auth.JWTAudience,
@@ -139,6 +141,16 @@ func main() {
 		w.Write([]byte("ready"))
 	})
 
+	// GraphQL read surface (inventory, findings, attack paths, blast radius). Mounted under the
+	// viewer role alongside REST. If schema construction fails we log and skip it — REST is unaffected.
+	gqlSource := graphqlapi.StoreSource{S: s}
+	var gqlHandler http.HandlerFunc
+	if schema, gerr := graphqlapi.NewSchema(gqlSource); gerr != nil {
+		logger.Error("graphql schema build failed; /graphql disabled", "err", gerr)
+	} else {
+		gqlHandler = graphqlapi.Handler(schema, gqlSource)
+	}
+
 	// API routes, grouped by minimum RBAC role (viewer < analyst < admin).
 	h := &api.Handler{Store: s, RiskEngine: risk.NewEngine(weights), Logger: logger, WeightsFile: cfg.Risk.WeightsFile, Queue: q}
 	router.Route("/api/v1", func(r chi.Router) {
@@ -170,6 +182,10 @@ func main() {
 			r.Get("/triage", h.GetTriage)
 			r.Get("/metrics/risk-reduction", h.GetRiskReduction)
 			r.Get("/snapshots", h.ListSnapshots)
+			if gqlHandler != nil {
+				r.Get("/graphql", gqlHandler)
+				r.Post("/graphql", gqlHandler)
+			}
 		})
 
 		// analyst — triage + remediation + exports

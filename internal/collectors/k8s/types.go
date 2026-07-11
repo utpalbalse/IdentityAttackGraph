@@ -21,12 +21,14 @@ type metadata struct {
 	CreationTimestamp string            `json:"creationTimestamp"`
 }
 
+type saSecretRef struct {
+	Name string `json:"name"`
+}
+
 type serviceAccount struct {
-	Metadata                     metadata `json:"metadata"`
-	AutomountServiceAccountToken *bool    `json:"automountServiceAccountToken"`
-	Secrets                      []struct {
-		Name string `json:"name"`
-	} `json:"secrets"`
+	Metadata                     metadata      `json:"metadata"`
+	AutomountServiceAccountToken *bool         `json:"automountServiceAccountToken"`
+	Secrets                      []saSecretRef `json:"secrets"`
 }
 
 // policyRule mirrors rbac.authorization.k8s.io/v1 PolicyRule.

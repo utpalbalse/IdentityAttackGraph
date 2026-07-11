@@ -19,6 +19,7 @@ Implementation: [internal/collectors/aws/](../internal/collectors/aws/).
 | Inline + attached policies | `roles` permission sets (privilege level, wildcard counts, priv-esc flag) + `resource_bindings` | `GetAccountAuthorizationDetails` |
 | Assume-role trust policies | `trust_edges` (`can_assume` / `federated_from`), with guards (ExternalId/MFA/IP/org), cross-account + wildcard flags | parsed from `AssumeRolePolicyDocument` |
 | CloudTrail | `usage_events` (event, source, region, IP, user-agent, error) attributed to the acting principal | `LookupEvents` |
+| Secrets Manager | `secrets` inventory (name, rotation enabled, last-rotated, **last-accessed**, version count) → `unused_secret` detector. Metadata only — `GetSecretValue` is never called. | `ListSecrets` |
 
 **Idempotent:** every entity is keyed by a deterministic UUID derived from its ARN
 (`models.DeterministicID`), so re-running the collector never duplicates rows and lets trust edges
@@ -68,6 +69,12 @@ material.
       "Sid": "UsageEvents",
       "Effect": "Allow",
       "Action": ["cloudtrail:LookupEvents"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SecretsInventory",
+      "Effect": "Allow",
+      "Action": ["secretsmanager:ListSecrets"],
       "Resource": "*"
     },
     {

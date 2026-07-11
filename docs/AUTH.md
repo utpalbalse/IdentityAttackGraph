@@ -51,15 +51,23 @@ JWT validation is implemented (`mode: jwt`) for both HS256 and RS256:
 
 ```bash
 export NHIID_AUTH_MODE=jwt
-export NHIID_AUTH_JWT_SECRET=...           # HS256, or set auth.jwt_public_key_file for RS256
+# HS256:
+export NHIID_AUTH_JWT_SECRET=...
+# RS256 via JWKS auto-fetch (zero-config OIDC): set only the issuer, the JWKS URI is discovered.
+export NHIID_AUTH_JWT_ISSUER=https://accounts.example.com
+#   or point directly at the JWKS endpoint:
+export NHIID_AUTH_JWT_JWKS_URL=https://accounts.example.com/.well-known/jwks.json
+# RS256 with a static key instead: set auth.jwt_public_key_file (PEM)
 # config: jwt_role_claim (default "role"), jwt_issuer, jwt_audience
 curl -H "Authorization: Bearer <jwt>" localhost:8080/api/v1/identities
 ```
 
-With RS256 you paste the IdP's signing public key (PEM) and set `jwt_issuer`/`jwt_audience` — this
-is interoperable with any OIDC provider. The one remaining step for zero-config OIDC is **JWKS
-auto-fetch + key rotation** (discover keys from the IdP's `/.well-known/jwks.json`); the validator
-already runs behind the same `Authenticate` middleware, so adding it touches no handlers.
+**JWKS auto-fetch** (`internal/auth/jwks.go`) is implemented: RS256 signing keys are fetched from
+the issuer's `.well-known/openid-configuration` → `jwks_uri` (or the explicit `jwt_jwks_url`),
+parsed and cached by `kid`, and refreshed on a cache miss (which is exactly what an IdP key rotation
+looks like) or after a TTL — so validation keeps working across rotations with no restart. On a
+transient fetch failure a still-cached key is served. A static `jwt_public_key_file` (PEM) remains
+supported for airgapped setups. The validator runs behind the same `Authenticate` middleware.
 
 ## Notes
 

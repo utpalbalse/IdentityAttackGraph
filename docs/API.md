@@ -4,13 +4,14 @@ REST over JSON. Base path `/api/v1`. Auth: `Authorization: Bearer <session-jwt>`
 RBAC roles: `viewer` (read), `analyst` (read + triage/remediation), `admin` (all + config + suppressions). 
 All mutations are audited. Pagination is cursor-based (`?cursor=&limit=`).
 
-GraphQL is planned (v1.0) for the graph/attack-path surface; REST is authoritative for MVP.
+A **GraphQL** read API is available at `/api/v1/graphql` (see below); REST remains authoritative.
 
 > **Status:** every `/api/v1` route below is implemented. **RBAC is enforced** in `token` and
 > `jwt` auth modes (viewer/analyst/admin); the default `off` mode leaves the API open for the demo.
 > A Redis per-principal rate limiter and the Prometheus `/metrics` listener (separate port) are
 > live. `POST /collect` enqueues onto **NATS JetStream** (worker consumes); it falls back to
-> in-process if the queue is down. Remaining: JWKS auto-fetch for OIDC, and GraphQL.
+> in-process if the queue is down. **OIDC JWKS auto-fetch** (RS256 keys by `kid`) and a **GraphQL**
+> read API are implemented.
 
 ---
 
@@ -76,6 +77,29 @@ GraphQL is planned (v1.0) for the graph/attack-path surface; REST is authoritati
 |--------|------|------|-------------|
 | GET/PUT | `/api/v1/config/risk-weights` | admin | view/update risk weights (audited, snapshot-pinned) |
 | GET | `/api/v1/audit` | admin | audit log query |
+
+## GraphQL
+
+| Method | Path | Role | Description |
+|--------|------|------|-------------|
+| GET/POST | `/api/v1/graphql` | viewer | GraphQL read API over inventory, findings, attack paths, and blast radius |
+
+Queries: `identities(provider,kind,minRisk,limit)`, `identity(id)`, `findings(severity,status,detector,limit)`,
+`triage(limit)`. The `identity` type resolves nested `findings`, `attackPaths { impact hops narrative steps }`,
+and `blastRadius { crownJewelCount reachesAdmin nearestCrownJewel }`. Example:
+
+```graphql
+{ identities(minRisk: 60) {
+    name riskScore
+    attackPaths { impact hops narrative }
+    blastRadius { crownJewelCount reachesAdmin }
+} }
+```
+
+```bash
+curl -XPOST localhost:8080/api/v1/graphql -H 'content-type: application/json' \
+  -d '{"query":"{ triage { name riskScore findings { detector severity } } }"}'
+```
 
 ---
 

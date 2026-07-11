@@ -1,10 +1,13 @@
-// Package repo ingests a secret-scanner report (SecretSweep JSON or SARIF 2.1.0) for a repository
-// and turns each finding into a normalized exposure. Per the threat model NHIID stores the
-// location + a fingerprint, never the secret value (SecretSweep doesn't emit values either).
+// Package repo turns repository secret exposures into normalized records. It has two sources:
 //
-// This composes with SecretSweep (https://github.com/utpalbalse/SecretSweep) rather than embedding
-// a Python runtime: run `secretsweep <repo> --json out.json` (in CI or locally), then point this
-// collector at out.json. See docs/REPO_SCANNER.md.
+//   - ReportPath: ingest a SecretSweep JSON or SARIF 2.1.0 report (compose with
+//     https://github.com/utpalbalse/SecretSweep — run `secretsweep <repo> --json out.json` in CI,
+//     then point this collector at out.json).
+//   - ScanPath: scan a checked-out working tree directly with the built-in scanner (scan.go) — a
+//     curated set of high-confidence provider patterns plus an entropy-guarded generic rule.
+//
+// Either way, per the threat model NHIID stores the location + a fingerprint, never the secret
+// value. See docs/REPO_SCANNER.md.
 package repo
 
 import (
@@ -13,15 +16,18 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/nhiid/nhiid/internal/collectors"
 	"github.com/nhiid/nhiid/internal/models"
 )
 
-// Options configures one repository ingest.
+// Options configures one repository ingest. Provide either ReportPath (ingest a SecretSweep
+// JSON/SARIF report) or ScanPath (scan a checked-out working tree with the built-in scanner).
 type Options struct {
 	ReportPath string // SecretSweep JSON or SARIF report
+	ScanPath   string // path to a checked-out repo to scan directly (built-in scanner)
 	Provider   string // github | gitlab (default github)
 	Repo       string // "org/name"
 	Org        string
@@ -44,16 +50,25 @@ type finding struct {
 }
 
 func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[string]any) (collectors.Result, error) {
-	if c.opts.ReportPath == "" {
-		return collectors.Result{}, fmt.Errorf("repo: report path is required")
-	}
-	raw, err := os.ReadFile(c.opts.ReportPath)
-	if err != nil {
-		return collectors.Result{}, fmt.Errorf("read report %s: %w", c.opts.ReportPath, err)
-	}
-	findings, err := parseReport(raw)
-	if err != nil {
-		return collectors.Result{}, fmt.Errorf("parse report: %w", err)
+	var (
+		findings []finding
+		err      error
+	)
+	switch {
+	case c.opts.ScanPath != "":
+		if findings, err = scanDir(c.opts.ScanPath); err != nil {
+			return collectors.Result{}, fmt.Errorf("scan %s: %w", c.opts.ScanPath, err)
+		}
+	case c.opts.ReportPath != "":
+		raw, rerr := os.ReadFile(c.opts.ReportPath)
+		if rerr != nil {
+			return collectors.Result{}, fmt.Errorf("read report %s: %w", c.opts.ReportPath, rerr)
+		}
+		if findings, err = parseReport(raw); err != nil {
+			return collectors.Result{}, fmt.Errorf("parse report: %w", err)
+		}
+	default:
+		return collectors.Result{}, fmt.Errorf("repo: a report path or scan path is required")
 	}
 
 	provider := c.opts.Provider
@@ -67,6 +82,9 @@ func (c *Collector) Collect(ctx context.Context, accountRef string, cursor map[s
 	org, name := c.opts.Org, c.opts.Name
 	if c.opts.Repo != "" {
 		org, name = splitRepo(c.opts.Repo)
+	}
+	if name == "" && c.opts.ScanPath != "" {
+		name = filepath.Base(filepath.Clean(c.opts.ScanPath)) // derive repo name from the scanned dir
 	}
 	externalID := org + "/" + name
 	now := time.Now().UTC()

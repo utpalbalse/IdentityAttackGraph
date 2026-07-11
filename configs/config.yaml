@@ -56,7 +56,8 @@ auth:
   tokens_file: ""
   # jwt mode:
   jwt_secret: ""            # HS256 shared secret (or NHIID_AUTH_JWT_SECRET)
-  jwt_public_key_file: ""   # RS256 IdP public key (PEM)
+  jwt_public_key_file: ""   # RS256 IdP public key (PEM) — static-key alternative to JWKS
+  jwt_jwks_url: ""          # RS256 via JWKS auto-fetch; leave empty to discover from jwt_issuer
   jwt_role_claim: "role"    # claim holding the role or groups array
-  jwt_issuer: ""
+  jwt_issuer: ""            # OIDC issuer; used for the `iss` check and JWKS discovery
   jwt_audience: ""

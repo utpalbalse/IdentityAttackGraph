@@ -204,21 +204,19 @@ func buildCollector(job queue.CollectJob, logger *slog.Logger) (collectors.Colle
 		}
 		return gcpcollector.New(gcpcollector.Options{ProjectID: proj, CredentialsFile: job.GCPCredentials, AuditLookbackHours: 24}, logger), "gcp:" + proj, nil
 	case "repo":
-		if job.Report == "" {
-			return nil, "", fmt.Errorf("repo requires a report path")
+		if job.Report == "" && job.ScanPath == "" {
+			return nil, "", fmt.Errorf("repo requires a report path or scan path")
 		}
 		return repocollector.New(repocollector.Options{
-			ReportPath: job.Report, Provider: job.RepoProvider, Repo: job.Repo, Visibility: job.RepoVisibility,
+			ReportPath: job.Report, ScanPath: job.ScanPath, Provider: job.RepoProvider, Repo: job.Repo, Visibility: job.RepoVisibility,
 		}), "repo:" + job.Repo, nil
 	case "k8s":
-		if job.K8sExport == "" {
-			return nil, "", fmt.Errorf("k8s requires a cluster export path")
-		}
 		clusterName := job.Cluster
 		if clusterName == "" {
 			clusterName = "default"
 		}
-		return k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: job.K8sExport}, logger), "k8s:" + clusterName, nil
+		// Live client-go collection when no export path is supplied.
+		return k8scollector.New(k8scollector.Options{ClusterName: clusterName, ExportPath: job.K8sExport, Kubeconfig: job.Kubeconfig}, logger), "k8s:" + clusterName, nil
 	default:
 		return nil, "", fmt.Errorf("unknown provider %q", job.Provider)
 	}

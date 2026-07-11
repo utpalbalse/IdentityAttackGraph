@@ -42,6 +42,7 @@ type Auth struct {
 	// jwt mode (mode: "jwt")
 	JWTSecret        string `yaml:"jwt_secret"`          // HS256 shared secret
 	JWTPublicKeyFile string `yaml:"jwt_public_key_file"` // RS256 IdP public key (PEM)
+	JWTJWKSURL       string `yaml:"jwt_jwks_url"`        // RS256 via JWKS auto-fetch (else discovered from issuer)
 	JWTRoleClaim     string `yaml:"jwt_role_claim"`      // claim holding role/groups (default "role")
 	JWTIssuer        string `yaml:"jwt_issuer"`
 	JWTAudience      string `yaml:"jwt_audience"`
@@ -154,6 +155,12 @@ func applyEnv(c *Config) {
 	}
 	if v := os.Getenv("NHIID_AUTH_JWT_SECRET"); v != "" {
 		c.Auth.JWTSecret = v
+	}
+	if v := os.Getenv("NHIID_AUTH_JWT_JWKS_URL"); v != "" {
+		c.Auth.JWTJWKSURL = v
+	}
+	if v := os.Getenv("NHIID_AUTH_JWT_ISSUER"); v != "" {
+		c.Auth.JWTIssuer = v
 	}
 	if v := os.Getenv("NHIID_NOTIFY_WEBHOOK_URL"); v != "" {
 		c.Notify.WebhookURL = v
