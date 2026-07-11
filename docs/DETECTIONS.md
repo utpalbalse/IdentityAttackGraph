@@ -136,9 +136,12 @@ Implemented in [internal/detect/rolechain.go](../internal/detect/rolechain.go).
 
 ## False-positive controls
 
-- **Warm-up:** anomaly detectors require a minimum baseline maturity before firing.
-- **Allowlists:** known egress ranges, VPN ASNs, break-glass identities, scheduled batch windows.
-- **Corroboration:** several detectors require ≥2 signals (e.g. geo anomaly + sensitive action).
+- **Warm-up:** anomaly detectors require a minimum baseline maturity (`anomaly_warmup_events`)
+  before firing.
+- **Allowlists:** known egress/VPN **CIDR ranges** (`egress_allowlist`) suppress geo/travel/ASN
+  anomalies; **break-glass** identities (`attributes.break_glass`) are skipped by hygiene detectors.
+- **Corroboration:** several detectors raise confidence on ≥2 signals (e.g. a role chain observed
+  in usage, or a repo exposure that also reaches a crown jewel).
 - **Suppression:** admin-gated, audited, snapshot-pinned suppressions with expiry.
 - **Dedupe:** stable `fingerprint` per (detector, subject, salient-evidence) collapses repeats;
   findings re-surface only on materially new evidence.
