@@ -37,7 +37,7 @@ export default function App() {
 
   const findingsByIdentity = useMemo(() => {
     const m: Record<string, Finding[]> = {}
-    for (const f of findings) (m[f.identity_id] ??= []).push(f)
+    for (const f of findings) if (f.identity_id) (m[f.identity_id] ??= []).push(f)
     return m
   }, [findings])
 
@@ -310,7 +310,7 @@ function Triage({ identities, findings, onOpen }: { identities: Identity[]; find
       ) : (
         <div className="findings">
           {sorted.map(f => (
-            <button key={f.id} className={`finding sev-border-${(f.severity || 'info').toLowerCase()}`} onClick={() => onOpen(f.identity_id)}>
+            <button key={f.id} className={`finding sev-border-${(f.severity || 'info').toLowerCase()}`} onClick={() => { if (f.identity_id) onOpen(f.identity_id) }}>
               <div className="finding-top">
                 <SeverityPill sev={f.severity} />
                 <span className="finding-detector">{f.detector}</span>
@@ -319,7 +319,7 @@ function Triage({ identities, findings, onOpen }: { identities: Identity[]; find
               <div className="finding-title">{f.title}</div>
               <div className="finding-narr">{f.narrative}</div>
               <div className="finding-foot">
-                <span className="finding-subject">↳ {nameById[f.identity_id] || f.identity_id.slice(0, 8)}</span>
+                <span className="finding-subject">↳ {f.identity_id ? (nameById[f.identity_id] || f.identity_id.slice(0, 8)) : 'repository / secret (no owning identity)'}</span>
                 <span className="finding-status">{f.status}</span>
               </div>
             </button>

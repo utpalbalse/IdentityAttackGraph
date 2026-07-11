@@ -30,7 +30,7 @@ export interface Finding {
   category: string
   severity: string
   confidence: number
-  identity_id: string
+  identity_id?: string   // absent for identity-agnostic findings (unused_secret, repo-scoped exposures)
   title: string
   narrative: string
   status: string
