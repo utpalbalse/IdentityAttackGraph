@@ -9,8 +9,8 @@ risks, and dependencies. Phases are independently demoable and shippable.
 **Objectives:** repo, docs, one-command local dev, CI green.
 **Tasks:** repo layout; design docs; `go.mod`; config/log/telemetry; docker-compose (pg/nats/redis);
 Makefile; CI (build/test/lint/vuln); LICENSE.
-**Modules:** `internal/config`, `internal/log`, `internal/telemetry`, `deploy/docker-compose.yml`,
-`.github/workflows/ci.yml`.
+**Modules:** `internal/config`, `internal/log`, `internal/metrics`, `internal/tracing`,
+`deploy/docker-compose.yml`, `.github/workflows/ci.yml`.
 **Acceptance:** `make dev` boots the stack; `make test` and CI pass; docs render.
 **Risks:** scope creep in docs. **Deps:** none.
 
@@ -20,7 +20,7 @@ Makefile; CI (build/test/lint/vuln); LICENSE.
 access keys + last-used, STS); normalizer; collector run harness + cursor state; REST
 `/identities` list/detail; React inventory table + detail.
 **Modules:** `migrations/0001_init.sql`, `internal/models`, `internal/store`,
-`internal/collectors/aws`, `internal/normalize`, `internal/api`, `web/`.
+`internal/collectors/aws`, `internal/api`, `web/`. (Normalization lives in each collector's builder.)
 **Acceptance:** point at an AWS account (or fixture) → identities + credentials appear with
 provenance and last-used; idempotent re-run creates no dupes.
 **Risks:** IAM API pagination/rate limits; last-used latency. **Deps:** Phase 0.
@@ -65,7 +65,7 @@ requests, collector runs, worker jobs), ✅ RBAC (token + JWT), ✅ secret-redac
 **Tasks:** Dockerfiles; Helm chart; Terraform (RDS, EKS, IRSA, least-priv collector roles);
 OTel traces; Prometheus metrics (ingestion lag, throughput, job status); RBAC + OIDC;
 secret-redacting logs; `govulncheck`; load test.
-**Modules:** `deploy/helm`, `deploy/terraform`, `deploy/docker`, `internal/telemetry` (expand).
+**Modules:** `deploy/helm`, `deploy/terraform`, `deploy/docker`, `internal/tracing`, `internal/metrics`.
 **Acceptance:** `helm install` runs on EKS; collectors use IRSA + assume-role (no static creds);
 dashboards show lag/throughput; least-priv policy CI-linted.
 **Risks:** cross-account trust setup. **Deps:** Phase 4.

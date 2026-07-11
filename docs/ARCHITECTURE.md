@@ -79,15 +79,15 @@ NHIID is built like a real enterprise security platform, not a script:
         └───────────────────────────────┬───────────────────────────────┘
                                         ▼
         ┌──────────────────────── PRESENTATION ─────────────────────────┐
-        │  REST API (chi)   →   React + TS UI (Vite, Cytoscape graph)    │
+        │  REST API (chi) + GraphQL  →  React + TS UI (Vite, Cytoscape)  │
         │  - inventory search    - identity detail view                 │
         │  - triage queue        - attack-path view                     │
         │  - findings + evidence - remediation panel                    │
-        │  exports: JSON / SARIF / CSV                                   │
+        │  exports: JSON / SARIF / CSV     alerting: Slack / webhook     │
         └───────────────────────────────────────────────────────────────┘
 
         Cross-cutting: OpenTelemetry traces, Prometheus metrics, structured logs (slog),
-        RBAC, audit trail, /healthz + /readyz.
+        RBAC (token / OIDC-JWT with JWKS), audit trail, /healthz + /readyz.
 ```
 
 ---
@@ -125,7 +125,8 @@ NHIID is built like a real enterprise security platform, not a script:
 ### 3.4 Serving
 
 10. The API serves inventory search, identity detail, findings/triage, graph/attack-path
-    queries, and exports. The UI consumes the REST API. All reads are snapshot-consistent.
+    queries, and exports over **REST and GraphQL** (`/api/v1/graphql`). The UI consumes the REST
+    API. New findings above a severity threshold are dispatched to Slack/webhook sinks.
 
 ### 3.5 Remediation loop
 
@@ -139,12 +140,14 @@ NHIID is built like a real enterprise security platform, not a script:
 
 | Concern | Choice | Rationale |
 |--------|--------|-----------|
-| Core engine | **Go 1.22** | First-class AWS/GCP/K8s SDKs, static binaries, great concurrency for collectors, strong-enough types, trivial to deploy. Rust was considered; Go wins on cloud-SDK maturity and team velocity for a security platform. |
+| Core engine | **Go 1.26** | First-class AWS/GCP/K8s SDKs, static binaries, great concurrency for collectors, strong-enough types, trivial to deploy. Rust was considered; Go wins on cloud-SDK maturity and team velocity for a security platform. |
 | System of record | **PostgreSQL 16** | ACID, JSONB for provider payloads, partitioning for usage events, recursive CTEs for graph traversal, `pg_trgm` for search. One dependency to operate. |
 | Graph | **Relational + in-memory engine** | We persist `graph_nodes`/`graph_edges` in Postgres (durable, queryable) and load working sets into an in-memory adjacency structure in Go for fast BFS/DFS attack-path traversal. A dedicated graph DB (Neo4j) is deliberately avoided for MVP to reduce operational surface; the engine is abstracted so it can be swapped later. |
 | Async jobs | **NATS JetStream** | Durable, lightweight, easy local dev, at-least-once with acks. Kafka is overkill at MVP scale and heavy to run. |
 | Cache / rate-limit | **Redis** | Token-bucket state shared across workers, hot-path caches. |
-| API | **chi** router | Minimal, idiomatic, middleware-friendly. |
+| API | **chi** router + **GraphQL** (graphql-go) | Minimal, idiomatic REST with per-route RBAC middleware; a GraphQL read surface (`/api/v1/graphql`) for the graph/attack-path shape. |
+| AuthN | **bearer token / OIDC JWT** | JWT validated HS256 or RS256 with **JWKS auto-fetch** (keys discovered from the issuer, cached by `kid`, refreshed on rotation). |
+| Alerting | **Slack / generic webhook** | New findings ≥ threshold dispatched at-least-once (stamped only after a successful send). |
 | Migrations | **raw SQL + embedded migrator** | No external tool needed to clone-and-run; migrations are versioned SQL applied by `cmd/migrate`. |
 | DB access | **pgx + hand-written repos** | Type-safe enough, no codegen step a contributor must learn. |
 | Frontend | **React + TS + Vite** | Standard enterprise stack; fast dev server. |
@@ -192,38 +195,49 @@ IRSA role; target access is least-privilege read-only (`SecurityAudit`-style + s
 ```
 nhiid/
 ├── cmd/
-│   ├── api/            # REST API server entrypoint
-│   ├── worker/         # job consumer (collect/graph/score/detect)
+│   ├── api/            # REST + GraphQL API server entrypoint
+│   ├── worker/         # job consumer (collect/graph/score/detect/alert)
 │   ├── collector/      # one-shot collector CLI (for cron/debug)
+│   ├── simulate/       # narrated attack-path walkthrough
 │   └── migrate/        # apply SQL migrations
 ├── internal/
 │   ├── config/         # typed config loader (env + yaml)
 │   ├── log/            # slog setup, secret-redacting handler
-│   ├── telemetry/      # otel + prometheus wiring
+│   ├── metrics/        # Prometheus collectors + derived-gauge refresher
+│   ├── tracing/        # OpenTelemetry (OTLP) tracer provider
 │   ├── models/         # unified domain types (the schema in Go)
-│   ├── store/          # pgx repositories + tx helpers
+│   ├── store/          # pgx repositories
 │   ├── queue/          # NATS JetStream publish/subscribe
+│   ├── ratelimit/      # Redis per-principal rate limiter
 │   ├── graph/          # in-memory graph engine, traversal, attack paths
 │   ├── risk/           # risk engine: factors, weights, scoring, explain
 │   ├── detect/         # detection engine: rules + anomaly detectors
-│   ├── normalize/      # source→unified adapters
+│   ├── simulate/       # attack-path narration (pure)
 │   ├── collectors/
 │   │   ├── collector.go     # Collector interface + run harness
-│   │   ├── aws/             # IAM/STS/CloudTrail/SecretsMgr/... collectors
-│   │   └── gcp/             # IAM/Audit/SecretManager/... collectors
+│   │   ├── aws/             # IAM/STS/CloudTrail/Secrets Manager
+│   │   ├── gcp/             # IAM/Audit Logs/impersonation/WIF
+│   │   ├── k8s/             # ServiceAccounts/RBAC/pods — live client-go or export
+│   │   ├── repo/            # built-in secret scanner + SecretSweep ingest
+│   │   └── fixture/         # synthetic demo loader
 │   ├── remediate/      # remediation recommendation generation
 │   ├── export/         # JSON / SARIF / CSV exporters
+│   ├── auth/           # RBAC: bearer token / OIDC JWT + JWKS
+│   ├── notify/         # Slack / webhook alerting
+│   ├── graphqlapi/     # GraphQL schema + resolvers
 │   └── api/            # chi handlers, middleware, RBAC, DTOs
-├── migrations/         # 0001_init.sql, ...
-├── web/                # React + TS dashboard (Vite)
+├── migrations/         # 0001_init.sql … 0006_alerting.sql
+├── web/                # React + TS dashboard (Vite, Cytoscape)
 ├── deploy/
 │   ├── docker-compose.yml
 │   ├── docker/         # Dockerfiles
 │   ├── helm/           # k8s chart
-│   └── terraform/      # AWS infra
+│   ├── terraform/      # AWS infra (EKS/RDS/ElastiCache/IRSA)
+│   └── loadtest/       # k6 SLO load test
+├── scripts/            # simulate_attack.{sh,ps1}
 ├── fixtures/           # synthetic demo datasets (json)
 ├── configs/            # default config + risk weights yaml
-├── docs/               # this folder
+├── docs/               # this folder (+ docs/samples/)
 ├── Makefile
 ├── go.mod
 └── LICENSE

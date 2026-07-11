@@ -59,9 +59,9 @@ make down
 
 ## Architecture walkthrough
 
-1. **Collectors** (`cmd/collector`) — discover identities from cloud providers or load fixtures.
-   - Outputs: normalized records upserted idempotently to the store.
-   - Run once per collection period or subscribe to a job queue.
+1. **Collectors** (`cmd/collector`) — discover identities from AWS, GCP, Kubernetes, repositories, or fixtures.
+   - Outputs: normalized records upserted idempotently to the store (deterministic UUIDv5 ids).
+   - Run once per collection period or subscribe to the NATS job queue.
 
 2. **Store** (`internal/store`) — pgx repositories for all entities.
    - Every identity, credential, secret, role, finding, etc. is persisted here.
@@ -75,14 +75,14 @@ make down
    - Privilege, exposure, freshness, usage, trust, blast_radius.
    - Weights are hot-reloadable; scores are reproducible.
 
-5. **Detection engine** (`internal/detect`) — rule + anomaly detectors.
-   - Rules: orphaned, stale, over-privileged, wildcard-trust, conditionless-assume, secret-in-repo, high-blast, ai-agent-overscoped.
-   - Anomalies: impossible-travel, unusual-geo, new-asn, usage-spike, first-use-sensitive, privilege-creep.
-   - Every finding carries evidence + fingerprint for dedupe.
+5. **Detection engine** (`internal/detect`) — 17 detectors (10 rule + 7 anomaly).
+   - Rules: orphaned, stale, stale-key, over-privileged, wildcard-trust, conditionless-assume, secret-in-repo, high-blast, ai-agent-overscoped, unused-secret.
+   - Anomalies: impossible-travel, unusual-geo, new-asn, usage-spike, first-use-sensitive, privilege-creep, suspicious-role-chain.
+   - Every finding carries evidence + fingerprint for dedupe. FP controls: warm-up, egress allowlist, break-glass, corroboration, suppression, confidence.
 
-6. **API** (`cmd/api`, `internal/api`) — REST endpoints for inventory, findings, triage, export.
-   - Served by chi router; JSON request/response.
-   - Optional GraphQL planned (v1.0).
+6. **API** (`cmd/api`, `internal/api`, `internal/graphqlapi`) — REST + GraphQL for inventory, findings, triage, export.
+   - Served by chi router; JSON request/response; GraphQL at `/api/v1/graphql`.
+   - RBAC via bearer token or OIDC JWT (with JWKS auto-fetch).
 
 7. **Web UI** (`web/`) — React + TypeScript dashboard.
    - Inventory search, identity detail, triage queue, attack-path graph.
