@@ -2,14 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IdentityAttackGraph — NHI Inventory & Detection</title>
+    <meta name="color-scheme" content="dark" />
+    <title>IdentityAttackGraph — NHI Inventory &amp; Detection</title>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23100e0c'/%3E%3Cpath d='M16 4.5l9.5 5.75v11.5L16 27.5 6.5 21.75V10.25z' fill='none' stroke='%23ece4d6' stroke-width='1.8'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23ff2d46'/%3E%3C/svg%3E" />
+
+    <!-- Type system: Martian Mono = instrumentation, IBM Plex Mono = machine data,
+         Familjen Grotesk = human prose. See src/index.css for the rationale. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Martian+Mono:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0e27; color: #e0e0e0; }
-      a { color: #64b5f6; text-decoration: none; }
-      a:hover { text-decoration: underline; }
+      /* Pre-paint only — prevents a white flash before index.css loads. */
+      html, body { margin: 0; background: #090807; color: #ece4d6; }
     </style>
   </head>
   <body>

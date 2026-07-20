@@ -51,7 +51,7 @@ export default function App() {
             <>
               {tab === 'overview' && <Overview identities={identities} findings={findings} riskReduced={riskReduced} onOpen={setSelected} />}
               {tab === 'inventory' && <Inventory identities={identities} query={query} findingsByIdentity={findingsByIdentity} onOpen={setSelected} />}
-              {tab === 'graph' && <GraphView onOpen={setSelected} />}
+              {tab === 'graph' && <GraphView onOpen={setSelected} findings={findings} />}
               {tab === 'triage' && <Triage identities={identities} findings={findings} onOpen={setSelected} />}
             </>
           )}
@@ -160,18 +160,18 @@ function Overview({ identities, findings, riskReduced, onOpen }: { identities: I
   const max = Math.max(1, identities.length)
 
   if (identities.length === 0) {
-    return <Empty icon="🔍" title="No identities yet" sub="Run a collector (fixture or AWS) to populate the inventory." />
+    return <Empty icon="⌕" title="No identities yet" sub="Run a collector (fixture or AWS) to populate the inventory." />
   }
 
   return (
     <div className="stack">
       <div className="stat-grid">
-        <Stat label="Total identities" value={stats.total} accent="accent" icon="🔐" />
-        <Stat label="Critical risk" value={stats.critical} accent="critical" icon="⚠" />
-        <Stat label="High risk" value={stats.high} accent="high" icon="▲" />
-        <Stat label="Open findings" value={stats.findings} accent="med" icon="⚑" />
-        <Stat label="Risk reduced" value={riskReduced} accent="low" icon="↓" />
-        <Stat label="AI agents" value={stats.ai} accent="accent2" icon="🤖" />
+        <Stat label="Total identities" value={stats.total} accent="accent" code="TOT" />
+        <Stat label="Critical risk" value={stats.critical} accent="critical" code="CRT" />
+        <Stat label="High risk" value={stats.high} accent="high" code="HGH" />
+        <Stat label="Open findings" value={stats.findings} accent="med" code="OPN" />
+        <Stat label="Risk reduced" value={riskReduced} accent="low" code="RDX" />
+        <Stat label="AI agents" value={stats.ai} accent="accent2" code="AI" />
       </div>
 
       <div className="cols">
@@ -208,10 +208,11 @@ function Overview({ identities, findings, riskReduced, onOpen }: { identities: I
   )
 }
 
-function Stat({ label, value, accent, icon }: { label: string; value: number; accent: string; icon: string }) {
+// An instrument readout: a mono channel code, the figure, then the human label.
+function Stat({ label, value, accent, code }: { label: string; value: number; accent: string; code: string }) {
   return (
     <div className={`stat stat-${accent}`}>
-      <div className="stat-icon">{icon}</div>
+      <div className="stat-code">{code}</div>
       <div className="stat-body">
         <div className="stat-value">{value}</div>
         <div className="stat-label">{label}</div>
@@ -247,7 +248,7 @@ function Inventory({ identities, query, findingsByIdentity, onOpen }: {
         <span className="filter-count">{filtered.length} of {identities.length}</span>
       </div>
 
-      {filtered.length === 0 ? <Empty icon="🔍" title="No matches" sub="Try a different search or filter." /> : (
+      {filtered.length === 0 ? <Empty icon="⌕" title="No matches" sub="Try a different search or filter." /> : (
         <div className="card table-card">
           <table className="grid">
             <thead>
@@ -299,7 +300,7 @@ function Triage({ identities, findings, onOpen }: { identities: Identity[]; find
   return (
     <div className="stack">
       <div className="export-bar">
-        <span className="export-label">⭳ Export findings</span>
+        <span className="export-label">Export findings</span>
         <a className="btn-export" href={api.exportFindings('sarif')} download>SARIF</a>
         <a className="btn-export" href={api.exportFindings('csv')} download>CSV</a>
         <a className="btn-export" href={api.exportFindings('json')} download>JSON</a>

@@ -1,5 +1,8 @@
 // Small presentational building blocks shared across views: severity/risk badges, the risk ring
 // and factor bars, provider/kind glyphs, and time/format helpers.
+//
+// Design note: colour here is reserved for the risk ramp only. Provider and kind are rendered
+// achromatically (they are inventory facts, not risk signals) — see index.css.
 import React from 'react'
 
 // ----- severity / risk helpers -----
@@ -33,14 +36,27 @@ export function RiskChip({ score }: { score: number }) {
   )
 }
 
-// Circular risk gauge for the detail drawer.
+// Circular risk gauge for the detail drawer. Ticks every 9° (major every 45°) so the arc reads
+// as an instrument dial rather than a progress bar.
 export function RiskRing({ score }: { score: number }) {
   const sev = riskSeverity(score)
   const r = 46, c = 2 * Math.PI * r
-  const off = c - (score / 100) * c
+  const clamped = Math.min(100, Math.max(0, score))
+  const off = c - (clamped / 100) * c
+  const ticks = Array.from({ length: 40 }, (_, i) => i)
   return (
     <div className="risk-ring">
-      <svg width="120" height="120" viewBox="0 0 120 120">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden>
+        <g className="ring-ticks">
+          {ticks.map(i => (
+            <line
+              key={i}
+              className={i % 5 === 0 ? 'maj' : undefined}
+              x1="60" y1="3" x2="60" y2={i % 5 === 0 ? 9 : 6.5}
+              transform={`rotate(${i * 9} 60 60)`}
+            />
+          ))}
+        </g>
         <circle cx="60" cy="60" r={r} className="ring-track" />
         <circle cx="60" cy="60" r={r} className={`ring-val ring-${sev}`}
           strokeDasharray={c} strokeDashoffset={off} transform="rotate(-90 60 60)" />
@@ -81,14 +97,15 @@ export function ProviderBadge({ provider }: { provider: string }) {
   return <span className={`prov ${cls}`}>{(provider || '—').toUpperCase()}</span>
 }
 
+// A typographic instrument code rather than an emoji — the inventory is machines, not faces.
 export function KindGlyph({ kind, ai }: { kind: string; ai?: boolean }) {
-  const icon = ai ? '🤖'
-    : kind?.includes('role') ? '🛡️'
-    : kind?.includes('service_account') ? '⚙️'
-    : kind?.includes('user') ? '🔑'
-    : kind?.includes('workload') ? '📦'
-    : '🔐'
-  return <span className="kind-glyph" aria-hidden>{icon}</span>
+  const code = ai ? 'AI'
+    : kind?.includes('role') ? 'ROL'
+    : kind?.includes('service_account') ? 'SVC'
+    : kind?.includes('user') ? 'USR'
+    : kind?.includes('workload') ? 'WKL'
+    : 'ID'
+  return <span className="kind-glyph" data-ai={ai ? '1' : undefined} title={kind}>{code}</span>
 }
 
 // ----- formatting -----

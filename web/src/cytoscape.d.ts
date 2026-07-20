@@ -3,7 +3,7 @@ declare module 'cytoscape' {
   const cytoscape: any
   export default cytoscape
 }
-declare module 'cytoscape-cose-bilkent' {
+declare module 'cytoscape-dagre' {
   const ext: any
   export default ext
 }
