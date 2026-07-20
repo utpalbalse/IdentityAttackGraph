@@ -414,14 +414,21 @@ func (r *RemediationRepo) Upsert(ctx context.Context, a models.RemediationAction
 	return err
 }
 
-// ForIdentity returns all remediation actions across an identity's findings.
+// ForIdentity returns all remediation actions across an identity's findings, ranked best-first.
+// The ordering is fully deterministic so the "top remediation" a caller picks (e.g. the attack
+// simulation, the UI drawer) is reproducible: highest risk reduction first; on a tie, prefer the
+// fix addressing the more severe finding; then a stable key. Without the tiebreak, ties (e.g. an
+// over-scoped AI agent where reduce_scope and remove_identity both remove the same risk) resolve
+// by arbitrary physical row order and the recommended fix flips between runs.
 func (r *RemediationRepo) ForIdentity(ctx context.Context, identityID uuid.UUID) ([]models.RemediationAction, error) {
 	rows, err := r.pool.Query(ctx, `
 		SELECT ra.id,ra.finding_id,ra.action,ra.status,ra.risk_before,ra.risk_after,ra.risk_delta,COALESCE(ra.assignee,''),COALESCE(ra.notes,'')
 		FROM remediation_actions ra
 		JOIN findings f ON f.id = ra.finding_id
 		WHERE f.identity_id=$1
-		ORDER BY ra.risk_delta DESC`, identityID)
+		ORDER BY ra.risk_delta DESC,
+		         CASE f.severity WHEN 'critical' THEN 4 WHEN 'high' THEN 3 WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END DESC,
+		         ra.action ASC, ra.id ASC`, identityID)
 	if err != nil {
 		return nil, err
 	}

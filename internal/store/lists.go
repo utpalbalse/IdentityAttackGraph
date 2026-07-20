@@ -11,9 +11,15 @@ import (
 // ignores account scope (cross-account attack paths are the interesting case).
 
 // LoadAll loads the entire persisted graph into memory (bounded working set assumption applies).
+//
+// Both reads are explicitly ordered. Without ORDER BY, Postgres may return rows in any physical
+// order, which reshuffles the node/edge sequence between calls — and because the UI's hierarchical
+// layout is seeded by input order, the attack graph would re-arrange itself on every page load.
+// Ordering by (type, label, id) keeps the projection stable and reproducible.
 func (r *GraphRepo) LoadAll(ctx context.Context) ([]models.GraphNode, []models.GraphEdge, error) {
 	nrows, err := r.pool.Query(ctx, `
-		SELECT id,node_type,entity_id,account_ref,label,criticality,attributes FROM graph_nodes`)
+		SELECT id,node_type,entity_id,account_ref,label,criticality,attributes FROM graph_nodes
+		ORDER BY node_type, label, id`)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -33,7 +39,8 @@ func (r *GraphRepo) LoadAll(ctx context.Context) ([]models.GraphNode, []models.G
 	}
 
 	erows, err := r.pool.Query(ctx, `
-		SELECT id,src_node_id,dst_node_id,edge_type,weight,observed,attributes FROM graph_edges`)
+		SELECT id,src_node_id,dst_node_id,edge_type,weight,observed,attributes FROM graph_edges
+		ORDER BY edge_type, src_node_id, dst_node_id, id`)
 	if err != nil {
 		return nil, nil, err
 	}
