@@ -26,7 +26,7 @@
   IMPACT 1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
   CAUGHT  ai_agent_overscoped (high), high_blast_radius (high), over_privileged_sa (high), 
           stale_access_key (medium), orphaned_identity (medium)
-  FIX     remove_identity  →  risk 39→2 (−37)
+  FIX     reduce_scope  →  risk 39→2 (−37)
 
 ━━━ Scenario 3 · High blast radius
   target  data-processor@project.iam.gserviceaccount.com  (risk 54)

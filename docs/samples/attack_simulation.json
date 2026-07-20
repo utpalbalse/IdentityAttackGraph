@@ -89,8 +89,8 @@
           "fingerprint": "59834025f30c8cc4bb4b47f1dc77b548",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.867682-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.867682-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.867682Z",
+          "last_seen_at": "2026-07-18T06:07:21.674066Z"
         },
         {
           "id": "31df7acc-6829-4654-91be-7a3feef7dbe2",
@@ -112,8 +112,8 @@
           "fingerprint": "8aa91e810772cf9b40695dee55d6c073",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.864111-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.864111-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.864111Z",
+          "last_seen_at": "2026-07-18T06:07:21.670856Z"
         },
         {
           "id": "30d46757-26ba-464e-ba08-f76d3e11a9e6",
@@ -137,8 +137,8 @@
           "fingerprint": "073a98b254387da12f0c4f1442a080a7",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.862807-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.862807-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.862807Z",
+          "last_seen_at": "2026-07-18T06:07:21.669726Z"
         },
         {
           "id": "9874d3d5-6ccf-456e-ac0f-5d6dd7f595af",
@@ -151,15 +151,15 @@
           "narrative": "Identity \"svc-billing-export\" invoked sensitive action \"iam:CreateAccessKey\" for the first time. First-time sensitive-action use often marks the pivot point in an intrusion.",
           "evidence": {
             "action": "iam:CreateAccessKey",
-            "event_time": "2026-06-13T04:25:00-04:00",
+            "event_time": "2026-06-13T08:25:00Z",
             "region": "ru-central-1",
             "src_ip": "203.0.113.9/32"
           },
           "fingerprint": "c6db3bcac5c291e59f67ed6e1bf0c8f5",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.860462-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.860462-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.860462Z",
+          "last_seen_at": "2026-07-18T06:07:21.667719Z"
         },
         {
           "id": "c902e229-6e56-43ec-b7ff-beddd532a54b",
@@ -176,20 +176,20 @@
             "event_a": {
               "country": "US",
               "ip": "192.0.2.1/32",
-              "time": "2026-06-13T04:09:00-04:00"
+              "time": "2026-06-13T08:09:00Z"
             },
             "event_b": {
               "country": "RU",
               "ip": "203.0.113.9/32",
-              "time": "2026-06-13T04:25:00-04:00"
+              "time": "2026-06-13T08:25:00Z"
             },
             "implied_kmh": 33324.61160356317
           },
           "fingerprint": "b5ed73e14995c5c809240036a624e7d8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.858154-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.858154-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.858154Z",
+          "last_seen_at": "2026-07-18T06:07:21.665499Z"
         },
         {
           "id": "2dfceee9-b20a-46d0-a9da-01648127175e",
@@ -212,8 +212,8 @@
           "fingerprint": "976a0f74054a1ae1f87c5213e1b20d64",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.854362-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.854362-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.854362Z",
+          "last_seen_at": "2026-07-18T06:07:21.662323Z"
         },
         {
           "id": "953914d8-b9e8-4504-aa04-f52b0dd94ccc",
@@ -235,8 +235,8 @@
           "fingerprint": "8d95beb8b2bc0a2637969b2cda669b35",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.850234-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.850234-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.850234Z",
+          "last_seen_at": "2026-07-18T06:07:21.658377Z"
         },
         {
           "id": "9616ec9c-7cb1-480e-b083-c125ec558592",
@@ -258,8 +258,8 @@
           "fingerprint": "edeba37f9541c1c3fba9fb4a81962b5a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.845164-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.845164-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.845164Z",
+          "last_seen_at": "2026-07-18T06:07:21.654913Z"
         },
         {
           "id": "bb523979-1998-48f4-98bc-b3ad474bb88f",
@@ -281,8 +281,8 @@
           "fingerprint": "4f1748cd39540f65d7a1277a459abf0e",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.841087-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.841087-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.841087Z",
+          "last_seen_at": "2026-07-18T06:07:21.650839Z"
         },
         {
           "id": "566f4e2b-4be7-49ba-8de0-1e053b844a20",
@@ -304,8 +304,8 @@
           "fingerprint": "23a9058f293008a74484ccbe54ecc5e9",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.8374-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.8374-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.8374Z",
+          "last_seen_at": "2026-07-18T06:07:21.646197Z"
         },
         {
           "id": "1e429735-0c9b-455b-bb25-cec6a0b2deb5",
@@ -327,8 +327,8 @@
           "fingerprint": "c926ef6bc7d3bcea5931355510adff21",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.833497-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.833497-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.833497Z",
+          "last_seen_at": "2026-07-18T06:07:21.638426Z"
         },
         {
           "id": "d9a6e172-f5f1-4f74-9347-61f55908a8ba",
@@ -355,8 +355,8 @@
           "fingerprint": "2fe7d0e07a1182bd0471e4c6c3532282",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.831031-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.831031-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.831031Z",
+          "last_seen_at": "2026-07-18T06:07:21.635478Z"
         },
         {
           "id": "e48c36cd-60cd-4a45-b282-7c0667db036b",
@@ -378,8 +378,8 @@
           "fingerprint": "efcb1c2c10f53137e7db07e6f153217e",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.824693-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.824693-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.824693Z",
+          "last_seen_at": "2026-07-18T06:07:21.630845Z"
         }
       ],
       "top_remediation": {
@@ -489,8 +489,8 @@
           "fingerprint": "021cfee138a3294de06f17681e9a937c",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.930539-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.930539-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.930539Z",
+          "last_seen_at": "2026-07-18T06:07:21.719173Z"
         },
         {
           "id": "32335ed5-3584-4bb1-8843-8cafa07719d6",
@@ -514,8 +514,8 @@
           "fingerprint": "33d772f39909c0fe944b62a2c8621ea1",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.927377-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.927377-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.927377Z",
+          "last_seen_at": "2026-07-18T06:07:21.716672Z"
         },
         {
           "id": "036d29c3-461c-4703-9ac3-02fad18feaf1",
@@ -541,8 +541,8 @@
           "fingerprint": "6805073fa76fdad8f5bf2efa2529d669",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.92347-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.92347-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.92347Z",
+          "last_seen_at": "2026-07-18T06:07:21.712875Z"
         },
         {
           "id": "704313e6-a096-4d41-87bd-511b9b92b60b",
@@ -565,8 +565,8 @@
           "fingerprint": "ef5fd9a96dbfc2ad824fd9f8d35e818d",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.918957-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.918957-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.918957Z",
+          "last_seen_at": "2026-07-18T06:07:21.709393Z"
         },
         {
           "id": "17f16f6c-f1d0-4231-8859-ccc272420e36",
@@ -589,19 +589,19 @@
           "fingerprint": "44cd3d9a09c8f41b5221cacab4567f2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.916167-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.916167-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.916167Z",
+          "last_seen_at": "2026-07-18T06:07:21.707237Z"
         }
       ],
       "top_remediation": {
-        "id": "0205fcb6-59dd-439e-986b-63b05fabec13",
-        "finding_id": "32335ed5-3584-4bb1-8843-8cafa07719d6",
-        "action": "remove_identity",
+        "id": "3b1f4802-af87-4fc4-9d26-c92bfe874070",
+        "finding_id": "036d29c3-461c-4703-9ac3-02fad18feaf1",
+        "action": "reduce_scope",
         "status": "recommended",
         "risk_before": 39,
         "risk_after": 2,
         "risk_delta": 37,
-        "notes": "Remove the unaccounted-for identity (or assign an owner)."
+        "notes": "Scope the agent's API/tool access to least privilege."
       }
     },
     {
@@ -683,8 +683,8 @@
           "fingerprint": "87c611ae5cc1f5ec799f31a4fc145f58",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.884544-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.884544-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.884544Z",
+          "last_seen_at": "2026-07-18T06:07:21.689229Z"
         },
         {
           "id": "06ba9943-7b31-463a-8840-31339fe571cf",
@@ -708,8 +708,8 @@
           "fingerprint": "22a478ed03af05c6103fec95ed400c2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.88207-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.88207-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.88207Z",
+          "last_seen_at": "2026-07-18T06:07:21.68575Z"
         },
         {
           "id": "f4b3c51f-05e2-4589-ab7c-fc3fd586f9cb",
@@ -732,8 +732,8 @@
           "fingerprint": "7287c724892741202be2a8dfdc2214c8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.87817-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.87817-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.87817Z",
+          "last_seen_at": "2026-07-18T06:07:21.680983Z"
         },
         {
           "id": "06740c2d-f363-462f-980e-7e558c9d79f3",
@@ -756,8 +756,8 @@
           "fingerprint": "27a464a8ba7d6bd613676bbb150d8535",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-10T20:05:24.875493-04:00",
-          "last_seen_at": "2026-07-10T20:05:24.875493-04:00"
+          "first_seen_at": "2026-07-11T00:05:24.875493Z",
+          "last_seen_at": "2026-07-18T06:07:21.67849Z"
         }
       ],
       "top_remediation": {

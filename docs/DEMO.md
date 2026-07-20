@@ -18,15 +18,15 @@ each and the single remediation that severs it:
   12 identities · 26 graph nodes · 18 edges · 5 crown jewels
 
 ━━━ Scenario 1 · Leaked credential → crown jewel
-  target  svc-billing-export  (risk 67)
+  target  svc-billing-export  (risk 70)
   RECON   attacker finds credential material at .env:12 (pattern aws_akia) — belongs to svc-billing-export
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
   STEP 2  → gains access to arn:aws:s3:::prod-billing [resource] ◆ CROWN JEWEL
   IMPACT  1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
-  CAUGHT  secret_exposed_in_repo (critical), conditionless_assume_role (high),
-          high_blast_radius (high), over_privileged_sa (high), impossible_travel (high), …
-  FIX     reduce_scope  →  risk 67→30 (−37)
+  CAUGHT  secret_exposed_in_repo (critical), suspicious_role_chain (high),
+          conditionless_assume_role (high), high_blast_radius (high), over_privileged_sa (high), …
+  FIX     reduce_scope  →  risk 70→33 (−37)
 
 ━━━ Scenario 2 · Over-scoped AI agent
   target  prod-copilot-agent  (risk 39)
@@ -36,7 +36,7 @@ each and the single remediation that severs it:
   STEP 2  → gains access to arn:aws:secretsmanager:…:secret:prod/app/master [resource] ◆ CROWN JEWEL
   IMPACT  1 crown jewel(s) reachable · reaches admin: true
   CAUGHT  ai_agent_overscoped (high), high_blast_radius (high), over_privileged_sa (high), …
-  FIX     remove_identity  →  risk 39→2 (−37)
+  FIX     reduce_scope  →  risk 39→2 (−37)
 ```
 
 (Full output: [samples/attack_simulation.txt](samples/attack_simulation.txt); JSON:
