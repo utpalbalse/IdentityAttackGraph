@@ -152,7 +152,10 @@ func (r *TrustEdgeRepo) Upsert(ctx context.Context, e models.TrustEdge) error {
 			(src_identity_id,src_role_id,dst_identity_id,dst_role_id,
 			 edge_type,condition,observed,source,account_ref,collected_at)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
-		ON CONFLICT DO NOTHING`,
+		ON CONFLICT (src_identity_id,src_role_id,dst_identity_id,dst_role_id,edge_type)
+		DO UPDATE SET condition=EXCLUDED.condition, observed=EXCLUDED.observed,
+		              source=EXCLUDED.source, account_ref=EXCLUDED.account_ref,
+		              collected_at=now(), updated_at=now()`,
 		e.SrcIdentityID, e.SrcRoleID, e.DstIdentityID, e.DstRoleID,
 		e.EdgeType, cond, e.Observed, e.Source, e.AccountRef)
 	return err
@@ -190,7 +193,11 @@ func (r *BindingRepo) Upsert(ctx context.Context, b models.ResourceBinding) erro
 		INSERT INTO resource_bindings
 			(identity_id,role_id,resource_urn,resource_kind,resource_criticality,actions,effect,source,account_ref,collected_at)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now())
-		ON CONFLICT DO NOTHING`,
+		ON CONFLICT (identity_id,role_id,resource_urn,effect)
+		DO UPDATE SET resource_kind=EXCLUDED.resource_kind,
+		              resource_criticality=EXCLUDED.resource_criticality,
+		              actions=EXCLUDED.actions, source=EXCLUDED.source,
+		              account_ref=EXCLUDED.account_ref, collected_at=now(), updated_at=now()`,
 		b.IdentityID, b.RoleID, b.ResourceURN, b.ResourceKind, b.ResourceCriticality,
 		b.Actions, b.Effect, b.Source, b.AccountRef)
 	return err
