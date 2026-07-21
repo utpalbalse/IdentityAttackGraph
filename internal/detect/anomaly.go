@@ -89,7 +89,9 @@ type unusualGeo struct{}
 func (unusualGeo) ID() string { return "unusual_geo" }
 func (unusualGeo) Detect(s Subject, cfg Config, now time.Time) []models.Finding {
 	usage := filterEgress(s.Usage, cfg.EgressAllowlist)
-	if len(usage) < cfg.AnomalyWarmupEvents {
+	// Need at least one historical event plus the current one. The warm-up threshold is operator-
+	// tunable and may be 0, so it cannot be relied on to keep the slice indexing below in range.
+	if len(usage) < 2 || len(usage) < cfg.AnomalyWarmupEvents {
 		return nil
 	}
 	baseline := baselineCountries(usage[:len(usage)-1])
@@ -114,7 +116,8 @@ type newASNOrRuntime struct{}
 func (newASNOrRuntime) ID() string { return "new_asn_or_runtime" }
 func (newASNOrRuntime) Detect(s Subject, cfg Config, now time.Time) []models.Finding {
 	usage := filterEgress(s.Usage, cfg.EgressAllowlist)
-	if len(usage) < cfg.AnomalyWarmupEvents {
+	// As above: a 0 warm-up must not let an empty usage window reach the slice indexing below.
+	if len(usage) < 2 || len(usage) < cfg.AnomalyWarmupEvents {
 		return nil
 	}
 	hist := usage[:len(usage)-1]
