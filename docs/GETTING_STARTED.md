@@ -101,7 +101,7 @@ make down
 - **Point at real AWS:** `go run ./cmd/collector --provider aws --role-arn <arn> --external-id <id>` (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md)).
 - **Point at real GCP:** `go run ./cmd/collector --provider gcp --project <id>` using ADC or a WIF credentials file (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md)).
 - **Production deploy:** `terraform apply` in [../deploy/terraform/](../deploy/terraform/) (VPC/EKS/RDS/ElastiCache/IRSA), then `helm upgrade --install nhiid deploy/helm/nhiid` (see [../deploy/helm/README.md](../deploy/helm/README.md)).
-- **Tests:** unit tests for risk engine, detection logic, graph traversal. Integration tests with a test DB.
+- **Tests:** `make test` runs unit tests for the risk engine, all 17 detectors, graph traversal, every collector, JWKS validation, and the GraphQL schema. There are no DB-backed integration tests; the store layer and the full collect → graph → score → detect pipeline are exercised end-to-end by `make demo` against the containerised Postgres.
 
 ---
 
