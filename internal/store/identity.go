@@ -54,11 +54,11 @@ func (r *IdentityRepo) Upsert(ctx context.Context, id models.Identity) (uuid.UUI
 }
 
 // UpdateRiskScore persists the computed score back to the identities row.
-func (r *IdentityRepo) UpdateRiskScore(ctx context.Context, id uuid.UUID, score int, breakdown map[string]any) error {
+func (r *IdentityRepo) UpdateRiskScore(ctx context.Context, id uuid.UUID, score, urgency int, breakdown map[string]any) error {
 	b, _ := json.Marshal(breakdown)
 	_, err := r.pool.Exec(ctx,
-		`UPDATE identities SET risk_score=$1, risk_breakdown=$2, updated_at=now() WHERE id=$3`,
-		score, b, id)
+		`UPDATE identities SET risk_score=$1, urgency=$2, risk_breakdown=$3, updated_at=now() WHERE id=$4`,
+		score, urgency, b, id)
 	return err
 }
 
@@ -115,7 +115,9 @@ func (r *IdentityRepo) List(ctx context.Context, f IdentityFilter) ([]models.Ide
 		clause = " WHERE " + strings.Join(where, " AND ")
 	}
 	q := "SELECT id,kind,name,arn_or_email,provider,account_ref,state,risk_score,is_ai_agent,last_seen_at,source,external_id,collected_at,attributes,ai_agent_meta FROM identities" +
-		clause + " ORDER BY risk_score DESC LIMIT " + fmt.Sprintf("%d", f.Limit)
+		// name/id break ties so equal-risk identities keep a stable order across reads; without
+		// them Postgres may return any permutation, which reshuffles the inventory and its exports.
+		clause + " ORDER BY risk_score DESC, name ASC, id ASC LIMIT " + fmt.Sprintf("%d", f.Limit)
 
 	rows, err := r.pool.Query(ctx, q, args...)
 	if err != nil {
@@ -178,7 +180,7 @@ func (r *IdentityRepo) TriageQueue(ctx context.Context, limit int) ([]models.Ide
 		       i.risk_score,i.is_ai_agent,i.last_seen_at,i.source,i.external_id
 		FROM identities i
 		WHERE EXISTS (SELECT 1 FROM findings f WHERE f.identity_id=i.id AND f.status='open')
-		ORDER BY i.risk_score DESC
+		ORDER BY i.urgency DESC, i.risk_score DESC, i.name ASC, i.id ASC
 		LIMIT $1`, limit)
 	if err != nil {
 		return nil, err

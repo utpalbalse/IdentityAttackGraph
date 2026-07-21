@@ -149,6 +149,21 @@ func TestExposurePublicOutranksPrivate(t *testing.T) {
 	wantFactor(t, e.exposure(in), 80, "public_repo")
 }
 
+func TestExposureCredentialOverMaxAge(t *testing.T) {
+	e := testEngine(t)
+	in := Input{Now: fixedNow, Creds: []models.Credential{
+		{CredType: "aws_access_key", CreatedAtSource: daysAgo(400)}, // past the 365-day limit
+	}}
+	wantFactor(t, e.exposure(in), 30, "static_key_no_expiry", "cred_over_max_age")
+
+	in.Creds[0].CreatedAtSource = daysAgo(100)
+	wantFactor(t, e.exposure(in), 20, "static_key_no_expiry")
+
+	// An unknown creation date must not be read as "old".
+	in.Creds[0].CreatedAtSource = nil
+	wantFactor(t, e.exposure(in), 20, "static_key_no_expiry")
+}
+
 func TestExposureExpiringCredentialIsNotStatic(t *testing.T) {
 	e := testEngine(t)
 	in := Input{Now: fixedNow, Creds: []models.Credential{{CredType: "aws_access_key", ExpiresAt: daysAgo(-30)}}}
@@ -258,6 +273,15 @@ func TestTrustImpersonationAndTokenMinting(t *testing.T) {
 		in := Input{Now: fixedNow, Trust: []models.TrustEdge{{EdgeType: edge}}}
 		wantFactor(t, e.trust(in), 20, "can_mint_or_impersonate")
 	}
+}
+
+func TestTrustChainDepthSignal(t *testing.T) {
+	e := testEngine(t)
+
+	// A single assume hop is already priced by conditionless_assume; chaining is the extra risk.
+	wantFactor(t, e.trust(Input{Now: fixedNow, TrustChainDepth: 1}), 0)
+	wantFactor(t, e.trust(Input{Now: fixedNow, TrustChainDepth: 2}), 15, "chain_depth_2plus")
+	wantFactor(t, e.trust(Input{Now: fixedNow, TrustChainDepth: 5}), 15, "chain_depth_2plus")
 }
 
 // ----- blast radius -----
@@ -420,6 +444,94 @@ func TestUrgencyLiftsExploitableFindings(t *testing.T) {
 	}
 	if got := e.urgency(95, hot); got != 100 {
 		t.Errorf("urgency = %d, want 100 (clamped)", got)
+	}
+}
+
+func TestUrgencyDiscountsGuardedTrust(t *testing.T) {
+	e := testEngine(t)
+
+	guarded := Input{Now: fixedNow, Trust: []models.TrustEdge{
+		{EdgeType: "can_assume", Condition: map[string]any{"guards": []string{"ExternalId"}}},
+	}}
+	if got := e.urgency(50, guarded); got != 40 {
+		t.Errorf("urgency = %d, want 40 (-10: the privilege is real but hard to walk into)", got)
+	}
+
+	// One unguarded route is enough to remove the discount.
+	mixed := Input{Now: fixedNow, Trust: []models.TrustEdge{
+		{EdgeType: "can_assume", Condition: map[string]any{"guards": []string{"ExternalId"}}},
+		{EdgeType: "can_assume"},
+	}}
+	if got := e.urgency(50, mixed); got != 50 {
+		t.Errorf("urgency = %d, want 50 (an unguarded route removes the discount)", got)
+	}
+
+	// Having no assume routes at all is not the same as being behind a strong condition.
+	none := Input{Now: fixedNow, Trust: []models.TrustEdge{{EdgeType: "federated_from"}}}
+	if got := e.urgency(50, none); got != 50 {
+		t.Errorf("urgency = %d, want 50", got)
+	}
+}
+
+// consumedSignals lists, per factor, the signal keys score.go actually reads.
+//
+// Keeping this in sync with configs/risk_weights.yaml is the whole point: the config previously
+// carried four signals the engine never read (exposure.rotation_disabled, exposure.cred_over_max_age,
+// trust.chain_depth_2plus, urgency.strong_trust_condition), so RISK_MODEL.md documented scoring
+// behaviour that did not exist. This test fails in both directions — a config key with no code, or
+// code reading a key the config does not define.
+var consumedSignals = map[string][]string{
+	"privilege": {"admin_or_star", "wildcard_action", "wildcard_action_cap", "wildcard_resource",
+		"wildcard_resource_cap", "priv_escalation_action", "privilege_creep_p90", "write_crown_jewel"},
+	"exposure":  {"public_repo", "private_repo_or_ci", "verified_live", "static_key_no_expiry", "cred_over_max_age"},
+	"freshness": {"unused_stale_window", "never_used_aged", "not_rotated", "rotation_unmanaged"},
+	"usage": {"impossible_travel", "new_region", "new_asn_or_runtime", "usage_spike",
+		"first_use_sensitive", "offhours_burst"},
+	"trust": {"conditionless_assume", "cross_account", "wildcard_external", "chain_depth_2plus",
+		"can_mint_or_impersonate"},
+	"blast_radius": {"crown_jewel_1hop", "crown_jewel_chain", "high_crit_each", "high_crit_cap",
+		"reachable_over_p90", "escalate_to_admin"},
+}
+
+var consumedUrgency = []string{
+	"exposure_verified_live", "reachable_crown_jewel", "publicly_exposed", "strong_trust_condition",
+}
+
+func TestNoOrphanedSignalsInShippedConfig(t *testing.T) {
+	w := shippedWeights(t)
+
+	for factor, configured := range w.Signals {
+		consumed, ok := consumedSignals[factor]
+		if !ok {
+			t.Errorf("factor %q has a signal table but the engine has no factor by that name", factor)
+			continue
+		}
+		want := map[string]bool{}
+		for _, name := range consumed {
+			want[name] = true
+			if _, ok := configured[name]; !ok {
+				t.Errorf("engine reads %s.%s but risk_weights.yaml does not define it", factor, name)
+			}
+		}
+		for name := range configured {
+			if !want[name] {
+				t.Errorf("risk_weights.yaml defines %s.%s but the engine never reads it — "+
+					"either wire it into score.go or drop it from the config and RISK_MODEL.md", factor, name)
+			}
+		}
+	}
+
+	want := map[string]bool{}
+	for _, name := range consumedUrgency {
+		want[name] = true
+		if _, ok := w.Urgency[name]; !ok {
+			t.Errorf("engine reads urgency.%s but risk_weights.yaml does not define it", name)
+		}
+	}
+	for name := range w.Urgency {
+		if !want[name] {
+			t.Errorf("risk_weights.yaml defines urgency.%s but the engine never reads it", name)
+		}
 	}
 }
 

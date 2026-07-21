@@ -155,6 +155,48 @@ func isCapabilityEdge(t string) bool {
 	return false
 }
 
+// IsTrustEdge reports whether an edge type is an identity *pivot* — assuming, impersonating, or
+// federating into another principal — as opposed to holding a permission set or binding a resource.
+// A sequence of these is lateral movement, which both the risk engine and suspicious_role_chain
+// weigh differently from a single direct grant.
+func IsTrustEdge(t string) bool {
+	switch t {
+	case "assumes", "impersonates", "federated_from", "can_mint_token":
+		return true
+	}
+	return false
+}
+
+// TrustChainDepth returns how many consecutive trust pivots are reachable from `start`. A depth of 1
+// is a single assume-role; 2 or more means the identity can chain through intermediate principals.
+func (g *Graph) TrustChainDepth(start uuid.UUID, maxHops int) int {
+	depth := 0
+	visited := map[uuid.UUID]bool{start: true}
+	type qi struct {
+		id   uuid.UUID
+		hops int
+	}
+	q := []qi{{start, 0}}
+	for len(q) > 0 {
+		cur := q[0]
+		q = q[1:]
+		if cur.hops > depth {
+			depth = cur.hops
+		}
+		if cur.hops >= maxHops {
+			continue
+		}
+		for _, e := range g.out[cur.id] {
+			if !IsTrustEdge(e.Type) || visited[e.Dst] {
+				continue
+			}
+			visited[e.Dst] = true
+			q = append(q, qi{e.Dst, cur.hops + 1})
+		}
+	}
+	return depth
+}
+
 // BlastRadius summarizes what `start` can reach.
 type BlastRadius struct {
 	ReachableResources int

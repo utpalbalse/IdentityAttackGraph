@@ -322,6 +322,7 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 			Blast:             blast,
 			PeerPermissionP90: peers.p90(ctx, id),
 			PeerReachableP90:  reachP90,
+			TrustChainDepth:   trustDepthFor(g, id.ID),
 			Now:               time.Now(),
 		}
 		breakdown := engine.Score(input)
@@ -329,7 +330,7 @@ func runScoring(ctx context.Context, s *store.Store, ids []models.Identity, engi
 		for k, v := range breakdown.Factors {
 			factorMap[k] = v
 		}
-		if err := s.Identities.UpdateRiskScore(ctx, id.ID, breakdown.Composite, factorMap); err != nil {
+		if err := s.Identities.UpdateRiskScore(ctx, id.ID, breakdown.Composite, breakdown.Urgency, factorMap); err != nil {
 			logger.Error("update risk", "identity", id.Name, "err", err)
 		}
 	}
@@ -381,7 +382,7 @@ func runDetection(ctx context.Context, s *store.Store, ids []models.Identity, en
 		rin := risk.Input{
 			Identity: id, Creds: creds, Roles: roles, Bindings: bindings, Trust: trust,
 			Exposures: exposures, Blast: blast, PeerPermissionP90: peerP90,
-			PeerReachableP90: reachP90, Now: time.Now(),
+			PeerReachableP90: reachP90, TrustChainDepth: trustDepthFor(g, id.ID), Now: time.Now(),
 		}
 		current := riskEngine.Score(rin).Composite
 
@@ -489,4 +490,16 @@ func blastFor(g *graph.Graph, identityID uuid.UUID) graph.BlastRadius {
 		return g.ComputeBlastRadius(nid, blastMaxHops)
 	}
 	return graph.BlastRadius{}
+}
+
+// trustDepthFor returns the identity's longest assume/impersonate/federate chain, feeding the risk
+// engine's chain_depth_2plus signal. Zero when the graph is unavailable.
+func trustDepthFor(g *graph.Graph, identityID uuid.UUID) int {
+	if g == nil {
+		return 0
+	}
+	if nid, ok := g.NodeIDForEntity(identityID); ok {
+		return g.TrustChainDepth(nid, blastMaxHops)
+	}
+	return 0
 }

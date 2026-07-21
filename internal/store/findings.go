@@ -73,7 +73,12 @@ func (r *FindingRepo) List(ctx context.Context, f FindingFilter) ([]models.Findi
 		clause = " WHERE " + strings.Join(where, " AND ")
 	}
 	q := "SELECT id,detector,category,severity,confidence,identity_id,title,narrative,evidence,fingerprint,status,risk_contribution,first_seen_at,last_seen_at FROM findings" +
-		clause + " ORDER BY last_seen_at DESC LIMIT " + fmt.Sprintf("%d", f.Limit)
+		// A detection pass stamps every finding with the same last_seen_at, so that column alone
+		// leaves the order entirely up to Postgres. Rank by severity then confidence (what the
+		// triage queue documents), with id as the final tiebreak.
+		clause + " ORDER BY last_seen_at DESC," +
+		" CASE severity WHEN 'critical' THEN 4 WHEN 'high' THEN 3 WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END DESC," +
+		" confidence DESC, detector ASC, id ASC LIMIT " + fmt.Sprintf("%d", f.Limit)
 
 	rows, err := r.pool.Query(ctx, q, args...)
 	if err != nil {

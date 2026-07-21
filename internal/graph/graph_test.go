@@ -332,6 +332,66 @@ func TestNeighborhoodOfUnknownNode(t *testing.T) {
 	}
 }
 
+// ----- TrustChainDepth -----
+
+func TestTrustChainDepthCountsOnlyPivots(t *testing.T) {
+	e := newEstate()
+	// user --assumes--> adminRole --binds_to--> bucket: one pivot, then a resource grant.
+	if got := e.g.TrustChainDepth(e.user, 5); got != 1 {
+		t.Errorf("TrustChainDepth = %d, want 1 (binds_to is a grant, not a pivot)", got)
+	}
+	if got := e.g.TrustChainDepth(e.orphan, 5); got != 0 {
+		t.Errorf("isolated identity depth = %d, want 0", got)
+	}
+}
+
+func TestTrustChainDepthFollowsMultiHopPivots(t *testing.T) {
+	// The cross-cloud case: a pod federates into a role, which assumes another, which impersonates.
+	g := New()
+	pod, roleA, roleB, sa := uuid.New(), uuid.New(), uuid.New(), uuid.New()
+	for _, id := range []uuid.UUID{pod, roleA, roleB, sa} {
+		g.AddNode(&Node{ID: id, Type: "role"})
+	}
+	g.AddEdge(Edge{Src: pod, Dst: roleA, Type: "federated_from"})
+	g.AddEdge(Edge{Src: roleA, Dst: roleB, Type: "assumes"})
+	g.AddEdge(Edge{Src: roleB, Dst: sa, Type: "impersonates"})
+
+	if got := g.TrustChainDepth(pod, 5); got != 3 {
+		t.Errorf("TrustChainDepth = %d, want 3", got)
+	}
+	// The hop limit bounds the walk.
+	if got := g.TrustChainDepth(pod, 2); got != 2 {
+		t.Errorf("TrustChainDepth at maxHops=2 = %d, want 2", got)
+	}
+}
+
+func TestTrustChainDepthTerminatesOnCycle(t *testing.T) {
+	g := New()
+	a, b := uuid.New(), uuid.New()
+	g.AddNode(&Node{ID: a, Type: "role"})
+	g.AddNode(&Node{ID: b, Type: "role"})
+	g.AddEdge(Edge{Src: a, Dst: b, Type: "assumes"})
+	g.AddEdge(Edge{Src: b, Dst: a, Type: "assumes"})
+
+	if got := g.TrustChainDepth(a, 10); got != 1 {
+		t.Errorf("cyclic chain depth = %d, want 1", got)
+	}
+}
+
+func TestIsTrustEdge(t *testing.T) {
+	for _, tp := range []string{"assumes", "impersonates", "federated_from", "can_mint_token"} {
+		if !IsTrustEdge(tp) {
+			t.Errorf("%q is an identity pivot", tp)
+		}
+	}
+	// Holding permissions or binding a resource is a grant, not a pivot to another principal.
+	for _, tp := range []string{"has_permissions", "binds_to", "uses", "references", "exposed_in", ""} {
+		if IsTrustEdge(tp) {
+			t.Errorf("%q must not count as a trust pivot", tp)
+		}
+	}
+}
+
 func TestIsCapabilityEdge(t *testing.T) {
 	// The capability set is what makes blast radius mean "can actually do", so pin it explicitly.
 	for _, tp := range []string{"uses", "assumes", "impersonates", "can_mint_token",

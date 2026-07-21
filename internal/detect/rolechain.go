@@ -9,15 +9,6 @@ import (
 	"github.com/nhiid/nhiid/internal/models"
 )
 
-// trustEdgeTypes are the capability edges that represent identity pivots (as opposed to owning a
-// permission set or binding a resource). A chain of these is lateral movement.
-var trustEdgeTypes = map[string]bool{
-	"assumes":        true,
-	"impersonates":   true,
-	"federated_from": true,
-	"can_mint_token": true,
-}
-
 // suspicious_role_chain — an anomalous assume/impersonate/federate *sequence* that escalates
 // privilege beyond any single direct grant. Candidate chains come from the graph engine's
 // attack-path traversal; observed assume/impersonate usage corroborates and raises confidence.
@@ -80,7 +71,7 @@ func betterChain(a, b graph.Path) bool {
 func countTrustEdges(edges []graph.Edge) int {
 	n := 0
 	for _, e := range edges {
-		if trustEdgeTypes[e.Type] {
+		if graph.IsTrustEdge(e.Type) {
 			n++
 		}
 	}

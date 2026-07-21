@@ -11,6 +11,16 @@ import (
 	"github.com/nhiid/nhiid/internal/models"
 )
 
+// Age thresholds for the freshness and exposure factors. They mirror the defaults in
+// configs/config.yaml's detection block and live here so the scorer stays a pure function of the
+// identity's own data rather than needing the detection config threaded through it.
+const (
+	staleWindow    = 90 * 24 * time.Hour
+	neverUsedAge   = 30 * 24 * time.Hour
+	rotationMaxAge = 180 * 24 * time.Hour
+	credMaxAge     = 365 * 24 * time.Hour
+)
+
 // Input is the decoupled, store-agnostic view the scorer needs for one identity.
 type Input struct {
 	Identity  models.Identity
@@ -29,6 +39,11 @@ type Input struct {
 	// Peer-group baselines for creep detection.
 	PeerPermissionP90 int
 	PeerReachableP90  int
+
+	// TrustChainDepth is the longest consecutive assume/impersonate/federate chain starting at this
+	// identity, supplied by the graph engine. A depth of 2 or more is lateral-movement fuel beyond
+	// any single direct grant.
+	TrustChainDepth int
 
 	Now time.Time
 }
@@ -176,6 +191,13 @@ func (e *Engine) exposure(in Input) Factor {
 			break
 		}
 	}
+	// A credential past the hard age limit has had the longest possible window to leak.
+	for _, c := range in.Creds {
+		if c.CreatedAtSource != nil && in.Now.Sub(*c.CreatedAtSource) > credMaxAge {
+			add(e.W.sig("exposure", "cred_over_max_age"), "cred_over_max_age")
+			break
+		}
+	}
 	f.Score = clamp(f.Score)
 	return f
 }
@@ -190,15 +212,15 @@ func (e *Engine) freshness(in Input) Factor {
 	}
 	now := in.Now
 	if in.Identity.LastSeenAt == nil {
-		if in.Identity.CreatedAtSource != nil && now.Sub(*in.Identity.CreatedAtSource) > 30*24*time.Hour {
+		if in.Identity.CreatedAtSource != nil && now.Sub(*in.Identity.CreatedAtSource) > neverUsedAge {
 			add(e.W.sig("freshness", "never_used_aged"), "never_used_aged")
 		}
-	} else if now.Sub(*in.Identity.LastSeenAt) > 90*24*time.Hour {
+	} else if now.Sub(*in.Identity.LastSeenAt) > staleWindow {
 		add(e.W.sig("freshness", "unused_stale_window"), "unused_stale_window")
 	}
 	if in.Identity.LastRotatedAt == nil {
 		add(e.W.sig("freshness", "rotation_unmanaged"), "rotation_unmanaged")
-	} else if now.Sub(*in.Identity.LastRotatedAt) > 180*24*time.Hour {
+	} else if now.Sub(*in.Identity.LastRotatedAt) > rotationMaxAge {
 		add(e.W.sig("freshness", "not_rotated"), "not_rotated")
 	}
 	f.Score = clamp(f.Score)
@@ -245,6 +267,10 @@ func (e *Engine) trust(in Input) Factor {
 		if t.EdgeType == "can_mint_token" || t.EdgeType == "can_impersonate" {
 			add(e.W.sig("trust", "can_mint_or_impersonate"), "can_mint_or_impersonate")
 		}
+	}
+	// A multi-hop pivot chain escalates beyond any single grant in the loop above.
+	if in.TrustChainDepth >= 2 {
+		add(e.W.sig("trust", "chain_depth_2plus"), "chain_depth_2plus")
 	}
 	f.Score = clamp(f.Score)
 	return f
@@ -314,7 +340,27 @@ func (e *Engine) urgency(composite int, in Input) int {
 	if pub {
 		u += e.W.Urgency["publicly_exposed"]
 	}
+	if strongTrustCondition(in.Trust) {
+		u += e.W.Urgency["strong_trust_condition"] // negative: real privilege, but hard to walk into
+	}
 	return clamp(u)
+}
+
+// strongTrustCondition reports whether every route to assuming this identity is gated by a guard
+// (ExternalId / MFA / SourceIp / org scope). An identity that is only assumable under a condition is
+// less urgent than an equally-privileged one that anybody can assume.
+func strongTrustCondition(edges []models.TrustEdge) bool {
+	assumable := false
+	for _, t := range edges {
+		if t.EdgeType != "can_assume" {
+			continue
+		}
+		assumable = true
+		if !trustHasGuard(t.Condition) {
+			return false
+		}
+	}
+	return assumable
 }
 
 func (e *Engine) severity(score int) models.Severity {

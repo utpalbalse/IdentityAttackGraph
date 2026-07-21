@@ -60,8 +60,11 @@ Pre-compromise credential exposure.
 | In private repo / CI variable / artifact | +45 |
 | Verified-live exposed credential | +20 (additive to above) |
 | Long-lived static key (no expiry) exists | +20 |
-| Secret with rotation disabled | +15 |
-| Key/secret older than `max_cred_age` | +10 |
+| Credential older than `max_cred_age` (default 365d) | +10 |
+
+Managed-secret rotation hygiene is *not* part of this factor: the `secrets` table has no identity
+linkage, so rotation state cannot be attributed to a principal. It is covered at the secret level by
+the `unused_secret` detector instead.
 
 ### 2.3 Freshness score
 Staleness & rotation hygiene.

@@ -31,7 +31,6 @@ signals:
     private_repo_or_ci:     45
     verified_live:          20
     static_key_no_expiry:   20
-    rotation_disabled:      15
     cred_over_max_age:      10
   freshness:
     unused_stale_window:    40
