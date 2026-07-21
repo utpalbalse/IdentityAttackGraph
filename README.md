@@ -4,7 +4,7 @@
 
 ### Non-Human Identity Inventory, Risk Scoring & Attack-Path Detection
 
-**Discover, normalize, risk-score, and detect abuse of the machine identities that run modern cloud — service accounts, access keys, API tokens, workload identities, secrets, and AI-agent identities — across multi-account AWS, multi-project GCP, and Kubernetes, then walk the exact attack path from a leaked credential to a crown-jewel resource.**
+**Discover, normalize, risk-score, and detect abuse of the machine identities that run modern cloud (service accounts, access keys, API tokens, workload identities, secrets, and AI-agent identities) across multi-account AWS, multi-project GCP, and Kubernetes, then walk the exact attack path from a leaked credential to a crown-jewel resource.**
 
 [![CI](https://github.com/utpalbalse/IdentityAttackGraph/actions/workflows/ci.yml/badge.svg)](https://github.com/utpalbalse/IdentityAttackGraph/actions/workflows/ci.yml)
 ![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go&logoColor=white)
@@ -17,7 +17,7 @@
 
 <br/>
 
-<img src="assets/dashboard.png" alt="IdentityAttackGraph Overview console — 12 non-human identities across AWS/GCP/Kubernetes, a risk distribution, and the risk-ranked top-risk queue" width="100%"/>
+<img src="assets/dashboard.png" alt="IdentityAttackGraph Overview console: 12 non-human identities across AWS/GCP/Kubernetes, a risk distribution, and the risk-ranked top-risk queue" width="100%"/>
 
 <sub>The Overview console: multi-cloud NHI inventory, risk distribution, and the risk-ranked top-risk queue.</sub>
 
@@ -27,7 +27,7 @@
 
 ## The problem
 
-Human logins are a solved-ish problem — MFA, SSO, conditional access. **Non-human identities (NHIs) are not.** They now outnumber humans in the cloud 10–50×, they hold the privileges that actually reach production data, they rarely rotate, and they routinely federate across trust boundaries (a Kubernetes pod assuming an AWS role via IRSA; a CI service account impersonating a GCP owner). When one is over-privileged, leaked, or orphaned, the blast radius is enormous — and most tools inventory identities in flat lists that can't answer the only question that matters: **"if this one is compromised, what can the attacker actually reach, and how?"**
+Human logins are a solved-ish problem: MFA, SSO, conditional access. **Non-human identities (NHIs) are not.** They now outnumber humans in the cloud 10–50×, they hold the privileges that actually reach production data, they rarely rotate, and they routinely federate across trust boundaries (a Kubernetes pod assuming an AWS role via IRSA; a CI service account impersonating a GCP owner). When one is over-privileged, leaked, or orphaned, the blast radius is enormous, and most tools inventory identities in flat lists that can't answer the only question that matters: **"if this one is compromised, what can the attacker actually reach, and how?"**
 
 IdentityAttackGraph answers six questions across your entire multi-cloud estate:
 
@@ -38,38 +38,38 @@ IdentityAttackGraph answers six questions across your entire multi-cloud estate:
 | **3** | **Which** are over-privileged, stale, or orphaned? | 6-factor risk score + hygiene detectors |
 | **4** | **Which** are behaving abnormally **right now**? | Statistical anomaly detection over usage |
 | **5** | **What** is the **blast radius** if one is compromised? | In-memory attack-graph traversal |
-| **6** | **What** to remediate first — and how much risk does it remove? | Ranked remediations with measurable risk delta |
+| **6** | **What** to remediate first, and how much risk does it remove? | Ranked remediations with measurable risk delta |
 
-> **Built from scratch — not a wrapper.** The inventory model, normalization, graph engine, risk scoring, attack-path reasoning, and every detector are original code. Cloud provider APIs are used for data collection only; there is no Semgrep/Wazuh/Suricata under the hood.
+> **Built from scratch, not a wrapper.** The inventory model, normalization, graph engine, risk scoring, attack-path reasoning, and every detector are original code. Cloud provider APIs are used for data collection only; there is no Semgrep/Wazuh/Suricata under the hood.
 
 ---
 
 ## ✨ See it in action
 
 <div align="center">
-<img src="assets/attack-graph.png" alt="Attack-graph view — a hierarchical kill-chain projection flowing from an exposed entry point through identities and roles to crown-jewel resources; icon and hue encode entity class, line style encodes the capability" width="100%"/>
+<img src="assets/attack-graph.png" alt="Attack-graph view: a hierarchical kill-chain projection flowing from an exposed entry point through identities and roles to crown-jewel resources; icon and hue encode entity class, line style encodes the capability" width="100%"/>
 </div>
 
-The **attack-graph view** projects every capability edge as a hierarchical kill chain that reads left to right — **exposed entry point → identity → role → crown jewel**. Icon and hue classify the entity; the line tells you *how* the hop works:
+The **attack-graph view** projects every capability edge as a hierarchical kill chain that reads left to right: **exposed entry point → identity → role → crown jewel**. Icon and hue classify the entity; the line tells you *how* the hop works:
 
 | | Encoding |
 |--|----------|
-| 🌐 rose | Exposed entry point — an identity with live credential material in a repo |
+| 🌐 rose | Exposed entry point: an identity with live credential material in a repo |
 | 🖥 teal | Compute / workload (pods, runners) |
-| 🔑 indigo | Identity — IAM user, service account, AI agent |
+| 🔑 indigo | Identity: IAM user, service account, AI agent |
 | 🛡 amber | Role / permission set |
-| 💎 red | Crown jewel — the asset you cannot lose |
+| 💎 red | Crown jewel: the asset you cannot lose |
 | ┄┄ dashed | **Privilege escalation** (`sts:AssumeRole`, impersonation) |
 | ⋯ dotted | **Federated trust** across a cloud boundary (IRSA / WIF) |
 | ── red | The hop that **lands on a crown jewel** |
 
-Filtering to **crown-jewel paths** collapses the estate to just what an attacker would actually walk — here, five distinct routes to a crown jewel across AWS, GCP, and Kubernetes:
+Filtering to **crown-jewel paths** collapses the estate to just what an attacker would actually walk. Here, five distinct routes to a crown jewel across AWS, GCP, and Kubernetes:
 
 <div align="center">
-<img src="assets/attack-graph-zoom.png" alt="Crown-jewel paths only — five attack routes: two Kubernetes pods federating into cluster secrets, a GCP CI account impersonating a project owner, an over-scoped AI agent reaching Secrets Manager, and a leaked AWS key assuming an admin role into an S3 bucket" width="92%"/>
+<img src="assets/attack-graph-zoom.png" alt="Crown-jewel paths only. Five attack routes: two Kubernetes pods federating into cluster secrets, a GCP CI account impersonating a project owner, an over-scoped AI agent reaching Secrets Manager, and a leaked AWS key assuming an admin role into an S3 bucket" width="92%"/>
 </div>
 
-### Trace a path, or a blast radius — on hover
+### Trace a path, or a blast radius, on hover
 
 Hovering any node runs a live directed traversal: **upstream** (in rose) is every route an attacker could take to *reach* it; **downstream** (in amber) is everything that falls if it is compromised. Everything unrelated dims away.
 
@@ -79,17 +79,17 @@ Hovering any node runs a live directed traversal: **upstream** (in rose) is ever
 <td width="50%" align="center"><img src="assets/hover-blast-radius.gif" alt="Hovering the Kubernetes identity prod/deployer highlights one upstream workload and a four-node downstream blast radius including two crown jewels and a federated AWS role" width="100%"/></td>
 </tr>
 <tr>
-<td align="center"><sub><b>Attack path</b> — a leaked key is 2 hops from a crown jewel<br/><code>0 upstream · 2 downstream</code></sub></td>
-<td align="center"><sub><b>Blast radius</b> — one pod identity reaches 2 crown jewels<br/><code>1 upstream · 4 downstream</code></sub></td>
+<td align="center"><sub><b>Attack path</b>: a leaked key is 2 hops from a crown jewel<br/><code>0 upstream · 2 downstream</code></sub></td>
+<td align="center"><sub><b>Blast radius</b>: one pod identity reaches 2 crown jewels<br/><code>1 upstream · 4 downstream</code></sub></td>
 </tr>
 </table>
 
-One command seeds a synthetic multi-cloud environment with the exact mistakes attackers exploit, runs the full pipeline, and narrates the worst paths it finds — each with the detections that caught it and the single remediation that severs it:
+One command seeds a synthetic multi-cloud environment with the exact mistakes attackers exploit, runs the full pipeline, and narrates the worst paths it finds, each with the detections that caught it and the single remediation that severs it:
 
 ```text
 ━━━ Scenario 1 · Leaked credential → crown jewel
   target  svc-billing-export  (risk 70)
-  RECON   attacker finds credential material at .env:12 (pattern aws_akia) — belongs to svc-billing-export
+  RECON   attacker finds credential material at .env:12 (pattern aws_akia) - belongs to svc-billing-export
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
   STEP 2  → gains access to arn:aws:s3:::prod-billing [resource] ◆ CROWN JEWEL
@@ -106,12 +106,12 @@ One command seeds a synthetic multi-cloud environment with the exact mistakes at
   FIX     reduce_scope  →  risk 39 → 2  (−37)
 ```
 
-Everything above is computed **live from the graph** — the path, the detections, and the risk delta. Full output and machine-readable/SARIF samples: [`docs/DEMO.md`](docs/DEMO.md) · [`docs/samples/`](docs/samples/).
+Everything above is computed **live from the graph**: the path, the detections, and the risk delta. Full output and machine-readable/SARIF samples: [`docs/DEMO.md`](docs/DEMO.md) · [`docs/samples/`](docs/samples/).
 
-Every score is **explainable** — a transparent weighted sum of six factors with per-factor evidence, never a black box:
+Every score is **explainable**: a transparent weighted sum of six factors with per-factor evidence, never a black box:
 
 <div align="center">
-<img src="assets/risk-breakdown.png" alt="Explainable risk breakdown for svc-billing-export — risk 70 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with per-factor signals" width="46%"/>
+<img src="assets/risk-breakdown.png" alt="Explainable risk breakdown for svc-billing-export: risk 70 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with per-factor signals" width="46%"/>
 </div>
 
 ---
@@ -142,7 +142,7 @@ Every score is **explainable** — a transparent weighted sum of six factors wit
                         NATS JetStream queue  ·  Redis rate limit  ·  Prometheus metrics  ·  OpenTelemetry traces
 ```
 
-The **attack graph** is a from-scratch directed property graph (no Neo4j) whose edges are *capabilities* — `assumes`, `impersonates`, `federated_from`, `binds_to`, `has_permissions`, `uses`. Because every identity gets a **deterministic UUIDv5** derived from its provider identity, a Kubernetes ServiceAccount's IRSA annotation reconciles onto the *exact* AWS IAM role node — producing a single **pod → cloud role → crown-jewel** path across cloud boundaries, regardless of which collector ran first.
+The **attack graph** is a from-scratch directed property graph (no Neo4j) whose edges are *capabilities*: `assumes`, `impersonates`, `federated_from`, `binds_to`, `has_permissions`, `uses`. Because every identity gets a **deterministic UUIDv5** derived from its provider identity, a Kubernetes ServiceAccount's IRSA annotation reconciles onto the *exact* AWS IAM role node, producing a single **pod → cloud role → crown-jewel** path across cloud boundaries, regardless of which collector ran first.
 
 ---
 
@@ -152,28 +152,28 @@ The **attack graph** is a from-scratch directed property graph (no Neo4j) whose 
 <tr><td width="50%" valign="top">
 
 **Collection (multi-cloud, least-privilege)**
-- **AWS** — IAM users/roles, access keys + last-used, assume-role trust, Secrets Manager inventory, CloudTrail usage
-- **GCP** — service accounts, keys, impersonation / Workload Identity Federation, project IAM, Cloud Audit Logs
-- **Kubernetes** — ServiceAccounts, effective RBAC, pods, token secrets, IRSA/WIF federation — from a **live cluster (client-go)** or a `kubectl` export
-- **Repositories** — built-in secret scanner (curated patterns + Shannon entropy) or SecretSweep report ingest
-- Cross-account via **assume-role + ExternalId**; in-cluster via **IRSA** — no long-lived target credentials stored
+- **AWS**: IAM users/roles, access keys + last-used, assume-role trust, Secrets Manager inventory, CloudTrail usage
+- **GCP**: service accounts, keys, impersonation / Workload Identity Federation, project IAM, Cloud Audit Logs
+- **Kubernetes**: ServiceAccounts, effective RBAC, pods, token secrets, IRSA/WIF federation, from a **live cluster (client-go)** or a `kubectl` export
+- **Repositories**: built-in secret scanner (curated patterns + Shannon entropy) or SecretSweep report ingest
+- Cross-account via **assume-role + ExternalId**; in-cluster via **IRSA**, with no long-lived target credentials stored
 
 </td><td width="50%" valign="top">
 
 **Analysis & response**
-- **6-factor explainable risk** — privilege · blast-radius · exposure · trust · usage · freshness; tunable, hot-reloadable weights; per-factor evidence
-- **17 detectors** — 10 rule + 7 statistical anomaly, each with evidence, an attack narrative, and a stable fingerprint
+- **6-factor explainable risk**: privilege · blast-radius · exposure · trust · usage · freshness; tunable, hot-reloadable weights; per-factor evidence
+- **17 detectors**: 10 rule + 7 statistical anomaly, each with evidence, an attack narrative, and a stable fingerprint
 - **Attack-path & blast-radius** traversal to crown jewels / admin
 - **Triage + remediation** with measurable **risk-delta** tracking
-- **Alerting** — Slack / generic webhook, severity threshold, at-least-once
-- **Exports** — SARIF 2.1.0 (GitHub code scanning), JSON, CSV
+- **Alerting**: Slack / generic webhook, severity threshold, at-least-once
+- **Exports**: SARIF 2.1.0 (GitHub code scanning), JSON, CSV
 
 </td></tr>
 <tr><td valign="top">
 
 **API & UX**
 - **REST** + **GraphQL** (`/api/v1/graphql`) read surface
-- **RBAC** — bearer token or **OIDC JWT with JWKS auto-fetch** (keys cached by `kid`, refreshed on rotation); viewer / analyst / admin
+- **RBAC**: bearer token or **OIDC JWT with JWKS auto-fetch** (keys cached by `kid`, refreshed on rotation); viewer / analyst / admin
 - Audited mutations, admin-gated suppressions, snapshots
 - **React + TypeScript + Cytoscape** attack-graph dashboard
 
@@ -194,7 +194,7 @@ The **attack graph** is a from-scratch directed property graph (no Neo4j) whose 
 
 ## 🚀 Quick start (one command)
 
-No local Go or Node toolchain required — everything builds and runs in containers.
+No local Go or Node toolchain required; everything builds and runs in containers.
 
 ```bash
 make dev      # compose up: postgres, redis, nats, migrate, api, worker, web
@@ -202,7 +202,7 @@ make demo     # seed AWS+GCP+K8s fixtures, run the pipeline, print the attack si
 open http://localhost:5173
 ```
 
-Point it at real clouds — same pipeline, same graph, same detections:
+Point it at real clouds. Same pipeline, same graph, same detections:
 
 ```bash
 collector --provider aws --role-arn <arn> --external-id <id>            # docs/AWS_COLLECTOR.md
@@ -215,12 +215,12 @@ collector --provider repo --scan-path ./checkout --repo acme/api      # or --rep
 
 ## 🧠 Detection engine
 
-Every detection is **custom-built, explainable, and evidenced** — a stable detector id, severity, structured evidence, an attacker-framed narrative, and a fingerprint for dedupe. Detectors are **rule-based** (deterministic over current state) or **anomaly-based** (statistical over usage history with per-identity + peer baselines).
+Every detection is **custom-built, explainable, and evidenced**: a stable detector id, severity, structured evidence, an attacker-framed narrative, and a fingerprint for dedupe. Detectors are **rule-based** (deterministic over current state) or **anomaly-based** (statistical over usage history with per-identity + peer baselines).
 
-The **triage queue** ranks every open finding by severity then confidence, and exports to SARIF, CSV, or JSON for your existing pipeline. Findings with no owning identity (a secret in a repo, an unused vault entry) are first-class — they are the ones most tools drop:
+The **triage queue** ranks every open finding by severity then confidence, and exports to SARIF, CSV, or JSON for your existing pipeline. Findings with no owning identity (a secret in a repo, an unused vault entry) are first-class, and they are the ones most tools drop:
 
 <div align="center">
-<img src="assets/triage.png" alt="Triage queue — findings ranked by severity and confidence, each with the detector id, an attacker-framed narrative, the exposed path, and SARIF/CSV/JSON export controls" width="100%"/>
+<img src="assets/triage.png" alt="Triage queue: findings ranked by severity and confidence, each with the detector id, an attacker-framed narrative, the exposed path, and SARIF/CSV/JSON export controls" width="100%"/>
 </div>
 
 <details>
@@ -255,9 +255,9 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 ## 🛡 Security engineering
 
 - **No secret material is ever stored, logged, or returned.** Exposures carry *location + fingerprint* only; the log handler scrubs credential-shaped values; Secrets Manager metadata is read without ever calling `GetSecretValue`.
-- **Least-privilege, no-static-credential collection** — cross-account via `sts:AssumeRole` + `ExternalId` (confused-deputy guard), in-cluster via IRSA/Workload Identity. The exact read-only IAM policy is documented and codified in Terraform.
-- **Explainable by design** — the risk score is a transparent weighted sum with per-factor evidence, not a black-box model, so an analyst can see *why* an identity scored 78.
-- **Idempotent & replay-safe** — deterministic UUIDv5 identity ids make every collector re-run a no-op and let trust edges cross-reference principals before they're persisted.
+- **Least-privilege, no-static-credential collection**: cross-account via `sts:AssumeRole` + `ExternalId` (confused-deputy guard), in-cluster via IRSA/Workload Identity. The exact read-only IAM policy is documented and codified in Terraform.
+- **Explainable by design**: the risk score is a transparent weighted sum with per-factor evidence, not a black-box model, so an analyst can see *why* an identity scored 78.
+- **Idempotent & replay-safe**: deterministic UUIDv5 identity ids make every collector re-run a no-op and let trust edges cross-reference principals before they're persisted.
 - See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md).
 
 ---
@@ -287,7 +287,7 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 
 | Doc | What's in it |
 |-----|--------------|
-| [DEMO.md](docs/DEMO.md) | **Start here** — one-command demo + narrated attack path |
+| [DEMO.md](docs/DEMO.md) | **Start here**: one-command demo + narrated attack path |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component design, data flow, deployment topology |
 | [THREAT_MODEL.md](docs/THREAT_MODEL.md) | Assets, threats, trust boundaries, mitigations |
 | [DATA_MODEL.md](docs/DATA_MODEL.md) | Unified schema, entities, graph model |
