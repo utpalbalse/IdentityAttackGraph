@@ -112,9 +112,9 @@ curl -XPOST localhost:8080/api/v1/graphql -H 'content-type: application/json' \
   "provider": "aws", "account_ref": "aws:123456789012", "state": "active",
   "owner": null,
   "last_seen_at": "2025-11-20T04:12:00Z", "last_rotated_at": null,
-  "risk_score": 78, "severity": "critical",
+  "risk_score": 46, "severity": "medium",
   "risk_breakdown": {
-    "composite": 78,
+    "composite": 46,
     "factors": {
       "privilege": {"score": 28, "signals": ["wildcard_action:s3:*", "write_crown_jewel"]},
       "exposure": {"score": 75, "signals": ["in_private_repo", "static_key_no_expiry"]},
