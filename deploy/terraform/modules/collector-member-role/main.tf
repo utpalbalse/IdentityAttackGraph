@@ -78,6 +78,13 @@ data "aws_iam_policy_document" "permissions" {
     actions   = ["sts:GetCallerIdentity"]
     resources = ["*"]
   }
+
+  statement {
+    sid       = "ResourceCriticalityTags"
+    effect    = "Allow"
+    actions   = ["tag:GetResources"] # read the criticality tag to classify crown-jewel resources
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role" "collector" {

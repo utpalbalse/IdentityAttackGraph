@@ -4,7 +4,7 @@ import "testing"
 
 func TestAnalyzePolicies_AdminWildcard(t *testing.T) {
 	doc := `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
-	a := analyzePolicies([]string{doc})
+	a := analyzePolicies([]string{doc}, nil)
 	if a.PrivilegeLevel != "admin" {
 		t.Fatalf("expected admin, got %q", a.PrivilegeLevel)
 	}
@@ -15,7 +15,7 @@ func TestAnalyzePolicies_AdminWildcard(t *testing.T) {
 
 func TestAnalyzePolicies_PrivEscalation(t *testing.T) {
 	doc := `{"Statement":[{"Effect":"Allow","Action":["iam:PassRole","lambda:CreateFunction"],"Resource":"*"}]}`
-	a := analyzePolicies([]string{doc})
+	a := analyzePolicies([]string{doc}, nil)
 	if !a.HasPrivEscalation {
 		t.Fatal("expected privilege escalation to be detected")
 	}
@@ -27,7 +27,7 @@ func TestAnalyzePolicies_PrivEscalation(t *testing.T) {
 func TestAnalyzePolicies_URLEncoded(t *testing.T) {
 	// IAM returns documents URL-encoded; ensure we decode before parsing.
 	encoded := `%7B%22Statement%22%3A%5B%7B%22Effect%22%3A%22Allow%22%2C%22Action%22%3A%22s3%3AGetObject%22%2C%22Resource%22%3A%22arn%3Aaws%3As3%3A%3A%3Ab%2F%2A%22%7D%5D%7D`
-	a := analyzePolicies([]string{encoded})
+	a := analyzePolicies([]string{encoded}, nil)
 	if a.PermissionCount != 1 {
 		t.Fatalf("expected 1 permission from decoded policy, got %d", a.PermissionCount)
 	}
@@ -38,7 +38,7 @@ func TestAnalyzePolicies_URLEncoded(t *testing.T) {
 
 func TestAnalyzePolicies_ReadOnly(t *testing.T) {
 	doc := `{"Statement":[{"Effect":"Allow","Action":["s3:GetObject","ec2:DescribeInstances"],"Resource":"*"}]}`
-	a := analyzePolicies([]string{doc})
+	a := analyzePolicies([]string{doc}, nil)
 	if a.PrivilegeLevel != "read" {
 		t.Fatalf("expected read, got %q", a.PrivilegeLevel)
 	}

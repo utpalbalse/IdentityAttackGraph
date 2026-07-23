@@ -26,6 +26,7 @@ func main() {
 	externalID := flag.String("external-id", "", "ExternalId for the assume-role trust (recommended)")
 	region := flag.String("region", "us-east-1", "AWS region for API calls")
 	ctLookback := flag.Int("cloudtrail-lookback-hours", 24, "hours of CloudTrail history on first run")
+	criticalityTag := flag.String("criticality-tag", "nhiid:criticality", "AWS resource tag key whose value (crown_jewel|high|medium|low) sets resource criticality; \"-\" disables")
 	project := flag.String("project", "", "GCP project id")
 	gcpCreds := flag.String("gcp-credentials", "", "path to GCP credentials/WIF file (else uses ADC)")
 	auditLookback := flag.Int("audit-lookback-hours", 24, "hours of GCP Cloud Audit Log history on first run")
@@ -70,6 +71,7 @@ func main() {
 			ExternalID:              *externalID,
 			Region:                  *region,
 			CloudTrailLookbackHours: *ctLookback,
+			CriticalityTagKey:       *criticalityTag,
 		}, logger)
 		if *account == "" {
 			*account = "aws"

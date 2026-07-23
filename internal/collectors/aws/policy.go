@@ -76,7 +76,8 @@ var privEscalationActions = map[string]bool{
 }
 
 // dataServices are services whose wildcarded resources we treat as high-criticality, since they
-// commonly hold sensitive data. Crown-jewel classification still requires explicit tagging.
+// commonly hold sensitive data. Crown-jewel classification is not inferred from actions — it is
+// declared per resource via the criticality tag and applied in analyzePolicies (see tags.go).
 var dataServices = map[string]bool{
 	"s3": true, "dynamodb": true, "rds": true, "kms": true,
 	"secretsmanager": true, "ssm": true, "redshift": true, "es": true,
@@ -100,8 +101,10 @@ type binding struct {
 	Criticality models.Criticality
 }
 
-// analyzePolicies decodes and analyzes a set of (already URL-decoded) policy documents.
-func analyzePolicies(docs []string) policyAnalysis {
+// analyzePolicies decodes and analyzes a set of (already URL-decoded) policy documents. The
+// resolver (may be nil) elevates a binding's criticality when its resource carries a criticality
+// tag and the statement's actions can act on that resource.
+func analyzePolicies(docs []string, resolver *critResolver) policyAnalysis {
 	a := policyAnalysis{PrivilegeLevel: "read"}
 	hasWrite, hasAdmin := false, false
 
@@ -144,11 +147,17 @@ func analyzePolicies(docs []string) policyAnalysis {
 			}
 
 			for _, res := range nonEmpty(st.Resource) {
+				// Start from the action-inferred criticality, then elevate if this specific resource
+				// is tagged as more critical and the statement's actions can reach it.
+				bindCrit := crit
+				if tagCrit := resolver.criticalityFor(res, actions); models.CriticalityRank(tagCrit) > models.CriticalityRank(bindCrit) {
+					bindCrit = tagCrit
+				}
 				a.Bindings = append(a.Bindings, binding{
 					ResourceURN: res,
 					Actions:     dedupeLower(actions),
 					Effect:      "allow",
-					Criticality: crit,
+					Criticality: bindCrit,
 				})
 			}
 		}
@@ -180,6 +189,9 @@ func decodePolicy(raw string) (*policyDoc, error) {
 	return &doc, nil
 }
 
+// actionCriticality infers criticality from an action and its resources. It caps at CritHigh by
+// design: whether a resource is a crown jewel is a business fact AWS cannot infer, so crown-jewel
+// classification is applied separately from the criticality tag (see analyzePolicies + tags.go).
 func actionCriticality(action string, resources stringOrSlice) models.Criticality {
 	svc := serviceOf(action)
 	wildOnData := false

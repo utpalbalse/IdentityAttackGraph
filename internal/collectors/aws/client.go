@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/cloudtrail"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
+	rgt "github.com/aws/aws-sdk-go-v2/service/resourcegroupstaggingapi"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
@@ -33,6 +34,23 @@ type Options struct {
 	MaxRetries int
 	// CloudTrailLookbackHours bounds the first (cursorless) CloudTrail pull.
 	CloudTrailLookbackHours int
+	// CriticalityTagKey is the resource tag whose value (crown_jewel|high|medium|low) declares a
+	// resource's criticality. Empty disables tag-driven crown-jewel classification; the collector
+	// defaults it to DefaultCriticalityTagKey.
+	CriticalityTagKey string
+}
+
+// criticalityTagKey returns the configured tag key, or the default when unset. A caller can pass
+// "-" to explicitly disable tag lookups.
+func (o Options) criticalityTagKey() string {
+	switch o.CriticalityTagKey {
+	case "":
+		return DefaultCriticalityTagKey
+	case "-":
+		return ""
+	default:
+		return o.CriticalityTagKey
+	}
 }
 
 // clients bundles the AWS service clients a collection pass needs.
@@ -41,6 +59,7 @@ type clients struct {
 	cloudtrail *cloudtrail.Client
 	sts        *sts.Client
 	sm         *secretsmanager.Client
+	tagging    *rgt.Client
 	accountID  string
 }
 
@@ -78,6 +97,7 @@ func newClients(ctx context.Context, opts Options) (*clients, error) {
 		cloudtrail: cloudtrail.NewFromConfig(cfg),
 		sts:        sts.NewFromConfig(cfg),
 		sm:         secretsmanager.NewFromConfig(cfg),
+		tagging:    rgt.NewFromConfig(cfg),
 	}
 
 	// Resolve the account id for canonical account_ref and self-checks.

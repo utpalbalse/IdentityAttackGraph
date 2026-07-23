@@ -20,6 +20,7 @@ Implementation: [internal/collectors/aws/](../internal/collectors/aws/).
 | Assume-role trust policies | `trust_edges` (`can_assume` / `federated_from`), with guards (ExternalId/MFA/IP/org), cross-account + wildcard flags | parsed from `AssumeRolePolicyDocument` |
 | CloudTrail | `usage_events` (event, source, region, IP, user-agent, error) attributed to the acting principal | `LookupEvents` |
 | Secrets Manager | `secrets` inventory (name, rotation enabled, last-rotated, **last-accessed**, version count) → `unused_secret` detector. Metadata only — `GetSecretValue` is never called. | `ListSecrets` |
+| Resource criticality tags | elevates `resource_bindings` criticality to **crown_jewel** (see [Crown-jewel tagging](#crown-jewel-tagging)) | `GetResources` |
 
 **Idempotent:** every entity is keyed by a deterministic UUID derived from its ARN
 (`models.DeterministicID`), so re-running the collector never duplicates rows and lets trust edges
@@ -82,10 +83,19 @@ material.
       "Effect": "Allow",
       "Action": ["sts:GetCallerIdentity"],
       "Resource": "*"
+    },
+    {
+      "Sid": "ResourceCriticalityTags",
+      "Effect": "Allow",
+      "Action": ["tag:GetResources"],
+      "Resource": "*"
     }
   ]
 }
 ```
+
+`tag:GetResources` is used only to read the criticality tag (below). If you omit it, collection
+still succeeds; resources simply never reach `crown_jewel` criticality.
 
 ## Trust policy on the assumed role
 
@@ -102,6 +112,39 @@ Pin the exact NHIID principal and require an ExternalId (confused-deputy guard):
   }]
 }
 ```
+
+---
+
+## Crown-jewel tagging
+
+Whether a resource is a **crown jewel** (the asset you cannot lose) is a business fact AWS cannot
+infer: to an IAM policy, `prod-billing` and `dev-scratch` are both just S3 buckets. So the collector
+infers criticality from actions only up to `high`, and takes the top level from an explicit resource
+tag:
+
+```
+nhiid:criticality = crown_jewel     # also accepts: high | medium | low
+```
+
+Tag the resources that matter (buckets, tables, secrets, KMS keys, …):
+
+```bash
+aws resourcegroupstaggingapi tag-resources \
+  --resource-arn-list arn:aws:s3:::prod-billing \
+  --tags nhiid:criticality=crown_jewel
+```
+
+On the next run the collector reads these via `tag:GetResources` and **elevates any permission
+binding that can act on a tagged resource** to that criticality. Elevation requires both a resource
+match (the policy's `Resource` covers the tagged ARN, including the bucket→objects case) and an
+action that applies to the resource's service, so an unrelated `ec2:*` grant is not elevated by an
+S3 crown jewel. This is what lights up the `crown_jewel_1hop` / `crown_jewel_chain` blast-radius
+signals and the "leaked key → crown jewel" attack path on real AWS.
+
+- Change the key with `--criticality-tag team:crit`; disable the lookup entirely with
+  `--criticality-tag -`.
+- It is **not** a full IAM policy evaluator: it does not resolve conditions, `NotAction`, or
+  cross-statement deny precedence for the tag path (only `Allow` statements are analyzed).
 
 ---
 

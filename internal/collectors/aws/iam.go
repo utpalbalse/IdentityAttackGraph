@@ -19,6 +19,7 @@ import (
 type builder struct {
 	accountRef string
 	collectAt  time.Time
+	crit       *critResolver // resource criticality declared via tags; nil elevates nothing
 
 	identities map[string]*models.Identity
 	roles      []models.Role
@@ -229,7 +230,7 @@ func (b *builder) buildRole(r iamtypes.RoleDetail, managed map[string]string) {
 // addPermissionSet creates a roles record (owned by identID) plus its resource bindings, and
 // returns the role record id. extra carries role-specific attributes (e.g. assumable).
 func (b *builder) addPermissionSet(arn, name string, identID uuid.UUID, docs []string, extra map[string]any) uuid.UUID {
-	a := analyzePolicies(docs)
+	a := analyzePolicies(docs, b.crit)
 	roleID := models.DeterministicID("role", arn)
 	policyDoc := map[string]any{"has_priv_escalation": a.HasPrivEscalation}
 	for k, v := range extra {
