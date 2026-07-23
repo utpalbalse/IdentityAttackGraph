@@ -88,7 +88,7 @@ One command seeds a synthetic multi-cloud environment with the exact mistakes at
 
 ```text
 ━━━ Scenario 1 · Leaked credential → crown jewel
-  target  svc-billing-export  (risk 70)
+  target  svc-billing-export  (risk 62)
   RECON   attacker finds credential material at .env:12 (pattern aws_akia) - belongs to svc-billing-export
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
@@ -96,7 +96,7 @@ One command seeds a synthetic multi-cloud environment with the exact mistakes at
   IMPACT  1 crown jewel reachable · nearest crown jewel 2 hops · reaches admin: true
   CAUGHT  secret_exposed_in_repo (critical), suspicious_role_chain (high),
           conditionless_assume_role (high), high_blast_radius (high), …
-  FIX     reduce_scope  →  risk 70 → 33  (−37)
+  FIX     reduce_scope  →  risk 62 → 24  (−38)
 
 ━━━ Scenario 2 · Over-scoped AI agent
   target  prod-copilot-agent  (risk 39)
@@ -111,7 +111,7 @@ Everything above is computed **live from the graph**: the path, the detections, 
 Every score is **explainable**: a transparent weighted sum of six factors with per-factor evidence, never a black box:
 
 <div align="center">
-<img src="assets/risk-breakdown.png" alt="Explainable risk breakdown for svc-billing-export: risk 70 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with per-factor signals" width="46%"/>
+<img src="assets/risk-breakdown.png" alt="Explainable risk breakdown for svc-billing-export: risk 62 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with per-factor signals" width="46%"/>
 </div>
 
 ---
@@ -256,7 +256,7 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 
 - **No secret material is ever stored, logged, or returned.** Exposures carry *location + fingerprint* only; the log handler scrubs credential-shaped values; Secrets Manager metadata is read without ever calling `GetSecretValue`.
 - **Least-privilege, no-static-credential collection**: cross-account via `sts:AssumeRole` + `ExternalId` (confused-deputy guard), in-cluster via IRSA/Workload Identity. The exact read-only IAM policy is documented and codified in Terraform.
-- **Explainable by design**: the risk score is a transparent weighted sum with per-factor evidence, not a black-box model, so an analyst can see *why* an identity scored 78.
+- **Explainable by design**: the risk score is a transparent weighted sum with per-factor evidence, not a black-box model, so an analyst can see *why* an identity scored 62.
 - **Idempotent & replay-safe**: deterministic UUIDv5 identity ids make every collector re-run a no-op and let trust edges cross-reference principals before they're persisted.
 - See [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md).
 

@@ -19,171 +19,8 @@
         "secret": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
         "store": "aws_secretsmanager"
       },
-      "first_seen": "2026-07-10T20:05:25.03592-04:00",
-      "last_seen": "2026-07-10T20:05:25.03592-04:00"
-    },
-    {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "critical",
-      "confidence": 85,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material (pattern \"bearer_token\") was found in repository at acme/billing:.github/workflows/deploy.yml. Rotate and revoke the exposed credential and purge it from history.",
-      "status": "open",
-      "evidence": {
-        "commit": "",
-        "fingerprint": "ss:3e505a182d731b7ba9e6abd1",
-        "line": 22,
-        "path": ".github/workflows/deploy.yml",
-        "pattern": "bearer_token",
-        "repository": "acme/billing",
-        "verified": false
-      },
-      "first_seen": "2026-07-10T20:05:25.031427-04:00",
-      "last_seen": "2026-07-10T20:05:25.031427-04:00"
-    },
-    {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "high",
-      "confidence": 85,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material (pattern \"database_password\") was found in repository at acme/billing:k8s/db-secret.yaml. Rotate and revoke the exposed credential and purge it from history.",
-      "status": "open",
-      "evidence": {
-        "commit": "",
-        "fingerprint": "ss:03b98297d0cf67810ab47a7c",
-        "line": 7,
-        "path": "k8s/db-secret.yaml",
-        "pattern": "database_password",
-        "repository": "acme/billing",
-        "verified": false
-      },
-      "first_seen": "2026-07-10T20:05:25.030165-04:00",
-      "last_seen": "2026-07-10T20:05:25.030165-04:00"
-    },
-    {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "high",
-      "confidence": 85,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material (pattern \"generic_api_key\") was found in repository at acme/billing:config/settings.py. Rotate and revoke the exposed credential and purge it from history.",
-      "status": "open",
-      "evidence": {
-        "commit": "",
-        "fingerprint": "ss:07e684c43bb1c8d8bde029c0",
-        "line": 48,
-        "path": "config/settings.py",
-        "pattern": "generic_api_key",
-        "repository": "acme/billing",
-        "verified": false
-      },
-      "first_seen": "2026-07-10T20:05:25.028778-04:00",
-      "last_seen": "2026-07-10T20:05:25.028778-04:00"
-    },
-    {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "critical",
-      "confidence": 85,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material (pattern \"gcp_service_account_key\") was found in repository at acme/billing:deploy/gcp-sa.json. Rotate and revoke the exposed credential and purge it from history.",
-      "status": "open",
-      "evidence": {
-        "commit": "",
-        "fingerprint": "ss:6c132a18e43a8f64f598ae7d",
-        "line": 3,
-        "path": "deploy/gcp-sa.json",
-        "pattern": "gcp_service_account_key",
-        "repository": "acme/billing",
-        "verified": false
-      },
-      "first_seen": "2026-07-10T20:05:25.027422-04:00",
-      "last_seen": "2026-07-10T20:05:25.027422-04:00"
-    },
-    {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "critical",
-      "confidence": 85,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material (pattern \"aws_access_key\") was found in repository at acme/billing:.env. Rotate and revoke the exposed credential and purge it from history.",
-      "status": "open",
-      "evidence": {
-        "commit": "",
-        "fingerprint": "ss:32506c5a4c3dd3dff1332d02",
-        "line": 12,
-        "path": ".env",
-        "pattern": "aws_access_key",
-        "repository": "acme/billing",
-        "verified": false
-      },
-      "first_seen": "2026-07-10T20:05:25.02616-04:00",
-      "last_seen": "2026-07-10T20:05:25.02616-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "billing-admin",
-      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:25.019993-04:00",
-      "last_seen": "2026-07-10T20:05:25.019993-04:00"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod-deployer",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:25.011793-04:00",
-      "last_seen": "2026-07-10T20:05:25.011793-04:00"
+      "first_seen": "2026-07-23T23:17:04.437701Z",
+      "last_seen": "2026-07-23T23:17:46.426043Z"
     },
     {
       "detector": "orphaned_identity",
@@ -206,8 +43,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:25.00217-04:00",
-      "last_seen": "2026-07-10T20:05:25.00217-04:00"
+      "first_seen": "2026-07-23T23:17:04.434802Z",
+      "last_seen": "2026-07-23T23:17:46.424205Z"
     },
     {
       "detector": "orphaned_identity",
@@ -230,8 +67,32 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.99337-04:00",
-      "last_seen": "2026-07-10T20:05:24.99337-04:00"
+      "first_seen": "2026-07-23T23:17:04.401512Z",
+      "last_seen": "2026-07-23T23:17:46.421787Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod-deployer",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.399196Z",
+      "last_seen": "2026-07-23T23:17:46.41918Z"
     },
     {
       "detector": "orphaned_identity",
@@ -254,44 +115,22 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.985296-04:00",
-      "last_seen": "2026-07-10T20:05:24.985296-04:00"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "legacy-ci-token-77abc",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "k8s_sa_token"
-      },
-      "first_seen": "2026-07-10T20:05:24.975279-04:00",
-      "last_seen": "2026-07-10T20:05:24.975279-04:00"
+      "first_seen": "2026-07-23T23:17:04.385356Z",
+      "last_seen": "2026-07-23T23:17:46.416606Z"
     },
     {
       "detector": "orphaned_identity",
       "category": "hygiene",
       "severity": "medium",
       "confidence": 70,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
+      "identity_name": "billing-admin",
+      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
+      "account": "aws:123456789012",
       "title": "Orphaned non-human identity",
-      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
       "status": "open",
       "evidence": {
-        "account": "k8s:demo",
+        "account": "aws:123456789012",
         "created": null,
         "last_seen": null,
         "missing": [
@@ -300,53 +139,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.971758-04:00",
-      "last_seen": "2026-07-10T20:05:24.971758-04:00"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 0,
-        "nearest_crown_jewel_hops": -1,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:24.96758-04:00",
-      "last_seen": "2026-07-10T20:05:24.96758-04:00"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:ci/legacy-ci:rbac:admin",
-          "role:ci/legacy-ci:rbac:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-10T20:05:24.96516-04:00",
-      "last_seen": "2026-07-10T20:05:24.96516-04:00"
+      "first_seen": "2026-07-23T23:17:04.356504Z",
+      "last_seen": "2026-07-23T23:17:46.413705Z"
     },
     {
       "detector": "orphaned_identity",
@@ -369,8 +163,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.957563-04:00",
-      "last_seen": "2026-07-10T20:05:24.957563-04:00"
+      "first_seen": "2026-07-23T23:17:04.364163Z",
+      "last_seen": "2026-07-23T23:17:46.410966Z"
     },
     {
       "detector": "suspicious_role_chain",
@@ -394,8 +188,8 @@
         "total_hops": 3,
         "trust_hops": 1
       },
-      "first_seen": "2026-07-10T20:05:24.956104-04:00",
-      "last_seen": "2026-07-10T20:05:24.956104-04:00"
+      "first_seen": "2026-07-23T23:17:04.363378Z",
+      "last_seen": "2026-07-23T23:17:46.410075Z"
     },
     {
       "detector": "high_blast_radius",
@@ -417,8 +211,99 @@
           "3 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.952457-04:00",
-      "last_seen": "2026-07-10T20:05:24.952457-04:00"
+      "first_seen": "2026-07-23T23:17:04.36097Z",
+      "last_seen": "2026-07-23T23:17:46.407475Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "legacy-ci-token-77abc",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "k8s_sa_token"
+      },
+      "first_seen": "2026-07-23T23:17:04.3727Z",
+      "last_seen": "2026-07-23T23:17:46.403793Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "k8s:demo",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.371203Z",
+      "last_seen": "2026-07-23T23:17:46.402429Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 0,
+        "nearest_crown_jewel_hops": -1,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.368937Z",
+      "last_seen": "2026-07-23T23:17:46.400524Z"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:ci/legacy-ci:rbac:admin",
+          "role:ci/legacy-ci:rbac:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.367257Z",
+      "last_seen": "2026-07-23T23:17:46.399071Z"
     },
     {
       "detector": "high_blast_radius",
@@ -440,8 +325,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.943431-04:00",
-      "last_seen": "2026-07-10T20:05:24.943431-04:00"
+      "first_seen": "2026-07-23T23:17:04.413642Z",
+      "last_seen": "2026-07-23T23:17:46.395523Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -463,8 +348,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T20:05:24.940752-04:00",
-      "last_seen": "2026-07-10T20:05:24.940752-04:00"
+      "first_seen": "2026-07-23T23:17:04.412239Z",
+      "last_seen": "2026-07-23T23:17:46.39409Z"
     },
     {
       "detector": "stale_access_key",
@@ -485,8 +370,8 @@
         ],
         "type": "api_client_token"
       },
-      "first_seen": "2026-07-10T20:05:24.930539-04:00",
-      "last_seen": "2026-07-10T20:05:24.930539-04:00"
+      "first_seen": "2026-07-23T23:17:04.395988Z",
+      "last_seen": "2026-07-23T23:17:46.390563Z"
     },
     {
       "detector": "orphaned_identity",
@@ -509,8 +394,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.927377-04:00",
-      "last_seen": "2026-07-10T20:05:24.927377-04:00"
+      "first_seen": "2026-07-23T23:17:04.394464Z",
+      "last_seen": "2026-07-23T23:17:46.388901Z"
     },
     {
       "detector": "ai_agent_overscoped",
@@ -535,8 +420,8 @@
         "ttl_hours": 720,
         "uncontrolled_tools": true
       },
-      "first_seen": "2026-07-10T20:05:24.92347-04:00",
-      "last_seen": "2026-07-10T20:05:24.92347-04:00"
+      "first_seen": "2026-07-23T23:17:04.392235Z",
+      "last_seen": "2026-07-23T23:17:46.386365Z"
     },
     {
       "detector": "high_blast_radius",
@@ -558,8 +443,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.918957-04:00",
-      "last_seen": "2026-07-10T20:05:24.918957-04:00"
+      "first_seen": "2026-07-23T23:17:04.389807Z",
+      "last_seen": "2026-07-23T23:17:46.384222Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -581,8 +466,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T20:05:24.916167-04:00",
-      "last_seen": "2026-07-10T20:05:24.916167-04:00"
+      "first_seen": "2026-07-23T23:17:04.388268Z",
+      "last_seen": "2026-07-23T23:17:46.382782Z"
     },
     {
       "detector": "stale_access_key",
@@ -603,8 +488,8 @@
         ],
         "type": "k8s_sa_token"
       },
-      "first_seen": "2026-07-10T20:05:24.904979-04:00",
-      "last_seen": "2026-07-10T20:05:24.904979-04:00"
+      "first_seen": "2026-07-23T23:17:04.409104Z",
+      "last_seen": "2026-07-23T23:17:46.379138Z"
     },
     {
       "detector": "high_blast_radius",
@@ -627,8 +512,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.899522-04:00",
-      "last_seen": "2026-07-10T20:05:24.899522-04:00"
+      "first_seen": "2026-07-23T23:17:04.406091Z",
+      "last_seen": "2026-07-23T23:17:46.376919Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -650,8 +535,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T20:05:24.896857-04:00",
-      "last_seen": "2026-07-10T20:05:24.896857-04:00"
+      "first_seen": "2026-07-23T23:17:04.404168Z",
+      "last_seen": "2026-07-23T23:17:46.375396Z"
     },
     {
       "detector": "stale_access_key",
@@ -672,8 +557,8 @@
         ],
         "type": "gcp_sa_key"
       },
-      "first_seen": "2026-07-10T20:05:24.884544-04:00",
-      "last_seen": "2026-07-10T20:05:24.884544-04:00"
+      "first_seen": "2026-07-23T23:17:04.381138Z",
+      "last_seen": "2026-07-23T23:17:46.371859Z"
     },
     {
       "detector": "orphaned_identity",
@@ -696,8 +581,8 @@
           "repo_reference"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.88207-04:00",
-      "last_seen": "2026-07-10T20:05:24.88207-04:00"
+      "first_seen": "2026-07-23T23:17:04.379703Z",
+      "last_seen": "2026-07-23T23:17:46.370612Z"
     },
     {
       "detector": "high_blast_radius",
@@ -719,8 +604,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.87817-04:00",
-      "last_seen": "2026-07-10T20:05:24.87817-04:00"
+      "first_seen": "2026-07-23T23:17:04.377446Z",
+      "last_seen": "2026-07-23T23:17:46.368625Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -742,8 +627,8 @@
         "priv_escalation": true,
         "write_crown_jewel": false
       },
-      "first_seen": "2026-07-10T20:05:24.875493-04:00",
-      "last_seen": "2026-07-10T20:05:24.875493-04:00"
+      "first_seen": "2026-07-23T23:17:04.376023Z",
+      "last_seen": "2026-07-23T23:17:46.367073Z"
     },
     {
       "detector": "privilege_creep",
@@ -761,8 +646,8 @@
         "peer_p90": 168,
         "permission_count": 180
       },
-      "first_seen": "2026-07-10T20:05:24.867682-04:00",
-      "last_seen": "2026-07-10T20:05:24.867682-04:00"
+      "first_seen": "2026-07-23T23:17:04.43222Z",
+      "last_seen": "2026-07-23T23:17:46.364306Z"
     },
     {
       "detector": "stale_access_key",
@@ -783,8 +668,8 @@
         ],
         "type": "aws_access_key"
       },
-      "first_seen": "2026-07-10T20:05:24.864111-04:00",
-      "last_seen": "2026-07-10T20:05:24.864111-04:00"
+      "first_seen": "2026-07-23T23:17:04.429866Z",
+      "last_seen": "2026-07-23T23:17:46.361933Z"
     },
     {
       "detector": "suspicious_role_chain",
@@ -807,8 +692,8 @@
         "total_hops": 2,
         "trust_hops": 1
       },
-      "first_seen": "2026-07-10T20:05:24.862807-04:00",
-      "last_seen": "2026-07-10T20:05:24.862807-04:00"
+      "first_seen": "2026-07-23T23:17:04.428866Z",
+      "last_seen": "2026-07-23T23:17:46.361048Z"
     },
     {
       "detector": "first_use_sensitive_action",
@@ -823,12 +708,12 @@
       "status": "open",
       "evidence": {
         "action": "iam:CreateAccessKey",
-        "event_time": "2026-06-13T04:25:00-04:00",
+        "event_time": "2026-06-13T08:25:00Z",
         "region": "ru-central-1",
         "src_ip": "203.0.113.9/32"
       },
-      "first_seen": "2026-07-10T20:05:24.860462-04:00",
-      "last_seen": "2026-07-10T20:05:24.860462-04:00"
+      "first_seen": "2026-07-23T23:17:04.426966Z",
+      "last_seen": "2026-07-23T23:17:46.357089Z"
     },
     {
       "detector": "impossible_travel",
@@ -847,17 +732,17 @@
         "event_a": {
           "country": "US",
           "ip": "192.0.2.1/32",
-          "time": "2026-06-13T04:09:00-04:00"
+          "time": "2026-06-13T08:09:00Z"
         },
         "event_b": {
           "country": "RU",
           "ip": "203.0.113.9/32",
-          "time": "2026-06-13T04:25:00-04:00"
+          "time": "2026-06-13T08:25:00Z"
         },
         "implied_kmh": 33324.61160356317
       },
-      "first_seen": "2026-07-10T20:05:24.858154-04:00",
-      "last_seen": "2026-07-10T20:05:24.858154-04:00"
+      "first_seen": "2026-07-23T23:17:04.425522Z",
+      "last_seen": "2026-07-23T23:17:46.355337Z"
     },
     {
       "detector": "high_blast_radius",
@@ -879,8 +764,8 @@
           "2 hops -\u003e crown_jewel"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.854362-04:00",
-      "last_seen": "2026-07-10T20:05:24.854362-04:00"
+      "first_seen": "2026-07-23T23:17:04.423337Z",
+      "last_seen": "2026-07-23T23:17:46.352568Z"
     },
     {
       "detector": "conditionless_assume_role",
@@ -901,96 +786,8 @@
           "SourceIp"
         ]
       },
-      "first_seen": "2026-07-10T20:05:24.850234-04:00",
-      "last_seen": "2026-07-10T20:05:24.850234-04:00"
-    },
-    {
-      "detector": "conditionless_assume_role",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 72,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Conditionless assume-role trust",
-      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-      "status": "open",
-      "evidence": {
-        "edge": "can_assume",
-        "missing_conditions": [
-          "ExternalId",
-          "MFA",
-          "SourceIp"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:24.845164-04:00",
-      "last_seen": "2026-07-10T20:05:24.845164-04:00"
-    },
-    {
-      "detector": "conditionless_assume_role",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 72,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Conditionless assume-role trust",
-      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-      "status": "open",
-      "evidence": {
-        "edge": "can_assume",
-        "missing_conditions": [
-          "ExternalId",
-          "MFA",
-          "SourceIp"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:24.841087-04:00",
-      "last_seen": "2026-07-10T20:05:24.841087-04:00"
-    },
-    {
-      "detector": "conditionless_assume_role",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 72,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Conditionless assume-role trust",
-      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-      "status": "open",
-      "evidence": {
-        "edge": "can_assume",
-        "missing_conditions": [
-          "ExternalId",
-          "MFA",
-          "SourceIp"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:24.8374-04:00",
-      "last_seen": "2026-07-10T20:05:24.8374-04:00"
-    },
-    {
-      "detector": "conditionless_assume_role",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 72,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Conditionless assume-role trust",
-      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-      "status": "open",
-      "evidence": {
-        "edge": "can_assume",
-        "missing_conditions": [
-          "ExternalId",
-          "MFA",
-          "SourceIp"
-        ]
-      },
-      "first_seen": "2026-07-10T20:05:24.833497-04:00",
-      "last_seen": "2026-07-10T20:05:24.833497-04:00"
+      "first_seen": "2026-07-23T23:17:04.421037Z",
+      "last_seen": "2026-07-23T23:17:46.349303Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -1001,23 +798,19 @@
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
       "title": "Over-privileged service identity",
-      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
       "status": "open",
       "evidence": {
         "admin": true,
         "matched": [
           "role:billing-admin:admin",
-          "write:arn:aws:s3:::prod-billing",
-          "write:arn:aws:s3:::prod-billing",
-          "write:arn:aws:s3:::prod-billing",
-          "write:arn:aws:s3:::prod-billing",
           "write:arn:aws:s3:::prod-billing"
         ],
         "priv_escalation": false,
         "write_crown_jewel": true
       },
-      "first_seen": "2026-07-10T20:05:24.831031-04:00",
-      "last_seen": "2026-07-10T20:05:24.831031-04:00"
+      "first_seen": "2026-07-23T23:17:04.419449Z",
+      "last_seen": "2026-07-23T23:17:46.346387Z"
     },
     {
       "detector": "secret_exposed_in_repo",
@@ -1038,8 +831,8 @@
         "pattern": "aws_akia",
         "verified": true
       },
-      "first_seen": "2026-07-10T20:05:24.824693-04:00",
-      "last_seen": "2026-07-10T20:05:24.824693-04:00"
+      "first_seen": "2026-07-23T23:17:04.417288Z",
+      "last_seen": "2026-07-23T23:17:46.343334Z"
     }
   ]
 }

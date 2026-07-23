@@ -9,7 +9,7 @@
         "provider": "aws",
         "state": "active",
         "is_ai_agent": false,
-        "risk_score": 70,
+        "risk_score": 62,
         "provenance": {
           "source": "fixture",
           "external_id": "arn:aws:iam::123456789012:user/svc-billing-export",
@@ -60,7 +60,7 @@
       },
       "exposures": [
         {
-          "id": "2ec9cc80-46ba-4aa6-a552-152df4964d03",
+          "id": "ce08841b-7624-4c7c-ad3a-005c139a83dc",
           "identity_id": "550e8400-e29b-41d4-a716-446655440001",
           "path": ".env",
           "commit_sha": "a1b2c3d",
@@ -73,7 +73,7 @@
       ],
       "findings": [
         {
-          "id": "0faf0610-316e-4fc8-84ff-5f10d1704a0a",
+          "id": "9898831d-1351-4d6e-8ee4-2f50efebfbcc",
           "detector": "privilege_creep",
           "category": "privilege",
           "severity": "medium",
@@ -89,11 +89,11 @@
           "fingerprint": "59834025f30c8cc4bb4b47f1dc77b548",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.867682Z",
-          "last_seen_at": "2026-07-18T06:07:21.674066Z"
+          "first_seen_at": "2026-07-23T23:17:04.43222Z",
+          "last_seen_at": "2026-07-23T23:17:46.364306Z"
         },
         {
-          "id": "31df7acc-6829-4654-91be-7a3feef7dbe2",
+          "id": "692c68b1-d273-401e-b43d-696c3b291a46",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
@@ -112,11 +112,11 @@
           "fingerprint": "8aa91e810772cf9b40695dee55d6c073",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.864111Z",
-          "last_seen_at": "2026-07-18T06:07:21.670856Z"
+          "first_seen_at": "2026-07-23T23:17:04.429866Z",
+          "last_seen_at": "2026-07-23T23:17:46.361933Z"
         },
         {
-          "id": "30d46757-26ba-464e-ba08-f76d3e11a9e6",
+          "id": "e91528a9-5dcc-4973-8152-dbbe050ef627",
           "detector": "suspicious_role_chain",
           "category": "trust",
           "severity": "high",
@@ -137,11 +137,11 @@
           "fingerprint": "073a98b254387da12f0c4f1442a080a7",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.862807Z",
-          "last_seen_at": "2026-07-18T06:07:21.669726Z"
+          "first_seen_at": "2026-07-23T23:17:04.428866Z",
+          "last_seen_at": "2026-07-23T23:17:46.361048Z"
         },
         {
-          "id": "9874d3d5-6ccf-456e-ac0f-5d6dd7f595af",
+          "id": "8f6b53cf-26ce-4d2b-9c93-7c6cd4293c66",
           "detector": "first_use_sensitive_action",
           "category": "anomaly",
           "severity": "high",
@@ -158,11 +158,11 @@
           "fingerprint": "c6db3bcac5c291e59f67ed6e1bf0c8f5",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.860462Z",
-          "last_seen_at": "2026-07-18T06:07:21.667719Z"
+          "first_seen_at": "2026-07-23T23:17:04.426966Z",
+          "last_seen_at": "2026-07-23T23:17:46.357089Z"
         },
         {
-          "id": "c902e229-6e56-43ec-b7ff-beddd532a54b",
+          "id": "14092c87-abf3-4a78-96c6-ba6c7ceb7e36",
           "detector": "impossible_travel",
           "category": "anomaly",
           "severity": "high",
@@ -188,11 +188,11 @@
           "fingerprint": "b5ed73e14995c5c809240036a624e7d8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.858154Z",
-          "last_seen_at": "2026-07-18T06:07:21.665499Z"
+          "first_seen_at": "2026-07-23T23:17:04.425522Z",
+          "last_seen_at": "2026-07-23T23:17:46.355337Z"
         },
         {
-          "id": "2dfceee9-b20a-46d0-a9da-01648127175e",
+          "id": "7290b42b-6de9-452d-bfe1-1368eefb84cf",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -212,11 +212,11 @@
           "fingerprint": "976a0f74054a1ae1f87c5213e1b20d64",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.854362Z",
-          "last_seen_at": "2026-07-18T06:07:21.662323Z"
+          "first_seen_at": "2026-07-23T23:17:04.423337Z",
+          "last_seen_at": "2026-07-23T23:17:46.352568Z"
         },
         {
-          "id": "953914d8-b9e8-4504-aa04-f52b0dd94ccc",
+          "id": "575d9183-36ca-44f5-85f8-89741d371a87",
           "detector": "conditionless_assume_role",
           "category": "trust",
           "severity": "high",
@@ -232,121 +232,25 @@
               "SourceIp"
             ]
           },
-          "fingerprint": "8d95beb8b2bc0a2637969b2cda669b35",
+          "fingerprint": "298f06dc7f8087e29466349dd10a5773",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.850234Z",
-          "last_seen_at": "2026-07-18T06:07:21.658377Z"
+          "first_seen_at": "2026-07-23T23:17:04.421037Z",
+          "last_seen_at": "2026-07-23T23:17:46.349303Z"
         },
         {
-          "id": "9616ec9c-7cb1-480e-b083-c125ec558592",
-          "detector": "conditionless_assume_role",
-          "category": "trust",
-          "severity": "high",
-          "confidence": 72,
-          "identity_id": "550e8400-e29b-41d4-a716-446655440001",
-          "title": "Conditionless assume-role trust",
-          "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-          "evidence": {
-            "edge": "can_assume",
-            "missing_conditions": [
-              "ExternalId",
-              "MFA",
-              "SourceIp"
-            ]
-          },
-          "fingerprint": "edeba37f9541c1c3fba9fb4a81962b5a",
-          "status": "open",
-          "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.845164Z",
-          "last_seen_at": "2026-07-18T06:07:21.654913Z"
-        },
-        {
-          "id": "bb523979-1998-48f4-98bc-b3ad474bb88f",
-          "detector": "conditionless_assume_role",
-          "category": "trust",
-          "severity": "high",
-          "confidence": 72,
-          "identity_id": "550e8400-e29b-41d4-a716-446655440001",
-          "title": "Conditionless assume-role trust",
-          "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-          "evidence": {
-            "edge": "can_assume",
-            "missing_conditions": [
-              "ExternalId",
-              "MFA",
-              "SourceIp"
-            ]
-          },
-          "fingerprint": "4f1748cd39540f65d7a1277a459abf0e",
-          "status": "open",
-          "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.841087Z",
-          "last_seen_at": "2026-07-18T06:07:21.650839Z"
-        },
-        {
-          "id": "566f4e2b-4be7-49ba-8de0-1e053b844a20",
-          "detector": "conditionless_assume_role",
-          "category": "trust",
-          "severity": "high",
-          "confidence": 72,
-          "identity_id": "550e8400-e29b-41d4-a716-446655440001",
-          "title": "Conditionless assume-role trust",
-          "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-          "evidence": {
-            "edge": "can_assume",
-            "missing_conditions": [
-              "ExternalId",
-              "MFA",
-              "SourceIp"
-            ]
-          },
-          "fingerprint": "23a9058f293008a74484ccbe54ecc5e9",
-          "status": "open",
-          "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.8374Z",
-          "last_seen_at": "2026-07-18T06:07:21.646197Z"
-        },
-        {
-          "id": "1e429735-0c9b-455b-bb25-cec6a0b2deb5",
-          "detector": "conditionless_assume_role",
-          "category": "trust",
-          "severity": "high",
-          "confidence": 72,
-          "identity_id": "550e8400-e29b-41d4-a716-446655440001",
-          "title": "Conditionless assume-role trust",
-          "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-          "evidence": {
-            "edge": "can_assume",
-            "missing_conditions": [
-              "ExternalId",
-              "MFA",
-              "SourceIp"
-            ]
-          },
-          "fingerprint": "c926ef6bc7d3bcea5931355510adff21",
-          "status": "open",
-          "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.833497Z",
-          "last_seen_at": "2026-07-18T06:07:21.638426Z"
-        },
-        {
-          "id": "d9a6e172-f5f1-4f74-9347-61f55908a8ba",
+          "id": "2e0dbba4-5cb3-4626-b4c2-63f77e9b7b20",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
           "confidence": 78,
           "identity_id": "550e8400-e29b-41d4-a716-446655440001",
           "title": "Over-privileged service identity",
-          "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+          "narrative": "Identity \"svc-billing-export\" holds excessive privilege ([role:billing-admin:admin write:arn:aws:s3:::prod-billing]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
           "evidence": {
             "admin": true,
             "matched": [
               "role:billing-admin:admin",
-              "write:arn:aws:s3:::prod-billing",
-              "write:arn:aws:s3:::prod-billing",
-              "write:arn:aws:s3:::prod-billing",
-              "write:arn:aws:s3:::prod-billing",
               "write:arn:aws:s3:::prod-billing"
             ],
             "priv_escalation": false,
@@ -355,11 +259,11 @@
           "fingerprint": "2fe7d0e07a1182bd0471e4c6c3532282",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.831031Z",
-          "last_seen_at": "2026-07-18T06:07:21.635478Z"
+          "first_seen_at": "2026-07-23T23:17:04.419449Z",
+          "last_seen_at": "2026-07-23T23:17:46.346387Z"
         },
         {
-          "id": "e48c36cd-60cd-4a45-b282-7c0667db036b",
+          "id": "fbb012e1-0d88-4383-b1c4-03731620eb50",
           "detector": "secret_exposed_in_repo",
           "category": "exposure",
           "severity": "critical",
@@ -378,19 +282,19 @@
           "fingerprint": "efcb1c2c10f53137e7db07e6f153217e",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.824693Z",
-          "last_seen_at": "2026-07-18T06:07:21.630845Z"
+          "first_seen_at": "2026-07-23T23:17:04.417288Z",
+          "last_seen_at": "2026-07-23T23:17:46.343334Z"
         }
       ],
       "top_remediation": {
-        "id": "2094c155-e878-4816-ab0a-5e27c17e3ced",
-        "finding_id": "2dfceee9-b20a-46d0-a9da-01648127175e",
+        "id": "5754ceda-275f-4805-93a1-08e54d766c4d",
+        "finding_id": "2e0dbba4-5cb3-4626-b4c2-63f77e9b7b20",
         "action": "reduce_scope",
         "status": "recommended",
-        "risk_before": 70,
-        "risk_after": 33,
-        "risk_delta": 37,
-        "notes": "Cut the privileges that reach crown-jewel resources."
+        "risk_before": 62,
+        "risk_after": 24,
+        "risk_delta": 38,
+        "notes": "Replace admin/wildcard grants with least-privilege permissions."
       }
     },
     {
@@ -470,7 +374,7 @@
       },
       "findings": [
         {
-          "id": "3a0face6-95ea-4bb9-804d-2d9d2d63c7f9",
+          "id": "1d47c04f-043d-4442-a5eb-7ff8111b149b",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
@@ -489,11 +393,11 @@
           "fingerprint": "021cfee138a3294de06f17681e9a937c",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.930539Z",
-          "last_seen_at": "2026-07-18T06:07:21.719173Z"
+          "first_seen_at": "2026-07-23T23:17:04.395988Z",
+          "last_seen_at": "2026-07-23T23:17:46.390563Z"
         },
         {
-          "id": "32335ed5-3584-4bb1-8843-8cafa07719d6",
+          "id": "59be5465-41b3-4696-b870-9bb975580297",
           "detector": "orphaned_identity",
           "category": "hygiene",
           "severity": "medium",
@@ -514,11 +418,11 @@
           "fingerprint": "33d772f39909c0fe944b62a2c8621ea1",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.927377Z",
-          "last_seen_at": "2026-07-18T06:07:21.716672Z"
+          "first_seen_at": "2026-07-23T23:17:04.394464Z",
+          "last_seen_at": "2026-07-23T23:17:46.388901Z"
         },
         {
-          "id": "036d29c3-461c-4703-9ac3-02fad18feaf1",
+          "id": "af058aaa-85b4-4b13-8427-ec3e4a36e6c1",
           "detector": "ai_agent_overscoped",
           "category": "ai_agent",
           "severity": "high",
@@ -541,11 +445,11 @@
           "fingerprint": "6805073fa76fdad8f5bf2efa2529d669",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.92347Z",
-          "last_seen_at": "2026-07-18T06:07:21.712875Z"
+          "first_seen_at": "2026-07-23T23:17:04.392235Z",
+          "last_seen_at": "2026-07-23T23:17:46.386365Z"
         },
         {
-          "id": "704313e6-a096-4d41-87bd-511b9b92b60b",
+          "id": "8da2e17b-ac32-4dc8-87a7-306a5839389e",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -565,11 +469,11 @@
           "fingerprint": "ef5fd9a96dbfc2ad824fd9f8d35e818d",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.918957Z",
-          "last_seen_at": "2026-07-18T06:07:21.709393Z"
+          "first_seen_at": "2026-07-23T23:17:04.389807Z",
+          "last_seen_at": "2026-07-23T23:17:46.384222Z"
         },
         {
-          "id": "17f16f6c-f1d0-4231-8859-ccc272420e36",
+          "id": "a52856cc-3045-4583-a826-ffafea8b6caf",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
@@ -589,13 +493,13 @@
           "fingerprint": "44cd3d9a09c8f41b5221cacab4567f2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.916167Z",
-          "last_seen_at": "2026-07-18T06:07:21.707237Z"
+          "first_seen_at": "2026-07-23T23:17:04.388268Z",
+          "last_seen_at": "2026-07-23T23:17:46.382782Z"
         }
       ],
       "top_remediation": {
-        "id": "3b1f4802-af87-4fc4-9d26-c92bfe874070",
-        "finding_id": "036d29c3-461c-4703-9ac3-02fad18feaf1",
+        "id": "6c2c2169-96ab-4127-bdaf-f3ce59cb1d56",
+        "finding_id": "af058aaa-85b4-4b13-8427-ec3e4a36e6c1",
         "action": "reduce_scope",
         "status": "recommended",
         "risk_before": 39,
@@ -613,7 +517,7 @@
         "provider": "gcp",
         "state": "active",
         "is_ai_agent": false,
-        "risk_score": 54,
+        "risk_score": 43,
         "provenance": {
           "source": "fixture",
           "external_id": "data-processor@project.iam.gserviceaccount.com",
@@ -664,7 +568,7 @@
       },
       "findings": [
         {
-          "id": "5e7bc977-f2e7-4e8d-aa6f-0880b54f93b0",
+          "id": "755896db-84f0-4b89-bd02-d965f038bbd0",
           "detector": "stale_access_key",
           "category": "hygiene",
           "severity": "medium",
@@ -683,11 +587,11 @@
           "fingerprint": "87c611ae5cc1f5ec799f31a4fc145f58",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.884544Z",
-          "last_seen_at": "2026-07-18T06:07:21.689229Z"
+          "first_seen_at": "2026-07-23T23:17:04.381138Z",
+          "last_seen_at": "2026-07-23T23:17:46.371859Z"
         },
         {
-          "id": "06ba9943-7b31-463a-8840-31339fe571cf",
+          "id": "28869f16-0395-4e0d-9efb-78ec672ba562",
           "detector": "orphaned_identity",
           "category": "hygiene",
           "severity": "medium",
@@ -708,11 +612,11 @@
           "fingerprint": "22a478ed03af05c6103fec95ed400c2a",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.88207Z",
-          "last_seen_at": "2026-07-18T06:07:21.68575Z"
+          "first_seen_at": "2026-07-23T23:17:04.379703Z",
+          "last_seen_at": "2026-07-23T23:17:46.370612Z"
         },
         {
-          "id": "f4b3c51f-05e2-4589-ab7c-fc3fd586f9cb",
+          "id": "7115daf0-8cef-443f-80fa-2b5442b8ea9b",
           "detector": "high_blast_radius",
           "category": "blast_radius",
           "severity": "high",
@@ -732,11 +636,11 @@
           "fingerprint": "7287c724892741202be2a8dfdc2214c8",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.87817Z",
-          "last_seen_at": "2026-07-18T06:07:21.680983Z"
+          "first_seen_at": "2026-07-23T23:17:04.377446Z",
+          "last_seen_at": "2026-07-23T23:17:46.368625Z"
         },
         {
-          "id": "06740c2d-f363-462f-980e-7e558c9d79f3",
+          "id": "f2c89391-720a-46d1-b2a2-c3b90ee233ab",
           "detector": "over_privileged_sa",
           "category": "privilege",
           "severity": "high",
@@ -756,18 +660,18 @@
           "fingerprint": "27a464a8ba7d6bd613676bbb150d8535",
           "status": "open",
           "risk_contribution": 0,
-          "first_seen_at": "2026-07-11T00:05:24.875493Z",
-          "last_seen_at": "2026-07-18T06:07:21.67849Z"
+          "first_seen_at": "2026-07-23T23:17:04.376023Z",
+          "last_seen_at": "2026-07-23T23:17:46.367073Z"
         }
       ],
       "top_remediation": {
-        "id": "dc2184f8-4431-4a1f-8f2b-eae87252298b",
-        "finding_id": "06ba9943-7b31-463a-8840-31339fe571cf",
+        "id": "31592d05-7a2a-4a0d-ada4-a9fc30986426",
+        "finding_id": "28869f16-0395-4e0d-9efb-78ec672ba562",
         "action": "remove_identity",
         "status": "recommended",
-        "risk_before": 54,
+        "risk_before": 43,
         "risk_after": 2,
-        "risk_delta": 52,
+        "risk_delta": 41,
         "notes": "Remove the unaccounted-for identity (or assign an owner)."
       }
     }

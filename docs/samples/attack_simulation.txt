@@ -4,7 +4,7 @@
   12 identities · 26 graph nodes · 18 edges · 5 crown jewels
 
 ━━━ Scenario 1 · Leaked credential → crown jewel
-  target  svc-billing-export  (risk 70)
+  target  svc-billing-export  (risk 62)
   RECON   attacker finds credential material at .env:12 (pattern aws_akia) — belongs to svc-billing-export
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
@@ -12,10 +12,8 @@
   IMPACT 1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
   CAUGHT  secret_exposed_in_repo (critical), suspicious_role_chain (high), first_use_sensitive_action (high), 
           impossible_travel (high), high_blast_radius (high), conditionless_assume_role (high), 
-          conditionless_assume_role (high), conditionless_assume_role (high), conditionless_assume_role (high), 
-          conditionless_assume_role (high), over_privileged_sa (high), privilege_creep (medium), 
-          stale_access_key (medium)
-  FIX     reduce_scope  →  risk 70→33 (−37)
+          over_privileged_sa (high), privilege_creep (medium), stale_access_key (medium)
+  FIX     reduce_scope  →  risk 62→24 (−38)
 
 ━━━ Scenario 2 · Over-scoped AI agent
   target  prod-copilot-agent  (risk 39)
@@ -29,14 +27,14 @@
   FIX     reduce_scope  →  risk 39→2 (−37)
 
 ━━━ Scenario 3 · High blast radius
-  target  data-processor@project.iam.gserviceaccount.com  (risk 54)
+  target  data-processor@project.iam.gserviceaccount.com  (risk 43)
   STEP 0  ▸ data-processor@project.iam.gserviceaccount.com [identity]
   STEP 1  → wields the permissions of data-processor [role] ▲ high
   STEP 2  → gains access to gcp:project:my-gcp-project [resource] ◆ CROWN JEWEL
   IMPACT 1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
   CAUGHT  high_blast_radius (high), over_privileged_sa (high), stale_access_key (medium), 
           orphaned_identity (medium)
-  FIX     remove_identity  →  risk 54→2 (−52)
+  FIX     remove_identity  →  risk 43→2 (−41)
 
   Detections and remediations shown above are computed live from the graph.
 

@@ -18,7 +18,7 @@ each and the single remediation that severs it:
   12 identities · 26 graph nodes · 18 edges · 5 crown jewels
 
 ━━━ Scenario 1 · Leaked credential → crown jewel
-  target  svc-billing-export  (risk 70)
+  target  svc-billing-export  (risk 62)
   RECON   attacker finds credential material at .env:12 (pattern aws_akia) — belongs to svc-billing-export
   STEP 0  ▸ svc-billing-export [identity]
   STEP 1  → assumes role billing-admin [role] ▲ high
@@ -26,7 +26,7 @@ each and the single remediation that severs it:
   IMPACT  1 crown jewel(s) reachable · nearest crown jewel 2 hop(s) · reaches admin: true
   CAUGHT  secret_exposed_in_repo (critical), suspicious_role_chain (high),
           conditionless_assume_role (high), high_blast_radius (high), over_privileged_sa (high), …
-  FIX     reduce_scope  →  risk 70→33 (−37)
+  FIX     reduce_scope  →  risk 62→24 (−38)
 
 ━━━ Scenario 2 · Over-scoped AI agent
   target  prod-copilot-agent  (risk 39)
