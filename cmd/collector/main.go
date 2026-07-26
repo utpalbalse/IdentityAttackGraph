@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/nhiid/nhiid/internal/collectors"
 	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
@@ -21,6 +24,7 @@ import (
 func main() {
 	provider := flag.String("provider", "aws", "aws, gcp, k8s, repo, or fixture")
 	account := flag.String("account", "", "account id / project id")
+	interval := flag.Duration("interval", 0, "collect repeatedly on this interval (e.g. 30m) instead of exiting after one run; 0 = run once")
 	fixtureFile := flag.String("fixture", "fixtures/demo_env.json", "fixture file for demo collector")
 	roleARN := flag.String("role-arn", "", "AWS role ARN to assume for cross-account collection")
 	externalID := flag.String("external-id", "", "ExternalId for the assume-role trust (recommended)")
@@ -113,8 +117,41 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := collectors.Run(ctx, s, coll, *account, logger); err != nil {
-		logger.Error("collection failed", "err", err)
-		os.Exit(1)
+	// One-shot (the default): ad-hoc runs, CI, and the Helm CronJob all want a process that
+	// collects once and exits with a meaningful status code.
+	if *interval <= 0 {
+		if err := collectors.Run(ctx, s, coll, *account, logger); err != nil {
+			logger.Error("collection failed", "err", err)
+			os.Exit(1)
+		}
+		return
+	}
+
+	// Continuous mode: keep the inventory fresh without an external scheduler. Re-collecting is
+	// safe because every entity is keyed by a deterministic UUID (models.DeterministicID), so a
+	// repeated run updates rows in place rather than duplicating them.
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	logger.Info("continuous collection enabled", "provider", *provider, "account", *account, "interval", interval.String())
+	tick := time.NewTicker(*interval)
+	defer tick.Stop()
+
+	for {
+		// A failed cycle must not kill the loop — a throttled API or a brief network fault should
+		// be retried on the next tick, not take the collector down.
+		if err := collectors.Run(ctx, s, coll, *account, logger); err != nil {
+			if ctx.Err() != nil {
+				break // interrupted mid-collection by shutdown, not a real failure
+			}
+			logger.Error("collection failed, will retry", "err", err, "retry_in", interval.String())
+		}
+
+		select {
+		case <-ctx.Done():
+			logger.Info("collector shutting down")
+			return
+		case <-tick.C:
+		}
 	}
 }

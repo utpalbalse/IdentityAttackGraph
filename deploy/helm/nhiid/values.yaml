@@ -125,6 +125,39 @@ worker:
   tolerations: []
   affinity: {}
 
+# ---- Scheduled collection ----
+# Disabled by default: collection needs credentials and a target account, both deployment-specific.
+# Kubernetes owns the cadence here, so each run is one-shot (the collector's own --interval flag is
+# for docker-compose / standalone use). Add one entry per account you want inventoried.
+collector:
+  enabled: false
+  schedule: "0 * * * *"     # hourly; override per target below
+  concurrencyPolicy: Forbid # never let two runs overlap on the same account
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  restartPolicy: OnFailure
+  backoffLimit: 2
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: "1", memory: 512Mi}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # One CronJob is rendered per target. `args` are passed straight to the collector binary.
+  targets: []
+  #  - name: aws-prod
+  #    schedule: "*/30 * * * *"           # optional per-target override
+  #    args:
+  #      - --provider=aws
+  #      - --role-arn=arn:aws:iam::123456789012:role/nhiid-collector
+  #      - --external-id=$(NHIID_EXTERNAL_ID)
+  #      - --region=us-east-1
+  #    env:                                # optional extra env (creds, IRSA needs none)
+  #      - name: NHIID_EXTERNAL_ID
+  #        valueFrom: {secretKeyRef: {name: nhiid-collector, key: externalId}}
+  #  - name: gcp-prod
+  #    args: [--provider=gcp, --project=my-gcp-project]
+
 # ---- Web UI ----
 web:
   enabled: true

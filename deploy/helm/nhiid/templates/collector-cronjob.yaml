@@ -1,0 +1,73 @@
+{{- /*
+Scheduled collection: one CronJob per configured target account. Kubernetes owns the cadence, so
+each run is one-shot (collect, persist, exit) — the collector's --interval flag is for
+docker-compose / standalone use instead. Runs are safe to repeat because every entity is keyed by a
+deterministic UUID, so a re-run updates rows in place rather than duplicating them.
+Disabled unless .Values.collector.enabled and at least one target is set.
+*/ -}}
+{{- if .Values.collector.enabled }}
+{{- range $target := .Values.collector.targets }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "nhiid.fullname" $ }}-collector-{{ $target.name }}
+  labels:
+    {{- include "nhiid.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: collector
+spec:
+  schedule: {{ $target.schedule | default $.Values.collector.schedule | quote }}
+  concurrencyPolicy: {{ $.Values.collector.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ $.Values.collector.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $.Values.collector.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ $.Values.collector.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "nhiid.selectorLabels" $ | nindent 12 }}
+            app.kubernetes.io/component: collector
+        spec:
+          restartPolicy: {{ $.Values.collector.restartPolicy }}
+          serviceAccountName: {{ include "nhiid.serviceAccountName" $ }}
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml $.Values.podSecurityContext | nindent 12 }}
+          containers:
+            - name: collector
+              image: {{ include "nhiid.image" $ }}
+              imagePullPolicy: {{ $.Values.image.pullPolicy }}
+              command: ["collector"]
+              args:
+                {{- toYaml $target.args | nindent 16 }}
+              securityContext:
+                {{- toYaml $.Values.securityContext | nindent 16 }}
+              env:
+                {{- include "nhiid.backendEnv" $ | nindent 16 }}
+                {{- with $target.env }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+              volumeMounts:
+                {{- include "nhiid.configMounts" $ | nindent 16 }}
+              resources:
+                {{- toYaml $.Values.collector.resources | nindent 16 }}
+          volumes:
+            {{- include "nhiid.configVolume" $ | nindent 12 }}
+          {{- with $.Values.collector.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $.Values.collector.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $.Values.collector.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
+{{- end }}

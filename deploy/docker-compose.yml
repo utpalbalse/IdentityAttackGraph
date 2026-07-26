@@ -84,5 +84,61 @@ services:
     depends_on:
       - api
 
+  # One-shot demo seeding, so a first run needs no `make` and no local toolchain:
+  #   docker compose -f deploy/docker-compose.yml --profile demo up --build -d
+  # Loads the synthetic AWS+GCP+K8s fixtures and runs graph/score/detect once, then exits.
+  # Writes straight to postgres, so it doesn't wait on the API.
+  seed:
+    build: *nhiid-build
+    image: nhiid:local
+    profiles: ["demo"]
+    command:
+      - sh
+      - -c
+      - >-
+        collector --provider fixture --fixture fixtures/demo_env.json &&
+        collector --provider k8s --cluster demo --k8s-export fixtures/k8s_cluster.json &&
+        worker --once --job all
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  # Continuous discovery against a real cloud account. Off by default (profile-gated) so the demo
+  # stack stays lean; enable with:
+  #   docker compose -f deploy/docker-compose.yml --profile collect up -d
+  # Point it at a target with COLLECTOR_* / AWS_* env vars (see docs/GETTING_STARTED.md), e.g.
+  #   COLLECTOR_PROVIDER=aws COLLECTOR_INTERVAL=30m \
+  #   COLLECTOR_ARGS="--role-arn arn:aws:iam::123456789012:role/nhiid-collector --external-id s3cr3t"
+  # `exec` keeps the collector as PID 1 so SIGTERM reaches it and it shuts down gracefully.
+  collector:
+    build: *nhiid-build
+    image: nhiid:local
+    profiles: ["collect"]
+    command:
+      - sh
+      - -c
+      - exec collector --provider "$$COLLECTOR_PROVIDER" --interval "$$COLLECTOR_INTERVAL" $$COLLECTOR_ARGS
+    environment:
+      <<: *backend-env
+      COLLECTOR_PROVIDER: ${COLLECTOR_PROVIDER:-aws}
+      COLLECTOR_INTERVAL: ${COLLECTOR_INTERVAL:-30m}
+      COLLECTOR_ARGS: ${COLLECTOR_ARGS:-}
+      # Credentials are passed through from your shell; nothing is baked into the image.
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   postgres_data:

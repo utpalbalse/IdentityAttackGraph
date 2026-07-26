@@ -18,6 +18,10 @@ web/.vite/
 *-credentials.json
 serviceaccount*.json
 
+# Helm — subcharts fetched by `helm dependency update`, not vendored
+deploy/helm/*/charts/
+deploy/helm/*/Chart.lock
+
 # Local
 .DS_Store
 *.log
