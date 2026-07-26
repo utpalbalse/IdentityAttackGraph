@@ -16,7 +16,14 @@ jobs:
       - name: gofmt
         run: test -z "$(gofmt -s -l .)" || (gofmt -s -l . && exit 1)
       - name: govulncheck
-        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+        # GOTOOLCHAIN=local forces govulncheck to be built with the job's Go (setup-go above), not
+        # the older toolchain golang.org/x/vuln requests. A govulncheck built with an older Go can't
+        # analyze this module's newer Go code and fails with "package requires newer Go version".
+        # The tool version is pinned so a new release can't reintroduce that mismatch; the vuln DB is
+        # still fetched live at run time.
+        env:
+          GOTOOLCHAIN: local
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
 
   frontend:
     runs-on: ubuntu-latest
