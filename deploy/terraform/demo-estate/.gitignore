@@ -1,0 +1,15 @@
+# Terraform working files — never commit these. Provider cache is ~700MB and
+# regenerable via `terraform init`; state can contain the access-key secret.
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+# Real tfvars may hold account-specific values; the example is tracked.
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
