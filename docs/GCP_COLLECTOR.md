@@ -60,6 +60,14 @@ go run ./cmd/collector --provider gcp --project my-gcp-project --gcp-credentials
 
 The canonical `account_ref` is `gcp:<project-id>`.
 
+No Go toolchain? Every binary ships in the container image, so the same commands work as
+`docker compose -f deploy/docker-compose.yml exec -T api collector --provider gcp ...`.
+
+To keep collecting rather than snapshotting once, add `--interval 30m` (the collector then loops
+until `SIGTERM`), or run the `--profile collect` compose service, or enable a per-account Helm
+CronJob — see [GETTING_STARTED.md](GETTING_STARTED.md#point-it-at-a-real-cloud). Re-collection is
+idempotent: deterministic UUIDs mean repeat runs update rows in place.
+
 ## How it lands in the graph
 
 A service account with `roles/owner` on its project, that a CI deployer can impersonate without an

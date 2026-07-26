@@ -60,6 +60,10 @@ go run ./cmd/collector --provider repo \
 go run ./cmd/worker --once --job detect
 ```
 
+No Go toolchain? The binaries ship in the container image — run the same commands as
+`docker compose -f deploy/docker-compose.yml exec -T api collector --provider repo ...` (mount or
+copy the report/checkout into the container first, e.g. with `docker compose cp`).
+
 Or via the API / job queue (admin role):
 
 ```bash

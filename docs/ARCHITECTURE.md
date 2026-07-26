@@ -96,7 +96,10 @@ NHIID is built like a real enterprise security platform, not a script:
 
 ### 3.1 Collection (incremental sync)
 
-1. Scheduler enqueues a `collect` job per `(provider, account/project, collector)` onto NATS.
+1. A `collect` job per `(provider, account/project, collector)` is enqueued onto NATS — by
+   `POST /api/v1/collect`, or on a schedule. Scheduling is external to the app by design: a Helm
+   `CronJob` per target account in Kubernetes, or the collector's own `--interval` flag when running
+   standalone / under docker-compose.
 2. A worker claims the job, loads the **cursor** for that collector (e.g. last CloudTrail event
    time, or last IAM snapshot ETag) from `collector_state`.
 3. The collector calls provider APIs with pagination + rate-limit handling + exponential backoff.
@@ -197,7 +200,7 @@ nhiid/
 ├── cmd/
 │   ├── api/            # REST + GraphQL API server entrypoint
 │   ├── worker/         # job consumer (collect/graph/score/detect/alert)
-│   ├── collector/      # one-shot collector CLI (for cron/debug)
+│   ├── collector/      # collector CLI; one-shot, or continuous with --interval
 │   ├── simulate/       # narrated attack-path walkthrough
 │   └── migrate/        # apply SQL migrations
 ├── internal/

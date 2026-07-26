@@ -64,14 +64,25 @@ each and the single remediation that severs it:
 
 ## Run it against real clouds
 
-Swap the fixture for a live collector — same pipeline, same graph, same detections:
+Swap the fixture for a live collector — same pipeline, same graph, same detections. Every binary
+ships in the image, so this needs no Go toolchain:
 
 ```bash
-collector --provider aws --role-arn <arn> --external-id <id>      # see docs/AWS_COLLECTOR.md
-collector --provider gcp --project <id>                            # see docs/GCP_COLLECTOR.md
+CO="docker compose -f deploy/docker-compose.yml"
+$CO exec -T api collector --provider aws --role-arn <arn> --external-id <id>   # docs/AWS_COLLECTOR.md
+$CO exec -T api collector --provider gcp --project <id>                        # docs/GCP_COLLECTOR.md
 kubectl get sa,roles,clusterroles,rolebindings,clusterrolebindings,pods -A -o json > c.json
-collector --provider k8s --cluster prod --k8s-export c.json        # see docs/K8S_COLLECTOR.md
+$CO exec -T api collector --provider k8s --cluster prod --k8s-export c.json    # docs/K8S_COLLECTOR.md
+$CO exec -T api worker --once --job all                                        # graph → score → detect
 ```
+
+To keep discovering rather than snapshotting once, add `--interval 30m` (or run the
+`--profile collect` service / the Helm CronJob) — see
+[GETTING_STARTED.md](GETTING_STARTED.md#point-it-at-a-real-cloud).
+
+Want a *real* AWS account to point at? [`deploy/terraform/demo-estate/`](../deploy/terraform/demo-estate/)
+builds a disposable, ~$0, vulnerable-by-design estate that reproduces Scenario 1 on live
+infrastructure, and tears down with one command.
 
 With AWS + K8s both collected, the IRSA `federated_from` edge connects **pod → AWS role → crown
 jewel** into a single cross-cloud attack path.

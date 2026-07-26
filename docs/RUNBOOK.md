@@ -14,14 +14,23 @@ Operations guide for running and maintaining IdentityAttackGraph.
 
 ## Common operations
 
-**Local bring-up:** `make dev` → `make migrate` (auto) → `make seed`. Tear down: `make down`.
+**Local bring-up:** `docker compose -f deploy/docker-compose.yml --profile demo up --build -d`
+(stack + migrations + demo data in one command; `make dev && make demo` where `make` is available).
+Tear down: `docker compose -f deploy/docker-compose.yml down -v` / `make down`.
 
 **Trigger a collection:**
-`POST /api/v1/collect {"provider":"aws","account":"123456789012","collectors":["iam","cloudtrail"]}`
-or CLI: `nhiid-collector --provider aws --account 123456789012 --collector iam`.
+`POST /api/v1/collect {"provider":"aws","account":"123456789012","role_arn":"<arn>","external_id":"<id>","region":"us-east-1"}`
+— the worker consumes it off NATS. Or run it directly:
+`docker compose -f deploy/docker-compose.yml exec -T api collector --provider aws --role-arn <arn> --external-id <id>`.
+
+**Keep collection running:** add `--interval 30m` to the collector (loops until `SIGTERM`), or run
+the `--profile collect` compose service, or enable the Helm CronJob per account
+(`collector.enabled` + `collector.targets`). Re-collection is idempotent — deterministic UUIDs mean
+repeat runs update rows in place. Watch `nhiid_ingestion_lag_seconds` to confirm it's keeping up.
 
 **Re-score / re-detect a snapshot:** worker jobs `score` and `detect` are idempotent; enqueue via
-`POST /api/v1/collect` flow or `nhiid-worker --once --job score`.
+the `POST /api/v1/collect` flow or run
+`docker compose -f deploy/docker-compose.yml exec -T api worker --once --job score`.
 
 ## Key metrics (Prometheus)
 - `nhiid_ingestion_lag_seconds{collector,account}` — now − newest event ingested. **Alert > 1h.**

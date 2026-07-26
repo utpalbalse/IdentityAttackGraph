@@ -60,13 +60,17 @@ module "nhiid_collector" {
 }
 ```
 
-Then trigger collection against that account:
+Then trigger collection against that account (binaries ship in the image, so no Go toolchain is
+needed):
 
 ```bash
-collector --provider aws \
+docker compose -f deploy/docker-compose.yml exec -T api collector --provider aws \
   --role-arn $(terraform output -raw role_arn) \
   --external-id "<shared-secret-external-id>"
 ```
+
+For ongoing collection, add `--interval 30m`, or enable the chart's per-account CronJob
+(`collector.enabled` + `collector.targets`, see [../helm/README.md](../helm/README.md)).
 
 The role grants only IAM `Get*/List*`, `cloudtrail:LookupEvents`, and `sts:GetCallerIdentity` —
 enough to discover identities, keys, trust, and last-used, and nothing that exposes secret values.

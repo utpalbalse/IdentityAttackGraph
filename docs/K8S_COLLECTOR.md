@@ -36,6 +36,11 @@ The account ref is `k8s:<cluster>`. Re-running is idempotent (deterministic UUID
 source lists ServiceAccounts, Roles/ClusterRoles, Role/ClusterRoleBindings, Pods, and token Secrets;
 the required RBAC is read (`get`/`list`) on those resources.
 
+No Go toolchain? The binaries ship in the container image — the same commands work as
+`docker compose -f deploy/docker-compose.yml exec -T api collector --provider k8s ...`. For ongoing
+collection use `--interval 30m`, or run it in-cluster on a schedule via the chart's CronJob
+(`collector.enabled` + `collector.targets`, see [../deploy/helm/README.md](../deploy/helm/README.md)).
+
 ## What it normalizes
 
 | Source object | Becomes |
