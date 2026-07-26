@@ -22,3 +22,6 @@ serviceaccount*.json
 .DS_Store
 *.log
 /tmp/
+
+# Launch/marketing drafts — personal, never pushed to GitHub
+press-kit/
