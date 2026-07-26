@@ -3,57 +3,101 @@
 ## Quick start (local development)
 
 ### Prerequisites
-- Docker & Docker Compose
-- Go 1.26+ (for collector and worker commands)
-- Node 20+ (for React dev server)
+**Docker & Docker Compose — that's all.** Every build (Go, Node) and the migrations run inside
+containers. `make` is an optional convenience on Linux/macOS; Go 1.26+ / Node 20+ are needed only if
+you want to run binaries or the Vite dev server directly on your host.
 
-### One-command stack
+### One command: stack + demo data
 ```bash
-make dev
+docker compose -f deploy/docker-compose.yml --profile demo up --build -d
 ```
 
-This brings up:
-- PostgreSQL (port 5432)
-- Redis (port 6379)
-- NATS JetStream (port 4222)
-- API server (port 8080)
-- Web UI (port 5173)
-- Worker (background job processor)
+Builds and starts PostgreSQL (5432), Redis (6379), NATS JetStream (4222), the API (8080), the
+worker, and the web UI (5173); applies migrations; then seeds the synthetic AWS+GCP+K8s dataset and
+runs graph → score → detect once.
 
-### Seed the demo environment
-```bash
-make seed
-```
-
-This loads a synthetic multi-account AWS+GCP fixture with:
-- 4 identities (2 AWS, 1 GCP, 1 orphaned)
-- 1 access key exposed in a private repo
-- 1 role assuming another with no ExternalId condition
-- 1 identity with crown-jewel S3 bucket access
+Where `make` is available, the equivalent is `make dev` (stack only) then `make demo` (seed + print
+the narrated attack-path simulation).
 
 ### View the dashboard
-Open http://localhost:5173 in a browser. You should see:
-- **Inventory tab:** 4 identities with risk scores
-- **Triage tab:** findings from the detection engine firing on the demo data
+Open <http://localhost:5173>. You should see **12 identities** scored in Inventory, **36 findings**
+in Triage, and the kill chain in Attack Graph.
 
-### Run scoring and detection manually
+### What the demo dataset contains
+12 non-human identities across AWS, GCP, and Kubernetes — including an access key exposed in a
+private repo (`svc-billing-export`), a role assumable with **no ExternalId condition**
+(`billing-admin`), a crown-jewel S3 bucket two hops from that leaked key, an over-scoped AI agent,
+an orphaned identity, and stale keys. The K8s fixture adds a `prod/deployer` ServiceAccount bound to
+`cluster-admin` and annotated for IRSA, which surfaces `over_privileged_sa` + `high_blast_radius`
+with an attack path pod → ServiceAccount → cluster secrets, plus a `federated_from` edge into AWS.
+
+Full breakdown: [DEMO.md](DEMO.md).
+
+### Narrated attack-path simulation
 ```bash
-make migrate          # Apply schema (auto on `make dev`)
-go run ./cmd/collector --provider fixture --fixture fixtures/demo_env.json
-go run ./cmd/collector --provider k8s --cluster demo --k8s-export fixtures/k8s_cluster.json  # K8s SAs + RBAC + IRSA/WIF
-go run ./cmd/worker --once --job graph
-go run ./cmd/worker --once --job score
-go run ./cmd/worker --once --job detect
+docker compose -f deploy/docker-compose.yml exec api simulate        # or: make sim
 ```
 
-The K8s fixture adds a `prod/deployer` ServiceAccount bound to `cluster-admin` (and annotated for
-IRSA) — after the worker runs it surfaces `over_privileged_sa` + `high_blast_radius`, with an
-attack path pod → ServiceAccount → cluster secrets, plus a `federated_from` edge to the AWS role.
+### Re-run the pipeline by hand
+All binaries (`collector`, `worker`, `migrate`, `simulate`) ship in the image, so no local Go is
+required:
+```bash
+CO="docker compose -f deploy/docker-compose.yml"
+$CO exec -T api collector --provider fixture --fixture fixtures/demo_env.json
+$CO exec -T api collector --provider k8s --cluster demo --k8s-export fixtures/k8s_cluster.json
+$CO exec -T api worker --once --job all      # or --job graph|score|detect
+```
+
+With a local Go toolchain you can equivalently run `go run ./cmd/collector ...` from the repo root.
 
 ### Stop the stack
 ```bash
-make down
+docker compose -f deploy/docker-compose.yml down -v                  # or: make down
 ```
+
+---
+
+## Point it at a real cloud
+
+Collection is **read-only** and never reads secret material. Set up the target first — for AWS,
+a read-only role with an ExternalId ([AWS_COLLECTOR.md](AWS_COLLECTOR.md)); or build a disposable,
+deliberately-vulnerable practice account with
+[../deploy/terraform/demo-estate/](../deploy/terraform/demo-estate/).
+
+### One-off collection
+```bash
+CO="docker compose -f deploy/docker-compose.yml"
+$CO exec -T api collector --provider aws --role-arn <arn> --external-id <id> --region us-east-1
+$CO exec -T api collector --provider gcp --project <project-id>
+$CO exec -T api collector --provider k8s --cluster prod --k8s-export cluster.json
+$CO exec -T api collector --provider repo --scan-path ./checkout --repo acme/api
+$CO exec -T api worker --once --job all       # graph → score → detect
+```
+
+### Continuous collection (keep the inventory fresh)
+The worker re-runs graph/score/detect every 60s, but that only re-processes whatever the collectors
+last wrote. To keep discovery itself running, give the collector an `--interval`:
+
+```bash
+COLLECTOR_PROVIDER=aws \
+COLLECTOR_INTERVAL=30m \
+COLLECTOR_ARGS="--role-arn arn:aws:iam::123456789012:role/nhiid-collector --external-id $NHIID_EXTERNAL_ID --region us-east-1" \
+AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... \
+docker compose -f deploy/docker-compose.yml --profile collect up -d
+```
+
+Credentials are passed through from your shell — nothing is baked into the image. Re-collecting is
+safe: every entity is keyed by a deterministic UUID, so a repeat run updates rows in place instead
+of duplicating them. The container handles `SIGTERM`, so `docker compose down` stops it cleanly.
+
+Standalone (no compose), the same flag works directly:
+```bash
+collector --provider aws --interval 30m --role-arn <arn> --external-id <id>
+```
+
+On Kubernetes, let the cluster schedule it instead — enable `collector.enabled` and add one
+`collector.targets` entry per account to get a CronJob each
+([../deploy/helm/README.md](../deploy/helm/README.md)).
 
 ---
 
@@ -98,8 +142,8 @@ make down
 
 - **Local development:** edit Go code, `make build && make dev` to restart.
 - **Web dev:** `cd web && npm run dev` for Vite hot reload.
-- **Point at real AWS:** `go run ./cmd/collector --provider aws --role-arn <arn> --external-id <id>` (see [AWS_COLLECTOR.md](AWS_COLLECTOR.md)).
-- **Point at real GCP:** `go run ./cmd/collector --provider gcp --project <id>` using ADC or a WIF credentials file (see [GCP_COLLECTOR.md](GCP_COLLECTOR.md)).
+- **Point at a real cloud:** see [Point it at a real cloud](#point-it-at-a-real-cloud) above —
+  one-off, continuous (`--interval`), or a Kubernetes CronJob.
 - **Production deploy:** `terraform apply` in [../deploy/terraform/](../deploy/terraform/) (VPC/EKS/RDS/ElastiCache/IRSA), then `helm upgrade --install nhiid deploy/helm/nhiid` (see [../deploy/helm/README.md](../deploy/helm/README.md)).
 - **Tests:** `make test` runs unit tests for the risk engine, all 17 detectors, graph traversal, every collector, JWKS validation, and the GraphQL schema. There are no DB-backed integration tests; the store layer and the full collect → graph → score → detect pipeline are exercised end-to-end by `make demo` against the containerised Postgres.
 

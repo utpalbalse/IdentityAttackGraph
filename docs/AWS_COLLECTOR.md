@@ -166,6 +166,9 @@ AWS_PROFILE=security-audit go run ./cmd/collector --provider aws --region us-eas
 The account id is resolved from `sts:GetCallerIdentity`; the canonical `account_ref` is
 `aws:<account-id>`.
 
+No Go toolchain? Every binary ships in the container image, so the same commands work as
+`docker compose -f deploy/docker-compose.yml exec -T api collector --provider aws ...`.
+
 After collection, build the graph, score, and detect:
 
 ```bash
@@ -173,6 +176,29 @@ go run ./cmd/worker --once --job graph
 go run ./cmd/worker --once --job score
 go run ./cmd/worker --once --job detect
 ```
+
+### Keeping it fresh
+
+A single run is a point-in-time snapshot. To keep discovering on a schedule, either give the
+collector an `--interval` (it then loops until terminated, handling `SIGTERM` for a clean
+shutdown)…
+
+```bash
+go run ./cmd/collector --provider aws --interval 30m \
+  --role-arn arn:aws:iam::123456789012:role/nhiid-collector --external-id "$NHIID_EXTERNAL_ID"
+
+# or via compose, credentials passed through from your shell:
+COLLECTOR_PROVIDER=aws COLLECTOR_INTERVAL=30m \
+COLLECTOR_ARGS="--role-arn <arn> --external-id $NHIID_EXTERNAL_ID" \
+docker compose -f deploy/docker-compose.yml --profile collect up -d
+```
+
+…or, on Kubernetes, let the cluster schedule one-shot runs per account with the chart's CronJob
+(`collector.enabled` + `collector.targets`, see [../deploy/helm/README.md](../deploy/helm/README.md)).
+
+Re-collecting is safe at any cadence: every entity is keyed by a deterministic UUID derived from its
+ARN, so repeat runs update rows in place rather than duplicating them. Only CloudTrail is
+incremental (from the saved `cloudtrail_after` cursor); IAM is re-snapshotted each run.
 
 ---
 

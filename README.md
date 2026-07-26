@@ -194,22 +194,42 @@ The **attack graph** is a from-scratch directed property graph (no Neo4j) whose 
 
 ## 🚀 Quick start (one command)
 
-No local Go or Node toolchain required; everything builds and runs in containers.
+**Docker is the only prerequisite** — no local Go, Node, or `make`. Everything builds and runs in
+containers.
 
 ```bash
-make dev      # compose up: postgres, redis, nats, migrate, api, worker, web
-make demo     # seed AWS+GCP+K8s fixtures, run the pipeline, print the attack simulation
+docker compose -f deploy/docker-compose.yml --profile demo up --build -d
 open http://localhost:5173
 ```
 
-Point it at real clouds. Same pipeline, same graph, same detections:
+That brings up postgres/redis/nats/api/worker/web, applies migrations, seeds the AWS+GCP+K8s demo
+fixtures, and runs graph → score → detect. On Linux/macOS, `make dev && make demo` does the same and
+also prints the narrated attack-path simulation (`make sim` any time).
+
+Point it at real clouds — same pipeline, same graph, same detections. Every binary ships in the
+image, so this works with no Go toolchain:
 
 ```bash
-collector --provider aws --role-arn <arn> --external-id <id>            # docs/AWS_COLLECTOR.md
-collector --provider gcp --project <project-id>                        # docs/GCP_COLLECTOR.md
-collector --provider k8s --cluster prod --kubeconfig ~/.kube/config    # or --k8s-export cluster.json
-collector --provider repo --scan-path ./checkout --repo acme/api      # or --report secretsweep.json
+CO="docker compose -f deploy/docker-compose.yml"
+$CO exec -T api collector --provider aws --role-arn <arn> --external-id <id>   # docs/AWS_COLLECTOR.md
+$CO exec -T api collector --provider gcp --project <project-id>                # docs/GCP_COLLECTOR.md
+$CO exec -T api collector --provider k8s --cluster prod --kubeconfig ~/.kube/config
+$CO exec -T api collector --provider repo --scan-path ./checkout --repo acme/api
+$CO exec -T api worker --once --job all                                        # graph → score → detect
 ```
+
+**Keep it fresh.** Give the collector an `--interval` and it becomes continuous discovery instead of
+a one-shot run — on Kubernetes, use the chart's CronJob per account instead:
+
+```bash
+COLLECTOR_PROVIDER=aws COLLECTOR_INTERVAL=30m \
+COLLECTOR_ARGS="--role-arn <arn> --external-id <id>" \
+docker compose -f deploy/docker-compose.yml --profile collect up -d
+```
+
+New to it? [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) walks the whole path, and
+[deploy/terraform/demo-estate/](deploy/terraform/demo-estate/) builds a disposable, ~$0 AWS account
+that's vulnerable by design so you can watch a real detection fire end-to-end.
 
 ---
 

@@ -19,6 +19,7 @@ Chart path: `deploy/helm/nhiid`.
 | `ServiceAccount/<r>` | IRSA-annotatable identity for collectors |
 | `Ingress` | optional; `/api` → api, `/` → web |
 | `ServiceMonitor` | optional Prometheus Operator scrape of api + worker |
+| `CronJob` | optional; one scheduled collection job per target account (`collector.enabled`) |
 
 The DB DSN (and JWT secret) are injected as env (`NHIID_DATABASE_DSN`, `NHIID_AUTH_JWT_SECRET`)
 from the Secret and override the mounted `config.yaml`; everything else comes from the ConfigMap.
@@ -57,6 +58,40 @@ Key production values:
   by the External Secrets Operator, containing `database-dsn`.
 - `externalRedis.url` / `externalNats.url` — managed endpoints.
 - `config.auth.mode: jwt` (or `token`) — **always enable auth outside a demo.**
+
+## Scheduled collection
+
+Disabled by default (collection needs credentials and a target account). Enable it and add one
+entry per account — each renders its own `CronJob`, so accounts can be scheduled and retried
+independently:
+
+```yaml
+collector:
+  enabled: true
+  schedule: "0 * * * *"          # default cadence; override per target
+  targets:
+    - name: aws-prod
+      schedule: "*/30 * * * *"
+      args:
+        - --provider=aws
+        - --role-arn=arn:aws:iam::123456789012:role/nhiid-collector
+        - --external-id=$(NHIID_EXTERNAL_ID)
+        - --region=us-east-1
+      env:
+        - name: NHIID_EXTERNAL_ID
+          valueFrom: {secretKeyRef: {name: nhiid-collector, key: externalId}}
+    - name: gcp-prod
+      args: [--provider=gcp, --project=my-gcp-project]
+```
+
+Each run is **one-shot** — Kubernetes owns the cadence here, so the collector's own `--interval`
+flag (used by docker-compose/standalone) is not needed. `concurrencyPolicy: Forbid` prevents two
+runs overlapping on the same account, and re-collecting is safe because entities are keyed by
+deterministic UUIDs, so a repeat run updates rows in place rather than duplicating them.
+
+With IRSA, the pods inherit the role via `serviceAccount.annotations` and need no credential env at
+all. Verify a target renders as expected with
+`helm template nhiid deploy/helm/nhiid --show-only templates/collector-cronjob.yaml -f your-values.yaml`.
 
 ## Validate before applying
 
