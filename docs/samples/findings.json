@@ -1,719 +1,26 @@
 {
   "findings": [
     {
-      "detector": "unused_secret",
-      "category": "hygiene",
-      "severity": "low",
-      "confidence": 75,
-      "identity_name": "",
-      "identity_arn": "",
-      "account": "",
-      "title": "Unused managed secret",
-      "narrative": "Secret \"legacy/unused-db-creds\" in aws_secretsmanager has no references and was last accessed never. Unreferenced secrets are dead credential material — delete them to shrink the attack surface.",
-      "status": "open",
-      "evidence": {
-        "last_accessed": null,
-        "name": "legacy/unused-db-creds",
-        "referenced_by": 0,
-        "rotation_enabled": false,
-        "secret": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
-        "store": "aws_secretsmanager"
-      },
-      "first_seen": "2026-07-23T23:17:04.437701Z",
-      "last_seen": "2026-07-23T23:17:46.426043Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "svc-orphaned",
-      "identity_arn": "arn:aws:iam::987654321098:user/svc-orphaned",
-      "account": "aws:987654321098",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:987654321098",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.434802Z",
-      "last_seen": "2026-07-23T23:17:46.424205Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod/configmap-reader",
-      "identity_arn": "k8s://demo/prod/configmap-reader",
-      "account": "k8s:demo",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "k8s:demo",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.401512Z",
-      "last_seen": "2026-07-23T23:17:46.421787Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod-deployer",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.399196Z",
-      "last_seen": "2026-07-23T23:17:46.41918Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-      "identity_arn": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "gcp:my-gcp-project",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.385356Z",
-      "last_seen": "2026-07-23T23:17:46.416606Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "billing-admin",
-      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.356504Z",
-      "last_seen": "2026-07-23T23:17:46.413705Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "ci-deployer",
-      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"ci-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "gcp:my-gcp-project",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.364163Z",
-      "last_seen": "2026-07-23T23:17:46.410966Z"
-    },
-    {
-      "detector": "suspicious_role_chain",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 66,
-      "identity_name": "ci-deployer",
-      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Suspicious role/impersonation chain",
-      "narrative": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant.",
-      "status": "open",
-      "evidence": {
-        "edge_sequence": [
-          "impersonates",
-          "has_permissions",
-          "binds_to"
-        ],
-        "impact": "crown_jewel",
-        "observed_pivot_events": 0,
-        "total_hops": 3,
-        "trust_hops": 1
-      },
-      "first_seen": "2026-07-23T23:17:04.363378Z",
-      "last_seen": "2026-07-23T23:17:46.410075Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "ci-deployer",
-      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"ci-deployer\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 1,
-        "nearest_crown_jewel_hops": 3,
-        "reaches_admin": true,
-        "top_paths": [
-          "2 hops -\u003e crown_jewel",
-          "3 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.36097Z",
-      "last_seen": "2026-07-23T23:17:46.407475Z"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "legacy-ci-token-77abc",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "k8s_sa_token"
-      },
-      "first_seen": "2026-07-23T23:17:04.3727Z",
-      "last_seen": "2026-07-23T23:17:46.403793Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "k8s:demo",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.371203Z",
-      "last_seen": "2026-07-23T23:17:46.402429Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 0,
-        "nearest_crown_jewel_hops": -1,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.368937Z",
-      "last_seen": "2026-07-23T23:17:46.400524Z"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "ci/legacy-ci",
-      "identity_arn": "k8s://demo/ci/legacy-ci",
-      "account": "k8s:demo",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:ci/legacy-ci:rbac:admin",
-          "role:ci/legacy-ci:rbac:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-23T23:17:04.367257Z",
-      "last_seen": "2026-07-23T23:17:46.399071Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "prod/secrets-sync",
-      "identity_arn": "k8s://demo/prod/secrets-sync",
-      "account": "k8s:demo",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"prod/secrets-sync\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 1,
-        "nearest_crown_jewel_hops": 2,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.413642Z",
-      "last_seen": "2026-07-23T23:17:46.395523Z"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "prod/secrets-sync",
-      "identity_arn": "k8s://demo/prod/secrets-sync",
-      "account": "k8s:demo",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"prod/secrets-sync\" holds excessive privilege ([role:prod/secrets-sync:rbac:admin role:prod/secrets-sync:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:prod/secrets-sync:rbac:admin",
-          "role:prod/secrets-sync:rbac:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-23T23:17:04.412239Z",
-      "last_seen": "2026-07-23T23:17:46.39409Z"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "prod-copilot-agent",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
-      "account": "aws:123456789012",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "aiat_live_9f3c8b21_redacted",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "api_client_token"
-      },
-      "first_seen": "2026-07-23T23:17:04.395988Z",
-      "last_seen": "2026-07-23T23:17:46.390563Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "prod-copilot-agent",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
-      "account": "aws:123456789012",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"prod-copilot-agent\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "aws:123456789012",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.394464Z",
-      "last_seen": "2026-07-23T23:17:46.388901Z"
-    },
-    {
-      "detector": "ai_agent_overscoped",
-      "category": "ai_agent",
-      "severity": "high",
-      "confidence": 70,
-      "identity_name": "prod-copilot-agent",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
-      "account": "aws:123456789012",
-      "title": "Over-scoped AI-agent identity",
-      "narrative": "AI-agent identity \"prod-copilot-agent\" is over-scoped (broad API scope=true, uncontrolled tools=true, TTL=720h). Autonomous agents with broad, long-lived, weakly-scoped access are high-consequence targets.",
-      "status": "open",
-      "evidence": {
-        "broad_api_scope": true,
-        "tools": [
-          "s3.read",
-          "secretsmanager.read",
-          "lambda.invoke",
-          "http.request",
-          "shell.exec"
-        ],
-        "ttl_hours": 720,
-        "uncontrolled_tools": true
-      },
-      "first_seen": "2026-07-23T23:17:04.392235Z",
-      "last_seen": "2026-07-23T23:17:46.386365Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "prod-copilot-agent",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
-      "account": "aws:123456789012",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"prod-copilot-agent\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 1,
-        "nearest_crown_jewel_hops": 2,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.389807Z",
-      "last_seen": "2026-07-23T23:17:46.384222Z"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "prod-copilot-agent",
-      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
-      "account": "aws:123456789012",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"prod-copilot-agent\" holds excessive privilege ([role:prod-copilot-agent:admin role:prod-copilot-agent:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:prod-copilot-agent:admin",
-          "role:prod-copilot-agent:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-23T23:17:04.388268Z",
-      "last_seen": "2026-07-23T23:17:46.382782Z"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "prod/deployer",
-      "identity_arn": "k8s://demo/prod/deployer",
-      "account": "k8s:demo",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "deployer-token-9x2k1",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "k8s_sa_token"
-      },
-      "first_seen": "2026-07-23T23:17:04.409104Z",
-      "last_seen": "2026-07-23T23:17:46.379138Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "prod/deployer",
-      "identity_arn": "k8s://demo/prod/deployer",
-      "account": "k8s:demo",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"prod/deployer\" can reach high-impact resources (crown jewels: 2, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 2,
-        "nearest_crown_jewel_hops": 2,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.406091Z",
-      "last_seen": "2026-07-23T23:17:46.376919Z"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "prod/deployer",
-      "identity_arn": "k8s://demo/prod/deployer",
-      "account": "k8s:demo",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"prod/deployer\" holds excessive privilege ([role:prod/deployer:rbac:admin role:prod/deployer:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:prod/deployer:rbac:admin",
-          "role:prod/deployer:rbac:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-23T23:17:04.404168Z",
-      "last_seen": "2026-07-23T23:17:46.375396Z"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "data-processor@project.iam.gserviceaccount.com",
-      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "key-id-12345",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "gcp_sa_key"
-      },
-      "first_seen": "2026-07-23T23:17:04.381138Z",
-      "last_seen": "2026-07-23T23:17:46.371859Z"
-    },
-    {
-      "detector": "orphaned_identity",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 70,
-      "identity_name": "data-processor@project.iam.gserviceaccount.com",
-      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Orphaned non-human identity",
-      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
-      "status": "open",
-      "evidence": {
-        "account": "gcp:my-gcp-project",
-        "created": null,
-        "last_seen": null,
-        "missing": [
-          "owner",
-          "workload",
-          "repo_reference"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.379703Z",
-      "last_seen": "2026-07-23T23:17:46.370612Z"
-    },
-    {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
-      "severity": "high",
-      "confidence": 76,
-      "identity_name": "data-processor@project.iam.gserviceaccount.com",
-      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
-      "status": "open",
-      "evidence": {
-        "crown_jewels_reachable": 1,
-        "nearest_crown_jewel_hops": 2,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.377446Z",
-      "last_seen": "2026-07-23T23:17:46.368625Z"
-    },
-    {
-      "detector": "over_privileged_sa",
-      "category": "privilege",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "data-processor@project.iam.gserviceaccount.com",
-      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
-      "account": "gcp:my-gcp-project",
-      "title": "Over-privileged service identity",
-      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" holds excessive privilege ([role:data-processor:admin role:data-processor:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
-      "status": "open",
-      "evidence": {
-        "admin": true,
-        "matched": [
-          "role:data-processor:admin",
-          "role:data-processor:priv_escalation"
-        ],
-        "priv_escalation": true,
-        "write_crown_jewel": false
-      },
-      "first_seen": "2026-07-23T23:17:04.376023Z",
-      "last_seen": "2026-07-23T23:17:46.367073Z"
-    },
-    {
-      "detector": "privilege_creep",
-      "category": "privilege",
-      "severity": "medium",
-      "confidence": 65,
+      "detector": "secret_exposed_in_repo",
+      "category": "exposure",
+      "severity": "critical",
+      "confidence": 85,
       "identity_name": "svc-billing-export",
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
-      "title": "Privilege creep beyond peer baseline",
-      "narrative": "Identity \"svc-billing-export\" has 180 permissions, exceeding the peer-group P90 of 168. Permissions were likely granted over time without commensurate review.",
+      "title": "Credential material exposed in repository",
+      "narrative": "Credential material for identity \"svc-billing-export\" was found in a repository at .env (pattern aws_akia). The exposed credential can reach a crown-jewel resource, making this an immediate priority.",
       "status": "open",
       "evidence": {
-        "excess": 12,
-        "peer_p90": 168,
-        "permission_count": 180
+        "commit": "a1b2c3d",
+        "fingerprint": "sha256:deadbeefcafef00d",
+        "line": 12,
+        "path": ".env",
+        "pattern": "aws_akia",
+        "verified": true
       },
-      "first_seen": "2026-07-23T23:17:04.43222Z",
-      "last_seen": "2026-07-23T23:17:46.364306Z"
-    },
-    {
-      "detector": "stale_access_key",
-      "category": "hygiene",
-      "severity": "medium",
-      "confidence": 80,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Credential stale or overdue for rotation",
-      "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
-      "status": "open",
-      "evidence": {
-        "credential": "AKIAIOSFODNN7EXAMPLE",
-        "last_used": null,
-        "reasons": [
-          "unused_beyond_window"
-        ],
-        "type": "aws_access_key"
-      },
-      "first_seen": "2026-07-23T23:17:04.429866Z",
-      "last_seen": "2026-07-23T23:17:46.361933Z"
-    },
-    {
-      "detector": "suspicious_role_chain",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 66,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Suspicious role/impersonation chain",
-      "narrative": "Identity \"svc-billing-export\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 2 hop(s) — lateral movement that escalates beyond any single direct grant.",
-      "status": "open",
-      "evidence": {
-        "edge_sequence": [
-          "assumes",
-          "binds_to"
-        ],
-        "impact": "crown_jewel",
-        "observed_pivot_events": 0,
-        "total_hops": 2,
-        "trust_hops": 1
-      },
-      "first_seen": "2026-07-23T23:17:04.428866Z",
-      "last_seen": "2026-07-23T23:17:46.361048Z"
-    },
-    {
-      "detector": "first_use_sensitive_action",
-      "category": "anomaly",
-      "severity": "high",
-      "confidence": 78,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "First use of sensitive action",
-      "narrative": "Identity \"svc-billing-export\" invoked sensitive action \"iam:CreateAccessKey\" for the first time. First-time sensitive-action use often marks the pivot point in an intrusion.",
-      "status": "open",
-      "evidence": {
-        "action": "iam:CreateAccessKey",
-        "event_time": "2026-06-13T08:25:00Z",
-        "region": "ru-central-1",
-        "src_ip": "203.0.113.9/32"
-      },
-      "first_seen": "2026-07-23T23:17:04.426966Z",
-      "last_seen": "2026-07-23T23:17:46.357089Z"
+      "first_seen": "2026-07-23T23:17:04.417288Z",
+      "last_seen": "2026-07-26T13:07:32.67533Z"
     },
     {
       "detector": "impossible_travel",
@@ -742,52 +49,142 @@
         "implied_kmh": 33324.61160356317
       },
       "first_seen": "2026-07-23T23:17:04.425522Z",
-      "last_seen": "2026-07-23T23:17:46.355337Z"
+      "last_seen": "2026-07-26T13:07:32.686863Z"
     },
     {
-      "detector": "high_blast_radius",
-      "category": "blast_radius",
+      "detector": "over_privileged_sa",
+      "category": "privilege",
       "severity": "high",
-      "confidence": 76,
+      "confidence": 78,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"ci/legacy-ci\" holds excessive privilege ([role:ci/legacy-ci:rbac:admin role:ci/legacy-ci:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:ci/legacy-ci:rbac:admin",
+          "role:ci/legacy-ci:rbac:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.367257Z",
+      "last_seen": "2026-07-26T13:07:32.731352Z"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "prod/secrets-sync",
+      "identity_arn": "k8s://demo/prod/secrets-sync",
+      "account": "k8s:demo",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"prod/secrets-sync\" holds excessive privilege ([role:prod/secrets-sync:rbac:admin role:prod/secrets-sync:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:prod/secrets-sync:rbac:admin",
+          "role:prod/secrets-sync:rbac:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.412239Z",
+      "last_seen": "2026-07-26T13:07:32.725346Z"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "prod-copilot-agent",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account": "aws:123456789012",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"prod-copilot-agent\" holds excessive privilege ([role:prod-copilot-agent:admin role:prod-copilot-agent:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:prod-copilot-agent:admin",
+          "role:prod-copilot-agent:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.388268Z",
+      "last_seen": "2026-07-26T13:07:32.713409Z"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "prod/deployer",
+      "identity_arn": "k8s://demo/prod/deployer",
+      "account": "k8s:demo",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"prod/deployer\" holds excessive privilege ([role:prod/deployer:rbac:admin role:prod/deployer:rbac:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:prod/deployer:rbac:admin",
+          "role:prod/deployer:rbac:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.404168Z",
+      "last_seen": "2026-07-26T13:07:32.705562Z"
+    },
+    {
+      "detector": "over_privileged_sa",
+      "category": "privilege",
+      "severity": "high",
+      "confidence": 78,
+      "identity_name": "data-processor@project.iam.gserviceaccount.com",
+      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Over-privileged service identity",
+      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" holds excessive privilege ([role:data-processor:admin role:data-processor:priv_escalation]). This grants a concrete escalation or high-impact write primitive far beyond least privilege.",
+      "status": "open",
+      "evidence": {
+        "admin": true,
+        "matched": [
+          "role:data-processor:admin",
+          "role:data-processor:priv_escalation"
+        ],
+        "priv_escalation": true,
+        "write_crown_jewel": false
+      },
+      "first_seen": "2026-07-23T23:17:04.376023Z",
+      "last_seen": "2026-07-26T13:07:32.696467Z"
+    },
+    {
+      "detector": "first_use_sensitive_action",
+      "category": "anomaly",
+      "severity": "high",
+      "confidence": 78,
       "identity_name": "svc-billing-export",
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
-      "title": "High blast radius identity",
-      "narrative": "Identity \"svc-billing-export\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "title": "First use of sensitive action",
+      "narrative": "Identity \"svc-billing-export\" invoked sensitive action \"iam:CreateAccessKey\" for the first time. First-time sensitive-action use often marks the pivot point in an intrusion.",
       "status": "open",
       "evidence": {
-        "crown_jewels_reachable": 1,
-        "nearest_crown_jewel_hops": 2,
-        "reaches_admin": true,
-        "top_paths": [
-          "1 hops -\u003e crown_jewel",
-          "2 hops -\u003e crown_jewel"
-        ]
+        "action": "iam:CreateAccessKey",
+        "event_time": "2026-06-13T08:25:00Z",
+        "region": "ru-central-1",
+        "src_ip": "203.0.113.9/32"
       },
-      "first_seen": "2026-07-23T23:17:04.423337Z",
-      "last_seen": "2026-07-23T23:17:46.352568Z"
-    },
-    {
-      "detector": "conditionless_assume_role",
-      "category": "trust",
-      "severity": "high",
-      "confidence": 72,
-      "identity_name": "svc-billing-export",
-      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
-      "account": "aws:123456789012",
-      "title": "Conditionless assume-role trust",
-      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
-      "status": "open",
-      "evidence": {
-        "edge": "can_assume",
-        "missing_conditions": [
-          "ExternalId",
-          "MFA",
-          "SourceIp"
-        ]
-      },
-      "first_seen": "2026-07-23T23:17:04.421037Z",
-      "last_seen": "2026-07-23T23:17:46.349303Z"
+      "first_seen": "2026-07-23T23:17:04.426966Z",
+      "last_seen": "2026-07-26T13:07:32.688691Z"
     },
     {
       "detector": "over_privileged_sa",
@@ -810,29 +207,632 @@
         "write_crown_jewel": true
       },
       "first_seen": "2026-07-23T23:17:04.419449Z",
-      "last_seen": "2026-07-23T23:17:46.346387Z"
+      "last_seen": "2026-07-26T13:07:32.679661Z"
     },
     {
-      "detector": "secret_exposed_in_repo",
-      "category": "exposure",
-      "severity": "critical",
-      "confidence": 85,
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "ci-deployer",
+      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"ci-deployer\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 1,
+        "nearest_crown_jewel_hops": 3,
+        "reaches_admin": true,
+        "top_paths": [
+          "2 hops -\u003e crown_jewel",
+          "3 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.36097Z",
+      "last_seen": "2026-07-26T13:07:32.74029Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"ci/legacy-ci\" can reach high-impact resources (crown jewels: 0, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 0,
+        "nearest_crown_jewel_hops": -1,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.368937Z",
+      "last_seen": "2026-07-26T13:07:32.732917Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "prod/secrets-sync",
+      "identity_arn": "k8s://demo/prod/secrets-sync",
+      "account": "k8s:demo",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"prod/secrets-sync\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 1,
+        "nearest_crown_jewel_hops": 2,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.413642Z",
+      "last_seen": "2026-07-26T13:07:32.72723Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "prod-copilot-agent",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account": "aws:123456789012",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"prod-copilot-agent\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 1,
+        "nearest_crown_jewel_hops": 2,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.389807Z",
+      "last_seen": "2026-07-26T13:07:32.715034Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "prod/deployer",
+      "identity_arn": "k8s://demo/prod/deployer",
+      "account": "k8s:demo",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"prod/deployer\" can reach high-impact resources (crown jewels: 2, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 2,
+        "nearest_crown_jewel_hops": 2,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.406091Z",
+      "last_seen": "2026-07-26T13:07:32.707275Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
+      "identity_name": "data-processor@project.iam.gserviceaccount.com",
+      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
+      "status": "open",
+      "evidence": {
+        "crown_jewels_reachable": 1,
+        "nearest_crown_jewel_hops": 2,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.377446Z",
+      "last_seen": "2026-07-26T13:07:32.698065Z"
+    },
+    {
+      "detector": "high_blast_radius",
+      "category": "blast_radius",
+      "severity": "high",
+      "confidence": 76,
       "identity_name": "svc-billing-export",
       "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
       "account": "aws:123456789012",
-      "title": "Credential material exposed in repository",
-      "narrative": "Credential material for identity \"svc-billing-export\" was found in a repository at .env (pattern aws_akia). The exposed credential can reach a crown-jewel resource, making this an immediate priority.",
+      "title": "High blast radius identity",
+      "narrative": "Identity \"svc-billing-export\" can reach high-impact resources (crown jewels: 1, admin: true). If compromised, blast radius extends to critical assets via the listed attack paths.",
       "status": "open",
       "evidence": {
-        "commit": "a1b2c3d",
-        "fingerprint": "sha256:deadbeefcafef00d",
-        "line": 12,
-        "path": ".env",
-        "pattern": "aws_akia",
-        "verified": true
+        "crown_jewels_reachable": 1,
+        "nearest_crown_jewel_hops": 2,
+        "reaches_admin": true,
+        "top_paths": [
+          "1 hops -\u003e crown_jewel",
+          "2 hops -\u003e crown_jewel"
+        ]
       },
-      "first_seen": "2026-07-23T23:17:04.417288Z",
-      "last_seen": "2026-07-23T23:17:46.343334Z"
+      "first_seen": "2026-07-23T23:17:04.423337Z",
+      "last_seen": "2026-07-26T13:07:32.684497Z"
+    },
+    {
+      "detector": "conditionless_assume_role",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 72,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Conditionless assume-role trust",
+      "narrative": "Identity \"svc-billing-export\" can assume a role with no trust condition (no ExternalId/MFA/IP restriction). This is lateral-movement fuel: anyone able to act as the principal inherits the target role.",
+      "status": "open",
+      "evidence": {
+        "edge": "can_assume",
+        "missing_conditions": [
+          "ExternalId",
+          "MFA",
+          "SourceIp"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.421037Z",
+      "last_seen": "2026-07-26T13:07:32.681673Z"
+    },
+    {
+      "detector": "ai_agent_overscoped",
+      "category": "ai_agent",
+      "severity": "high",
+      "confidence": 70,
+      "identity_name": "prod-copilot-agent",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account": "aws:123456789012",
+      "title": "Over-scoped AI-agent identity",
+      "narrative": "AI-agent identity \"prod-copilot-agent\" is over-scoped (broad API scope=true, uncontrolled tools=true, TTL=720h). Autonomous agents with broad, long-lived, weakly-scoped access are high-consequence targets.",
+      "status": "open",
+      "evidence": {
+        "broad_api_scope": true,
+        "tools": [
+          "s3.read",
+          "secretsmanager.read",
+          "lambda.invoke",
+          "http.request",
+          "shell.exec"
+        ],
+        "ttl_hours": 720,
+        "uncontrolled_tools": true
+      },
+      "first_seen": "2026-07-23T23:17:04.392235Z",
+      "last_seen": "2026-07-26T13:07:32.717555Z"
+    },
+    {
+      "detector": "suspicious_role_chain",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 66,
+      "identity_name": "ci-deployer",
+      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Suspicious role/impersonation chain",
+      "narrative": "Identity \"ci-deployer\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 3 hop(s) — lateral movement that escalates beyond any single direct grant.",
+      "status": "open",
+      "evidence": {
+        "edge_sequence": [
+          "impersonates",
+          "has_permissions",
+          "binds_to"
+        ],
+        "impact": "crown_jewel",
+        "observed_pivot_events": 0,
+        "total_hops": 3,
+        "trust_hops": 1
+      },
+      "first_seen": "2026-07-23T23:17:04.363378Z",
+      "last_seen": "2026-07-26T13:07:32.742507Z"
+    },
+    {
+      "detector": "suspicious_role_chain",
+      "category": "trust",
+      "severity": "high",
+      "confidence": 66,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Suspicious role/impersonation chain",
+      "narrative": "Identity \"svc-billing-export\" can chain 1 trust hop(s) (assume/impersonate/federate) to reach crown_jewel in 2 hop(s) — lateral movement that escalates beyond any single direct grant.",
+      "status": "open",
+      "evidence": {
+        "edge_sequence": [
+          "assumes",
+          "binds_to"
+        ],
+        "impact": "crown_jewel",
+        "observed_pivot_events": 0,
+        "total_hops": 2,
+        "trust_hops": 1
+      },
+      "first_seen": "2026-07-23T23:17:04.428866Z",
+      "last_seen": "2026-07-26T13:07:32.690191Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential legacy-ci-token-77abc (k8s_sa_token) on identity \"ci/legacy-ci\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "legacy-ci-token-77abc",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "k8s_sa_token"
+      },
+      "first_seen": "2026-07-23T23:17:04.3727Z",
+      "last_seen": "2026-07-26T13:07:32.737Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "prod-copilot-agent",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account": "aws:123456789012",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential aiat_live_9f3c8b21_redacted (api_client_token) on identity \"prod-copilot-agent\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "aiat_live_9f3c8b21_redacted",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "api_client_token"
+      },
+      "first_seen": "2026-07-23T23:17:04.395988Z",
+      "last_seen": "2026-07-26T13:07:32.721512Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "prod/deployer",
+      "identity_arn": "k8s://demo/prod/deployer",
+      "account": "k8s:demo",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential deployer-token-9x2k1 (k8s_sa_token) on identity \"prod/deployer\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "deployer-token-9x2k1",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "k8s_sa_token"
+      },
+      "first_seen": "2026-07-23T23:17:04.409104Z",
+      "last_seen": "2026-07-26T13:07:32.70955Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "data-processor@project.iam.gserviceaccount.com",
+      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential key-id-12345 (gcp_sa_key) on identity \"data-processor@project.iam.gserviceaccount.com\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "key-id-12345",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "gcp_sa_key"
+      },
+      "first_seen": "2026-07-23T23:17:04.381138Z",
+      "last_seen": "2026-07-26T13:07:32.701758Z"
+    },
+    {
+      "detector": "stale_access_key",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 80,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Credential stale or overdue for rotation",
+      "narrative": "Credential AKIAIOSFODNN7EXAMPLE (aws_access_key) on identity \"svc-billing-export\" needs rotation ([unused_beyond_window]). Long-lived or unused credentials should be rotated then deleted.",
+      "status": "open",
+      "evidence": {
+        "credential": "AKIAIOSFODNN7EXAMPLE",
+        "last_used": null,
+        "reasons": [
+          "unused_beyond_window"
+        ],
+        "type": "aws_access_key"
+      },
+      "first_seen": "2026-07-23T23:17:04.429866Z",
+      "last_seen": "2026-07-26T13:07:32.691113Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "svc-orphaned",
+      "identity_arn": "arn:aws:iam::987654321098:user/svc-orphaned",
+      "account": "aws:987654321098",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"svc-orphaned\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:987654321098",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.434802Z",
+      "last_seen": "2026-07-26T13:07:32.757333Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod/configmap-reader",
+      "identity_arn": "k8s://demo/prod/configmap-reader",
+      "account": "k8s:demo",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod/configmap-reader\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "k8s:demo",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.401512Z",
+      "last_seen": "2026-07-26T13:07:32.754496Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod-deployer",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-deployer",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.399196Z",
+      "last_seen": "2026-07-26T13:07:32.751723Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+      "identity_arn": "gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"gke-secrets-sync@my-gcp-project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "gcp:my-gcp-project",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.385356Z",
+      "last_seen": "2026-07-26T13:07:32.749188Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "billing-admin",
+      "identity_arn": "arn:aws:iam::123456789012:role/billing-admin",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"billing-admin\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.356504Z",
+      "last_seen": "2026-07-26T13:07:32.746095Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "ci-deployer",
+      "identity_arn": "ci-deployer@my-gcp-project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"ci-deployer\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "gcp:my-gcp-project",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.364163Z",
+      "last_seen": "2026-07-26T13:07:32.743287Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "ci/legacy-ci",
+      "identity_arn": "k8s://demo/ci/legacy-ci",
+      "account": "k8s:demo",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"ci/legacy-ci\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "k8s:demo",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.371203Z",
+      "last_seen": "2026-07-26T13:07:32.735373Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "prod-copilot-agent",
+      "identity_arn": "arn:aws:iam::123456789012:role/prod-copilot-agent",
+      "account": "aws:123456789012",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"prod-copilot-agent\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "aws:123456789012",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.394464Z",
+      "last_seen": "2026-07-26T13:07:32.719934Z"
+    },
+    {
+      "detector": "orphaned_identity",
+      "category": "hygiene",
+      "severity": "medium",
+      "confidence": 70,
+      "identity_name": "data-processor@project.iam.gserviceaccount.com",
+      "identity_arn": "data-processor@project.iam.gserviceaccount.com",
+      "account": "gcp:my-gcp-project",
+      "title": "Orphaned non-human identity",
+      "narrative": "Identity \"data-processor@project.iam.gserviceaccount.com\" has no owner, no workload running as it, and no repository reference. It is unaccounted for — an abandoned credential an attacker can use without anyone noticing.",
+      "status": "open",
+      "evidence": {
+        "account": "gcp:my-gcp-project",
+        "created": null,
+        "last_seen": null,
+        "missing": [
+          "owner",
+          "workload",
+          "repo_reference"
+        ]
+      },
+      "first_seen": "2026-07-23T23:17:04.379703Z",
+      "last_seen": "2026-07-26T13:07:32.70022Z"
+    },
+    {
+      "detector": "privilege_creep",
+      "category": "privilege",
+      "severity": "medium",
+      "confidence": 65,
+      "identity_name": "svc-billing-export",
+      "identity_arn": "arn:aws:iam::123456789012:user/svc-billing-export",
+      "account": "aws:123456789012",
+      "title": "Privilege creep beyond peer baseline",
+      "narrative": "Identity \"svc-billing-export\" has 180 permissions, exceeding the peer-group P90 of 168. Permissions were likely granted over time without commensurate review.",
+      "status": "open",
+      "evidence": {
+        "excess": 12,
+        "peer_p90": 168,
+        "permission_count": 180
+      },
+      "first_seen": "2026-07-23T23:17:04.43222Z",
+      "last_seen": "2026-07-26T13:07:32.693195Z"
+    },
+    {
+      "detector": "unused_secret",
+      "category": "hygiene",
+      "severity": "low",
+      "confidence": 75,
+      "identity_name": "",
+      "identity_arn": "",
+      "account": "",
+      "title": "Unused managed secret",
+      "narrative": "Secret \"legacy/unused-db-creds\" in aws_secretsmanager has no references and was last accessed never. Unreferenced secrets are dead credential material — delete them to shrink the attack surface.",
+      "status": "open",
+      "evidence": {
+        "last_accessed": null,
+        "name": "legacy/unused-db-creds",
+        "referenced_by": 0,
+        "rotation_enabled": false,
+        "secret": "arn:aws:secretsmanager:us-east-1:123456789012:secret:legacy/unused-db-creds",
+        "store": "aws_secretsmanager"
+      },
+      "first_seen": "2026-07-23T23:17:04.437701Z",
+      "last_seen": "2026-07-26T13:07:32.76087Z"
     }
   ]
 }

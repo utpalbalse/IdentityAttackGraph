@@ -73,12 +73,14 @@ func (r *FindingRepo) List(ctx context.Context, f FindingFilter) ([]models.Findi
 		clause = " WHERE " + strings.Join(where, " AND ")
 	}
 	q := "SELECT id,detector,category,severity,confidence,identity_id,title,narrative,evidence,fingerprint,status,risk_contribution,first_seen_at,last_seen_at FROM findings" +
-		// A detection pass stamps every finding with the same last_seen_at, so that column alone
-		// leaves the order entirely up to Postgres. Rank by severity then confidence (what the
-		// triage queue documents), with id as the final tiebreak.
-		clause + " ORDER BY last_seen_at DESC," +
+		// Severity leads, then confidence — the ranking the triage queue and the exports promise.
+		// Recency is only a tiebreak: each finding's upsert runs in its own transaction and so gets
+		// its own now(), meaning a leading `last_seen_at DESC` would order purely by write time and
+		// bury a critical finding under whatever was persisted last. id closes it out so the order
+		// is total and the committed sample exports regenerate byte-identically.
+		clause + " ORDER BY" +
 		" CASE severity WHEN 'critical' THEN 4 WHEN 'high' THEN 3 WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END DESC," +
-		" confidence DESC, detector ASC, id ASC LIMIT " + fmt.Sprintf("%d", f.Limit)
+		" confidence DESC, last_seen_at DESC, detector ASC, id ASC LIMIT " + fmt.Sprintf("%d", f.Limit)
 
 	rows, err := r.pool.Query(ctx, q, args...)
 	if err != nil {
