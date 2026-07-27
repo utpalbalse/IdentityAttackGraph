@@ -145,7 +145,13 @@ On Kubernetes, let the cluster schedule it instead — enable `collector.enabled
 - **Point at a real cloud:** see [Point it at a real cloud](#point-it-at-a-real-cloud) above —
   one-off, continuous (`--interval`), or a Kubernetes CronJob.
 - **Production deploy:** `terraform apply` in [../deploy/terraform/](../deploy/terraform/) (VPC/EKS/RDS/ElastiCache/IRSA), then `helm upgrade --install nhiid deploy/helm/nhiid` (see [../deploy/helm/README.md](../deploy/helm/README.md)).
-- **Tests:** `make test` runs unit tests for the risk engine, all 17 detectors, graph traversal, every collector, JWKS validation, and the GraphQL schema. There are no DB-backed integration tests; the store layer and the full collect → graph → score → detect pipeline are exercised end-to-end by `make demo` against the containerised Postgres.
+- **Tests:** `make test` runs unit tests for the risk engine, all 17 detectors, graph traversal, every
+  collector, JWKS validation, and the GraphQL schema — no database required, so it stays fast.
+  `make test-integration` (or `go test -tags=integration ./internal/store/...`) runs the DB-backed
+  suite against the containerised Postgres: it applies the embedded migrations to a scratch
+  `nhiid_test` database, then asserts every upsert is idempotent, that each `ON CONFLICT` target has
+  a matching UNIQUE constraint, and that list/triage ordering is deterministic under ties. Set
+  `NHIID_TEST_DATABASE_DSN` to point it elsewhere; it never touches the dev/demo database.
 
 ---
 
