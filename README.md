@@ -71,16 +71,16 @@ Filtering to **crown-jewel paths** collapses the estate to just what an attacker
 
 ### Trace a path, or a blast radius, on hover
 
-Hovering any node runs a live directed traversal: **upstream** (in rose) is every route an attacker could take to *reach* it; **downstream** (in amber) is everything that falls if it is compromised. Everything unrelated dims away.
+Hovering any node runs a live directed traversal: **upstream** (in rose) is every route an attacker could take to *reach* it; **downstream** (in amber) is everything that falls if it is compromised. Everything unrelated dims away. Both captures below trace the same leaked key — first zoomed onto the kill chain itself, then pulled back so the whole estate dims to only what that one credential reaches.
 
 <table>
 <tr>
 <td width="50%" align="center"><img src="assets/hover-attack-path.gif" alt="Hovering the exposed entry point svc-billing-export highlights its two-hop path to the s3:prod-billing crown jewel: a dashed sts:AssumeRole edge into billing-admin, then a red edge granting access to the bucket" width="100%"/></td>
-<td width="50%" align="center"><img src="assets/hover-blast-radius.gif" alt="Hovering the Kubernetes identity prod/deployer highlights one upstream workload and a four-node downstream blast radius including two crown jewels and a federated AWS role" width="100%"/></td>
+<td width="50%" align="center"><img src="assets/hover-blast-radius.gif" alt="The same hover seen across the whole estate: every unrelated node fades out and the HUD card reads EXPOSED ENTRY POINT, svc-billing-export, 0 upstream and 2 downstream — blast radius" width="100%"/></td>
 </tr>
 <tr>
-<td align="center"><sub><b>Attack path</b>: a leaked key is 2 hops from a crown jewel<br/><code>0 upstream · 2 downstream</code></sub></td>
-<td align="center"><sub><b>Blast radius</b>: one pod identity reaches 2 crown jewels<br/><code>1 upstream · 4 downstream</code></sub></td>
+<td align="center"><sub><b>Attack path</b>: the kill chain ignites — a leaked key is 2 hops from a crown jewel</sub></td>
+<td align="center"><sub><b>Blast radius</b>: the estate dims to just that key's reach<br/><code>0 upstream · 2 downstream</code></sub></td>
 </tr>
 </table>
 
@@ -112,6 +112,12 @@ Every score is **explainable**: a transparent weighted sum of six factors with p
 
 <div align="center">
 <img src="assets/risk-breakdown.png" alt="Explainable risk breakdown for svc-billing-export: risk 62 (high), decomposed into privilege, blast-radius, exposure, trust, usage, and freshness factors with per-factor signals" width="46%"/>
+</div>
+
+Opening an identity answers question 6 directly: its ranked crown-jewel paths hop by hop, the findings that flagged it, and the remediations that sever it — each with the risk it actually removes, so you can order the work by impact instead of by severity label.
+
+<div align="center">
+<img src="assets/attack-paths.png" alt="The identity drawer for svc-billing-export: ranked crown-jewel attack paths listed hop by hop as assumes then binds_to, alongside the open findings and one-click remediations annotated with their risk delta" width="100%"/>
 </div>
 
 ---
@@ -185,7 +191,7 @@ The **attack graph** is a from-scratch directed property graph (no Neo4j) whose 
 - **Terraform** for EKS/RDS/ElastiCache + least-priv cross-account collector roles
 - **Prometheus** metrics + **OpenTelemetry** traces; secret-redacting logs
 - **NATS JetStream** work queue; **Redis** rate limiting
-- CI (build/vet/test/gofmt/**govulncheck**) + **k6** load test
+- CI (build/vet/test/gofmt/**golangci-lint**/**govulncheck**) + a Postgres-backed integration job + **k6** load test
 
 </td></tr>
 </table>
@@ -285,9 +291,11 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 ## 🧪 Quality
 
 - **Unit-tested** across the risk engine, every detector, the graph traversal, all four collectors (AWS policy analysis, GCP roles, the K8s normalizer + **fake-clientset** live source, the repo scanner), JWKS validation (via a real `httptest` OIDC server), and the GraphQL schema (in-memory data source).
-- **CI** on every push: `go build` · `go vet` · `go test` · `gofmt` · `govulncheck`.
+- **Integration-tested against a real PostgreSQL** (`make test-integration`, or `go test -tags=integration ./...`). The store suite asserts what a mocked database structurally cannot see: that every `ON CONFLICT` target actually exists, that re-collection is a true no-op, and that result ordering is stable under ties. The API suite drives the real chi router and auth middleware over HTTP, pinning status codes, the JSON envelope, and the full viewer/analyst/admin RBAC lattice.
+- Both suites **caught real bugs on their first run** — findings were ordered by write time rather than severity (which had leaked into the committed sample exports), and three endpoints returned `null` where the rest of the API returns `[]`.
+- **CI** on every push: `go build` · `go vet` · `go test` · `gofmt` · `golangci-lint` · `govulncheck`, plus a Postgres-backed integration job.
 - **Load-tested** with a k6 script enforcing p95/p99 latency + error-rate SLOs.
-- **~13k lines of Go**, 6 SQL migrations, zero secret material in the data model.
+- **~18k lines of Go**, 8 SQL migrations, zero secret material in the data model.
 
 ---
 
@@ -308,8 +316,10 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 | Doc | What's in it |
 |-----|--------------|
 | [DEMO.md](docs/DEMO.md) | **Start here**: one-command demo + narrated attack path |
+| [GETTING_STARTED.md](docs/GETTING_STARTED.md) | Zero to your first finding, step by step |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Component design, data flow, deployment topology |
 | [THREAT_MODEL.md](docs/THREAT_MODEL.md) | Assets, threats, trust boundaries, mitigations |
+| [SECURITY.md](SECURITY.md) | Supported versions and how to report a vulnerability |
 | [DATA_MODEL.md](docs/DATA_MODEL.md) | Unified schema, entities, graph model |
 | [RISK_MODEL.md](docs/RISK_MODEL.md) | Scoring formula, factor weights, rationale |
 | [DETECTIONS.md](docs/DETECTIONS.md) | Every detector, its logic, evidence shape, FP controls |
@@ -323,7 +333,8 @@ The **triage queue** ranks every open finding by severity then confidence, and e
 
 ```
 cmd/         entrypoints: api · worker · collector · migrate · simulate
-internal/    engine: models · store · graph · risk · detect · collectors · api · graphqlapi · auth · notify · tracing
+internal/    engine: models · store · graph · risk · detect · collectors · api · graphqlapi · auth · remediate · export · notify · tracing
+             (plus dbtest, the shared harness the DB-backed test suites build on)
 migrations/  versioned SQL schema (partitioning, pg_trgm, recursive CTEs)
 web/         React + TypeScript + Cytoscape dashboard
 deploy/      docker-compose · Dockerfiles · helm · terraform · loadtest

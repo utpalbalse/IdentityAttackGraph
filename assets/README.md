@@ -1,7 +1,7 @@
 # README visuals
 
 **Real captures** of the running IdentityAttackGraph web console, taken against the synthetic demo
-environment (`make dev && make demo`). These are the actual UI: the "SUBSTRATE" design system in
+environment (the `demo` compose profile). These are the actual UI: the "SUBSTRATE" design system in
 [`web/src/index.css`](../web/src/index.css), not mockups or renderings.
 
 Stills are captured at `deviceScaleFactor: 2` and downscaled, so they stay crisp on HiDPI displays.
@@ -18,7 +18,13 @@ Stills are captured at `deviceScaleFactor: 2` and downscaled, so they stay crisp
 | [`risk-breakdown.png`](risk-breakdown.png) | An identity's **explainable 6-factor risk breakdown**: the gauge plus per-factor scores and the signals behind them (privilege 100, blast-radius 70, exposure 85, trust 40, usage 0, freshness 15 → composite 62) |
 | [`attack-simulation.png`](attack-simulation.png) | The `simulate` CLI narrating the worst path end-to-end: foothold → hops → crown jewel, the detections that caught it, and the single fix that severs it (risk 62→24) |
 
-Everything shown is the live `make demo` dataset, computed end-to-end by the collector → graph →
-score → detect pipeline. The graph layout is deterministic (the API orders its node/edge reads), so
-a re-capture reproduces the same arrangement. To reproduce: `make dev && make demo`, then open
-<http://localhost:5173>.
+Everything shown is the live demo dataset, computed end-to-end by the collector → graph → score →
+detect pipeline. The graph layout is deterministic (the API orders its node/edge reads), so a
+re-capture reproduces the same arrangement. To reproduce — Docker is the only prerequisite:
+
+```bash
+docker compose -f ../deploy/docker-compose.yml --profile demo up --build -d
+```
+
+then open <http://localhost:5173>. The `attack-simulation.png` capture is
+`docker compose -f ../deploy/docker-compose.yml exec api simulate`.
