@@ -147,11 +147,14 @@ On Kubernetes, let the cluster schedule it instead — enable `collector.enabled
 - **Production deploy:** `terraform apply` in [../deploy/terraform/](../deploy/terraform/) (VPC/EKS/RDS/ElastiCache/IRSA), then `helm upgrade --install nhiid deploy/helm/nhiid` (see [../deploy/helm/README.md](../deploy/helm/README.md)).
 - **Tests:** `make test` runs unit tests for the risk engine, all 17 detectors, graph traversal, every
   collector, JWKS validation, and the GraphQL schema — no database required, so it stays fast.
-  `make test-integration` (or `go test -tags=integration ./internal/store/...`) runs the DB-backed
-  suite against the containerised Postgres: it applies the embedded migrations to a scratch
-  `nhiid_test` database, then asserts every upsert is idempotent, that each `ON CONFLICT` target has
-  a matching UNIQUE constraint, and that list/triage ordering is deterministic under ties. Set
-  `NHIID_TEST_DATABASE_DSN` to point it elsewhere; it never touches the dev/demo database.
+  `make test-integration` (or `go test -tags=integration ./...`) runs the DB-backed suite against
+  the containerised Postgres. It applies the embedded migrations to a scratch `nhiid_test` database,
+  then covers two layers: the **store** — every upsert is idempotent, each `ON CONFLICT` target has
+  a matching UNIQUE constraint, and list/triage ordering is deterministic under ties; and the
+  **API** — real chi router and auth middleware over a real database, asserting status codes, the
+  JSON envelope (empty collections serialize as `[]`, never `null`), and that RBAC actually blocks
+  role escalation. Set `NHIID_TEST_DATABASE_DSN` to point it elsewhere; it never touches the
+  dev/demo database.
 
 ---
 

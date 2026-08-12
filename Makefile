@@ -52,8 +52,8 @@ test: ## Run unit tests
 	go test ./... -count=1
 
 .PHONY: test-integration
-test-integration: ## Run DB-backed store tests (needs postgres: `make dev` or compose up -d postgres)
-	go test -tags=integration ./internal/store/... -count=1
+test-integration: ## Run DB-backed store + API tests (needs postgres: `make dev` or compose up -d postgres)
+	go test -tags=integration ./... -count=1
 
 .PHONY: vet
 vet: ## go vet
