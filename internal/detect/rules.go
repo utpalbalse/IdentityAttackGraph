@@ -83,7 +83,7 @@ func (staleAccessKey) Detect(s Subject, cfg Config, now time.Time) []models.Find
 		stale := c.LastUsedAt == nil || now.Sub(*c.LastUsedAt) > cfg.StaleWindow
 
 		// Age-based rotation hygiene: a long-lived credential is a risk even if actively used.
-		var ageDays int = -1
+		ageDays := -1
 		overRotation, overMax := false, false
 		if c.CreatedAtSource != nil {
 			age := now.Sub(*c.CreatedAtSource)

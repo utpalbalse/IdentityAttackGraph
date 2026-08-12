@@ -3,9 +3,11 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nhiid/nhiid/internal/models"
 )
@@ -303,8 +305,11 @@ func (r *SnapshotRepo) Create(ctx context.Context, scope map[string]any) (uuid.U
 func (r *SnapshotRepo) Latest(ctx context.Context) (*uuid.UUID, error) {
 	var id uuid.UUID
 	err := r.pool.QueryRow(ctx, `SELECT id FROM snapshots ORDER BY started_at DESC LIMIT 1`).Scan(&id)
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil // none yet
+	}
+	if err != nil {
+		return nil, err
 	}
 	return &id, nil
 }
@@ -342,8 +347,14 @@ type ConfigRepo struct{ pool *pgxpool.Pool }
 func (r *ConfigRepo) Get(ctx context.Context, key string) ([]byte, bool, error) {
 	var raw []byte
 	err := r.pool.QueryRow(ctx, `SELECT value FROM config_settings WHERE key=$1`, key).Scan(&raw)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, false, nil // genuinely unset; caller falls back to the file
+	}
 	if err != nil {
-		return nil, false, nil // treat missing/any error as "unset"; caller falls back to file
+		// A database failure is not the same as "unset". Reporting it lets callers distinguish
+		// "no override configured" from "we could not tell", rather than silently reverting to
+		// file weights and changing every score without explanation.
+		return nil, false, err
 	}
 	return raw, true, nil
 }

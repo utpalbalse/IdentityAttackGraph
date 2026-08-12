@@ -6,7 +6,6 @@ package detect
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"sort"
 	"time"
 
@@ -143,5 +142,3 @@ func daysAgo(t *time.Time, now time.Time) float64 {
 	}
 	return now.Sub(*t).Hours() / 24
 }
-
-func fmtDays(d float64) string { return fmt.Sprintf("%.0fd", d) }

@@ -33,7 +33,9 @@ type clients struct {
 func newClients(ctx context.Context, opts Options) (*clients, error) {
 	var o []option.ClientOption
 	if opts.CredentialsFile != "" {
-		o = append(o, option.WithCredentialsFile(opts.CredentialsFile))
+		// Deprecated upstream in favour of ADC, but --gcp-credentials exists precisely so an
+		// operator can point at an explicit WIF/credential file; ADC covers the default path.
+		o = append(o, option.WithCredentialsFile(opts.CredentialsFile)) //nolint:staticcheck // SA1019: explicit credentials file is a supported mode
 	}
 	iamSvc, err := iam.NewService(ctx, o...)
 	if err != nil {

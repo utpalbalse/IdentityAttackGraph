@@ -3,10 +3,12 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nhiid/nhiid/internal/models"
 )
@@ -593,8 +595,14 @@ func (r *CollectorRepo) GetCursor(ctx context.Context, collector, accountRef str
 	err := r.pool.QueryRow(ctx,
 		`SELECT cursor FROM collector_state WHERE collector=$1 AND account_ref=$2`,
 		collector, accountRef).Scan(&raw)
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return map[string]any{}, nil // no cursor yet — full scan
+	}
+	if err != nil {
+		// Don't disguise a database failure as "no cursor": that would silently downgrade an
+		// incremental CloudTrail pull into a full re-scan on every blip. The caller falls back to
+		// an empty cursor anyway, but it logs first.
+		return nil, err
 	}
 	var m map[string]any
 	_ = json.Unmarshal(raw, &m)

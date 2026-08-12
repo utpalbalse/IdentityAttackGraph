@@ -129,7 +129,7 @@ func main() {
 	router.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	})
 	router.Get("/readyz", func(w http.ResponseWriter, r *http.Request) {
 		if err := s.Pool().Ping(r.Context()); err != nil {
@@ -138,7 +138,7 @@ func main() {
 		}
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ready"))
+		_, _ = w.Write([]byte("ready"))
 	})
 
 	// GraphQL read surface (inventory, findings, attack paths, blast radius). Mounted under the
@@ -256,9 +256,19 @@ func metricsMiddleware(next http.Handler) http.Handler {
 func serveMetrics(addr string, s *store.Store, logger *slog.Logger) {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", metrics.Handler())
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
 	logger.Info("metrics listening", "addr", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	// Explicit timeouts: a bare ListenAndServe has none, so a stalled client can hold a connection
+	// open indefinitely. The metrics port is usually cluster-internal, but it is still a listener.
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		logger.Error("metrics server stopped", "err", err)
 	}
 }

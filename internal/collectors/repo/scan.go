@@ -48,7 +48,7 @@ func scanDir(root string) ([]finding, error) {
 	var out []finding
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil
+			return nil //nolint:nilerr // skip unreadable entries; aborting the walk would lose the whole scan
 		}
 		if d.IsDir() {
 			if skipDirs[d.Name()] {
@@ -58,7 +58,7 @@ func scanDir(root string) ([]finding, error) {
 		}
 		info, ierr := d.Info()
 		if ierr != nil || info.Size() == 0 || info.Size() > maxScanFileBytes {
-			return nil
+			return nil //nolint:nilerr // skip unstattable/oversized files, keep walking
 		}
 		rel, rerr := filepath.Rel(root, path)
 		if rerr != nil {

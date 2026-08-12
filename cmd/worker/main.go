@@ -239,9 +239,19 @@ func runJob(ctx context.Context, name string, logger *slog.Logger, fn func() err
 func serveMetrics(addr string, logger *slog.Logger) {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", metrics.Handler())
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
 	logger.Info("worker metrics listening", "addr", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	// Explicit timeouts: a bare ListenAndServe has none, so a stalled client can hold a connection
+	// open indefinitely.
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	if err := srv.ListenAndServe(); err != nil {
 		logger.Error("metrics server stopped", "err", err)
 	}
 }

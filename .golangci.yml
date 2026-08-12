@@ -1,0 +1,59 @@
+# Lint configuration. `go vet` and gofmt already run in CI; this adds the checks that catch real
+# defects rather than style opinions — unchecked errors, error-wrapping mistakes, leaked HTTP
+# bodies, and (for a security tool, non-negotiable) gosec.
+#
+# Suppressions below are categorical and reasoned, never blanket. Anything genuinely wrong gets
+# fixed in the code instead — the metrics listeners grew explicit timeouts because gosec was right.
+version: "2"
+
+linters:
+  enable:
+    # staticcheck, errcheck, govet, ineffassign, and unused are on by default in v2.
+    - gosec     # security defects — the whole point of this project
+    - errorlint # errors.Is/As correctness and %w wrapping
+    - bodyclose # unclosed HTTP response bodies
+    - nilerr    # `return nil` after a non-nil error
+    - unconvert # redundant type conversions
+    - misspell  # typos in comments and user-facing strings
+
+  settings:
+    gosec:
+      excludes:
+        - G104 # duplicates errcheck, which reports the same thing with better positions
+        - G304 # "file inclusion via variable": every hit is an operator-supplied path we are
+               # *meant* to read — the config file, the risk-weights YAML, the auth tokens file.
+        - G101 # "hardcoded credentials": all hits are false positives — struct literals building
+               # credential *metadata* records, and the localhost dev DSN default that matches
+               # docker-compose. No real secret is committed; see SECURITY.md.
+    staticcheck:
+      checks:
+        - all
+        - -QF1001 # De Morgan's law rewrites; `!(a && b)` is clearer when asserting an ordering holds
+    misspell:
+      # No locale is pinned on purpose: the prose uses British spellings deliberately, and forcing
+      # a locale turns authorial voice into build failures. This still catches real typos.
+      ignore-rules:
+        - behaviour
+        - labelled
+        - modelled
+        - unrecognised
+        - honoured
+
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      # Writing to an http.ResponseWriter: the only error means the client vanished mid-write.
+      # There is nothing to do about it and no way to report it — the response is already in flight.
+      - path: (cmd/api/main\.go|internal/api/handlers\.go)
+        linters:
+          - errcheck
+        text: "(w\\.Write|Encode)"
+
+      # Test code legitimately does things gosec flags: predictable "credentials" in fixtures and
+      # relaxed error handling in helpers. Findings there are noise, not risk.
+      - path: _test\.go
+        linters:
+          - gosec
+          - errcheck
