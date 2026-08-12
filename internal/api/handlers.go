@@ -46,12 +46,7 @@ func (h *Handler) ListIdentities(w http.ResponseWriter, r *http.Request) {
 		Limit:      50,
 	}
 	ids, err := h.Store.Identities.List(r.Context(), f)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"identities": ids})
+	respondList(w, "identities", ids, err)
 }
 
 func (h *Handler) GetIdentity(w http.ResponseWriter, r *http.Request) {
@@ -383,12 +378,7 @@ func (h *Handler) ListFindings(w http.ResponseWriter, r *http.Request) {
 		Limit:    100,
 	}
 	findings, err := h.Store.Findings.List(r.Context(), f)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"findings": findings})
+	respondList(w, "findings", findings, err)
 }
 
 func (h *Handler) GetFinding(w http.ResponseWriter, r *http.Request) {
@@ -440,10 +430,5 @@ func (h *Handler) UpdateFinding(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetTriage(w http.ResponseWriter, r *http.Request) {
 	queue, err := h.Store.Identities.TriageQueue(r.Context(), 25)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"triage_queue": queue})
+	respondList(w, "triage_queue", queue, err)
 }
