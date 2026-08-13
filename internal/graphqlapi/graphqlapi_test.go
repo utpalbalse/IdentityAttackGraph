@@ -10,9 +10,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/graphql-go/graphql"
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 type fakeSource struct {

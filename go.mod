@@ -1,4 +1,4 @@
-module github.com/nhiid/nhiid
+module github.com/utpalbalse/IdentityAttackGraph
 
 go 1.26.5
 

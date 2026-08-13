@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/auth"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/auth"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // ---- status codes and error paths -------------------------------------------

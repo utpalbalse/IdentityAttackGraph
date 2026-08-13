@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/nhiid/nhiid/internal/dbtest"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/dbtest"
 )
 
 // testStore is opened once for the package; tests reset state between runs.

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/nhiid/nhiid/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
 )
 
 // Collector implements collectors.Collector for a single AWS account.

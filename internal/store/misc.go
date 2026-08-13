@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // ---------- CredentialRepo --------------------------------------------------

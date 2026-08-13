@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // egressAllowed reports whether ip falls within any allowlisted CIDR (known VPN/egress ranges).

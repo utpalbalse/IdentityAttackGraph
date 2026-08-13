@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/auth"
 	"github.com/redis/go-redis/v9"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/auth"
 )
 
 // Limiter is a per-key fixed-window counter in Redis.

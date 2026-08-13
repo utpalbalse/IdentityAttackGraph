@@ -19,8 +19,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // Options configures one repository ingest. Provide either ReportPath (ingest a SecretSweep

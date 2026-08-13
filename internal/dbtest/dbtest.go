@@ -22,7 +22,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/nhiid/nhiid/migrations"
+	"github.com/utpalbalse/IdentityAttackGraph/migrations"
 )
 
 // DefaultDSN targets a scratch database on the local docker-compose Postgres. It is intentionally

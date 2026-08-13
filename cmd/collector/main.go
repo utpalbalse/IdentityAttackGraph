@@ -10,15 +10,15 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/collectors"
-	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
-	"github.com/nhiid/nhiid/internal/collectors/fixture"
-	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
-	k8scollector "github.com/nhiid/nhiid/internal/collectors/k8s"
-	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
-	"github.com/nhiid/nhiid/internal/config"
-	"github.com/nhiid/nhiid/internal/log"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	awscollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/aws"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors/fixture"
+	gcpcollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/gcp"
+	k8scollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/k8s"
+	repocollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/repo"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/config"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/log"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 func main() {

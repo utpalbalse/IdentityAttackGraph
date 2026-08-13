@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // builder normalizes a parsed cluster snapshot into NHIID records. It is pure (no I/O), so the

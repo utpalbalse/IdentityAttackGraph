@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // Ordering is a correctness property here, not cosmetics. "Fix the top item first" is the product's

@@ -26,11 +26,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/auth"
-	"github.com/nhiid/nhiid/internal/dbtest"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/risk"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/auth"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/dbtest"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/risk"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 const weightsPath = "../../configs/risk_weights.yaml"

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 func TestNormalizeSecrets(t *testing.T) {

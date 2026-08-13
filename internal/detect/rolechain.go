@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // suspicious_role_chain — an anomalous assume/impersonate/federate *sequence* that escalates

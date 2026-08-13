@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // chainPath builds a synthetic attack path with the given capability edge sequence.

@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // policyDoc is the subset of an IAM policy document we analyze. Action/Resource/Principal can each

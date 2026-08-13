@@ -7,8 +7,8 @@ package risk
 import (
 	"time"
 
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // Age thresholds for the freshness and exposure factors. They mirror the defaults in

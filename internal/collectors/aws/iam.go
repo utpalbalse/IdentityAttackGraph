@@ -10,8 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // builder accumulates normalized records during a collection pass, deduping identities and roles

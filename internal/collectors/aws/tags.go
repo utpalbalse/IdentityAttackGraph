@@ -7,7 +7,7 @@ import (
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	rgt "github.com/aws/aws-sdk-go-v2/service/resourcegroupstaggingapi"
 	rgttypes "github.com/aws/aws-sdk-go-v2/service/resourcegroupstaggingapi/types"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // DefaultCriticalityTagKey is the resource tag whose value declares a resource's criticality.

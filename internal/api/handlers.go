@@ -10,12 +10,12 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/export"
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/queue"
-	"github.com/nhiid/nhiid/internal/risk"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/export"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/queue"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/risk"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 type Handler struct {

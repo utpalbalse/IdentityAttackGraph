@@ -7,9 +7,9 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 // DataSource is the minimal data access the GraphQL resolvers need.

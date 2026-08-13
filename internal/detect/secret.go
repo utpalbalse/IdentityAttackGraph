@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // UnusedSecretFinding flags a managed secret that nothing references and that has not been accessed

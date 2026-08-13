@@ -9,16 +9,16 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/auth"
-	"github.com/nhiid/nhiid/internal/collectors"
-	awscollector "github.com/nhiid/nhiid/internal/collectors/aws"
-	"github.com/nhiid/nhiid/internal/collectors/fixture"
-	gcpcollector "github.com/nhiid/nhiid/internal/collectors/gcp"
-	k8scollector "github.com/nhiid/nhiid/internal/collectors/k8s"
-	repocollector "github.com/nhiid/nhiid/internal/collectors/repo"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/queue"
-	"github.com/nhiid/nhiid/internal/risk"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/auth"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	awscollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/aws"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors/fixture"
+	gcpcollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/gcp"
+	k8scollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/k8s"
+	repocollector "github.com/utpalbalse/IdentityAttackGraph/internal/collectors/repo"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/queue"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/risk"
 )
 
 // actor identifies who performed a mutation for the audit log: the authenticated principal's

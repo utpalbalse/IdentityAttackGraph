@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // fixedNow anchors every age-dependent assertion so these tests never drift with the clock.

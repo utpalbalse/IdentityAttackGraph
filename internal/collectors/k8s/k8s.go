@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/nhiid/nhiid/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
 )
 
 // Options configures the Kubernetes collector. Provide ExportPath to ingest a kubectl `-o json`

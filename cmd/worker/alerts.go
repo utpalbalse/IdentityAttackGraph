@@ -5,9 +5,9 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/metrics"
-	"github.com/nhiid/nhiid/internal/notify"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/metrics"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/notify"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 // runAlerts dispatches not-yet-alerted open findings (at or above the configured severity) to the

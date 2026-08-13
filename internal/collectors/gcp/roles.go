@@ -3,7 +3,7 @@ package gcp
 import (
 	"strings"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // GCP's privilege model is role-binding based: a member is granted a predefined or custom role on a

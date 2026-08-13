@@ -7,8 +7,8 @@ package simulate
 import (
 	"fmt"
 
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // Step is one narrated hop: the node the attacker now controls and the action that got them there.

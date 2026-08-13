@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // builder accumulates normalized records during a GCP collection pass. It is pure (no SDK types),

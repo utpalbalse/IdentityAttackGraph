@@ -3,7 +3,7 @@ package aws
 import (
 	"testing"
 
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 func TestCriticalityFromTag(t *testing.T) {

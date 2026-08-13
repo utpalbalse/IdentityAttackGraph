@@ -13,9 +13,9 @@ import (
 	"sort"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/nhiid/nhiid/internal/config"
-	"github.com/nhiid/nhiid/internal/log"
-	"github.com/nhiid/nhiid/migrations"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/config"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/log"
+	"github.com/utpalbalse/IdentityAttackGraph/migrations"
 )
 
 func main() {

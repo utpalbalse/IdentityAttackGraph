@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/nhiid/nhiid/internal/collectors"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/collectors"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 type Collector struct {

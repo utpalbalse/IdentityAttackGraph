@@ -16,11 +16,11 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/config"
-	"github.com/nhiid/nhiid/internal/graph"
-	"github.com/nhiid/nhiid/internal/models"
-	"github.com/nhiid/nhiid/internal/simulate"
-	"github.com/nhiid/nhiid/internal/store"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/config"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/graph"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/simulate"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/store"
 )
 
 const maxHops = 6

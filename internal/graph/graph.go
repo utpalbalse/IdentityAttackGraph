@@ -11,7 +11,7 @@ import (
 	"sort"
 
 	"github.com/google/uuid"
-	"github.com/nhiid/nhiid/internal/models"
+	"github.com/utpalbalse/IdentityAttackGraph/internal/models"
 )
 
 // Node is a lightweight in-memory projection of models.GraphNode.
